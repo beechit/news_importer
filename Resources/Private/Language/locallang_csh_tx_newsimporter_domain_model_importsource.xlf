@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<xliff version="1.0">
+	<file source-language="en" datatype="plaintext" original="messages" date="2015-05-13T09:46:52Z" product-name="news_importer">
+		<header/>
+		<body>
+			<trans-unit id="url.description">
+				<source>url</source>
+			</trans-unit>
+			<trans-unit id="mapping.description">
+				<source>mapping</source>
+			</trans-unit>
+			<trans-unit id="last_run.description">
+				<source>lastRun</source>
+			</trans-unit>
+			<trans-unit id="storage_pid.description">
+				<source>storagePid</source>
+			</trans-unit>
+			<trans-unit id="image_folder.description">
+				<source>imageFolder</source>
+			</trans-unit>
+		</body>
+	</file>
+</xliff>

@@ -1,0 +1,3 @@
+[submodule "Resources/Private/PHP/querypath"]
+	path = Resources/Private/PHP/querypath
+	url = https://github.com/frans-beech-it/querypath.git

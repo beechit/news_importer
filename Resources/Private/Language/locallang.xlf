@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<xliff version="1.0">
+	<file source-language="en" datatype="plaintext" original="messages" date="2015-05-13T09:46:52Z" product-name="news_importer">
+		<header/>
+		<body>
+			<trans-unit id="tx_newsimporter_domain_model_importsource">
+				<source>Import Source</source>
+			</trans-unit>
+			<trans-unit id="tx_newsimporter_domain_model_importsource.url">
+				<source>Url</source>
+			</trans-unit>
+			<trans-unit id="tx_newsimporter_domain_model_importsource.mapping">
+				<source>Mapping</source>
+			</trans-unit>
+			<trans-unit id="tx_newsimporter_domain_model_importsource.last_run">
+				<source>Last Run</source>
+			</trans-unit>
+			<trans-unit id="tx_newsimporter_domain_model_importsource.storage_pid">
+				<source>Storage Pid</source>
+			</trans-unit>
+			<trans-unit id="tx_newsimporter_domain_model_importsource.image_folder">
+				<source>Image Folder</source>
+			</trans-unit>
+		</body>
+	</file>
+</xliff>
