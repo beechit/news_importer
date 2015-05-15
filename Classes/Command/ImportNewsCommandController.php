@@ -92,7 +92,7 @@ class ImportNewsCommandController extends \TYPO3\CMS\Extbase\Mvc\Controller\Comm
 		$record = $this->getDatabaseConnection()->exec_SELECTgetSingleRow(
 			'uid',
 			'tx_news_domain_model_news',
-			'deleted=0 AND hidden=0 AND pid=' . (int)$pid . ' AND import_source = \'ext:news_importer\' AND import_id=' . $guid
+			'deleted=0 AND pid=' . (int)$pid . ' AND import_source = \'ext:news_importer\' AND import_id=' . $guid
 		);
 		return $record ? TRUE : FALSE;
 	}
