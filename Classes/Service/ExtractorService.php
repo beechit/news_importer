@@ -108,6 +108,9 @@ class ExtractorService {
 		if (!empty($mapping['strtotime'])) {
 			$value = strtotime($value);
 		}
+		if (!isset($mapping['trim']) || !empty($mapping['trim'])) {
+			$value = trim($value);
+		}
 		return $value;
 	}
 

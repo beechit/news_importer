@@ -44,7 +44,7 @@ class ExtractorServiceTest extends \TYPO3\CMS\Core\Tests\FunctionalTestCase {
 		));
 		$items = $this->extractorService->getItems();
 		$this->assertEquals(10, count($items));
-		$this->assertEquals('Middelburg verwijdert verkeerd geparkeerde fietsen op station   ', $items[0]->extractValue('title'));
+		$this->assertEquals('Middelburg verwijdert verkeerd geparkeerde fietsen op station', $items[0]->extractValue('title'));
 		$this->assertEquals('http://www.nu.nl/walcheren/4048130/middelburg-verwijdert-verkeerd-geparkeerde-fietsen-station-.html', $items[0]->extractValue('link'));
 		$this->assertEquals(1431452309, $items[0]->extractValue('pubDate'));
 	}
