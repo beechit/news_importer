@@ -97,6 +97,7 @@ class ExtractorService {
 				$value = $tmp->text();
 			}
 		}
+		$value = mb_convert_encoding($value, 'UTF-8', 'auto');
 		if (!empty($mapping['preg'])) {
 			if (preg_match($mapping['preg'], $value, $matches)) {
 				$value = isset($matches[1]) ? $matches[1] : $matches[0];
