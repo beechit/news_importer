@@ -66,7 +66,7 @@ class ExtractedItem {
 		if (is_string($mapping)) {
 			$mapping = array('selector' => $mapping);
 		}
-		$value = !empty($mapping['defaultValue']) ? empty($mapping['defaultValue']) : '';
+		$value = !empty($mapping['defaultValue']) ? $mapping['defaultValue'] : '';
 
 		if (empty($mapping['selector']) && empty($mapping['defaultValue'])) {
 			throw new \RuntimeException('Missing \'selector\' or \'defaultValue\' for ' . htmlentities($name) . ' mapping');
