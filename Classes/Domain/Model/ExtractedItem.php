@@ -73,41 +73,23 @@ class ExtractedItem {
 		}
 
 		if (!empty($mapping['selector'])) {
-			$value = $this->_extractvalue($mapping, $value);
+			if (!empty($mapping['source'])) {
+				$source = $this->extractorService->extractValue($this->item, $mapping['source']);
+				$source = $this->extractorService->getRawContent($source);
+				try {
+					$item = qp($source);
+				} catch (\QueryPath\Exception $e) {
+					$item = htmlqp($source);
+				}
+			} else {
+				$item = $this->item;
+			}
+			$value = $this->extractorService->extractValue($item, $mapping, $value);
 		}
 
 		$this->extractedValues[$name] = $value;
 
 		return $this->extractedValues[$name];
-	}
-
-	/**
-	 * @param $mapping
-	 * @param string $value
-	 * @return string
-	 */
-	protected function _extractvalue($mapping, $value = '') {
-		/** @var \QueryPath\DOMQuery $tmp */
-		$tmp = $this->item->find($mapping['selector'])->first();
-		if ($tmp) {
-			if (!empty($mapping['attr'])) {
-				$value = $tmp->attr($mapping['attr']);
-			} else {
-				$value = $tmp->text();
-			}
-		}
-		if (!empty($mapping['preg'])) {
-			if (preg_match($mapping['preg'], $value, $matches)) {
-				$value = $matches[0];
-			}
-		}
-		if (!empty($mapping['wrap'])) {
-			$value = str_replace('|', $value, $mapping['wrap']);
-		}
-		if (!empty($mapping['strtotime'])) {
-			$value = strtotime($value);
-		}
-		return $value;
 	}
 
 	/**
