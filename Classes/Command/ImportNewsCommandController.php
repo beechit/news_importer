@@ -8,12 +8,25 @@ namespace BeechIt\NewsImporter\Command;
  */
 use BeechIt\NewsImporter\Domain\Model\ImportSource;
 use BeechIt\NewsImporter\Domain\Model\Remote;
+use TYPO3\CMS\Core\Mail\MailMessage;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
+use TYPO3\CMS\Extbase\Configuration\ConfigurationManagerInterface;
 
 /**
  * Class ImportNewsCommand controller
  */
 class ImportNewsCommandController extends \TYPO3\CMS\Extbase\Mvc\Controller\CommandController {
+
+	/**
+	 * @var array
+	 */
+	protected $settings;
+
+	/**
+	 * @var \TYPO3\CMS\Extbase\Configuration\ConfigurationManagerInterface
+	 * @inject
+	 */
+	protected $configurationManager;
 
 	/**
 	 * @var \BeechIt\NewsImporter\Domain\Repository\ImportSourceRepository
@@ -34,6 +47,16 @@ class ImportNewsCommandController extends \TYPO3\CMS\Extbase\Mvc\Controller\Comm
 	protected $newsImportService;
 
 	/**
+	 * Call command
+	 */
+	protected function callCommandMethod() {
+		$this->settings = $this->configurationManager->getConfiguration(
+			ConfigurationManagerInterface::CONFIGURATION_TYPE_SETTINGS, 'newsImporter'
+		);
+		parent::callCommandMethod();
+	}
+
+	/**
 	 * Get status of all defined remotes (last run datetime)
 	 */
 	public function statusCommand() {
@@ -47,6 +70,8 @@ class ImportNewsCommandController extends \TYPO3\CMS\Extbase\Mvc\Controller\Comm
 			$this->outputLine('No remotes found!');
 		}
 		$this->outputDashedLine();
+		$this->outputLine('settings: ' . print_r($this->settings, 1));
+		$this->outputDashedLine();
 	}
 
 	/**
@@ -57,6 +82,8 @@ class ImportNewsCommandController extends \TYPO3\CMS\Extbase\Mvc\Controller\Comm
 	public function runCommand($limit = 1) {
 		// todo: implement $limit
 		$importSources = $this->importSourceRepository->findAll();
+		$importReport = array();
+
 		/** @var ImportSource $importSource */
 		foreach ($importSources as $importSource) {
 			$this->extractorService->setSource($importSource->getUrl());
@@ -77,12 +104,32 @@ class ImportNewsCommandController extends \TYPO3\CMS\Extbase\Mvc\Controller\Comm
 					$this->newsImportService->import(array($data));
 
 					$this->outputLine('Imported: ' . $item->getGuid());
+					$importReport[] = $data['title'] . '; ' . $item->getGuid();
 				} else {
 					$this->outputLine('Already imported: ' . $item->getGuid());
 				}
 			}
 			$importSource->setLastRun(new \DateTime());
 			$this->importSourceRepository->update($importSource);
+		}
+		if ($importReport !== array() && !empty($this->settings['notification']['recipients'])) {
+			/** @var MailMessage $message */
+			$message = GeneralUtility::makeInstance('TYPO3\\CMS\\Core\\Mail\\MailMessage');
+			$message->setTo($this->settings['notification']['recipients'])
+				->setSubject($this->settings['notification']['subject'] ?: 'New items imported');
+			if ($GLOBALS['TYPO3_CONF_VARS']['MAIL']['defaultMailFromAddress']) {
+				$message->setFrom($GLOBALS['TYPO3_CONF_VARS']['MAIL']['defaultMailFromAddress'], $GLOBALS['TYPO3_CONF_VARS']['MAIL']['defaultMailFromName'] ?: NULL);
+			}
+			$message->setBody(
+				vsprintf(
+					$this->settings['notification']['body'] ?: 'Imported %1$d items: %2$s',
+					array(
+						count($importReport),
+						PHP_EOL . PHP_EOL . implode(PHP_EOL, $importReport)
+					)
+				)
+			);
+			$message->send();
 		}
 	}
 
