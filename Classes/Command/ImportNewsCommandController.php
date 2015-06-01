@@ -8,6 +8,7 @@ namespace BeechIt\NewsImporter\Command;
  */
 use BeechIt\NewsImporter\Domain\Model\ImportSource;
 use BeechIt\NewsImporter\Domain\Model\Remote;
+use TYPO3\CMS\Core\Utility\GeneralUtility;
 
 /**
  * Class ImportNewsCommand controller
@@ -68,6 +69,11 @@ class ImportNewsCommandController extends \TYPO3\CMS\Extbase\Mvc\Controller\Comm
 					$data['import_id'] = $item->getGuid();
 					$data['import_source'] = 'ext:news_importer';
 
+					// clean body text
+					if (!empty($data['bodytext'])) {
+						$data['bodytext'] = $this->cleanBodyText($data['bodytext'], $data['pid']);
+					}
+
 					$this->newsImportService->import(array($data));
 
 					$this->outputLine('Imported: ' . $item->getGuid());
@@ -95,6 +101,29 @@ class ImportNewsCommandController extends \TYPO3\CMS\Extbase\Mvc\Controller\Comm
 			'deleted=0 AND pid=' . (int)$pid . ' AND import_source = \'ext:news_importer\' AND import_id=' . $guid
 		);
 		return $record ? TRUE : FALSE;
+	}
+
+	/**
+	 * Clean body text by RTE settings
+	 *
+	 * @param string $text
+	 * @param int $pid
+	 */
+	protected function cleanBodyText($text, $pid) {
+		static $rteHtmlParsers;
+
+		if (!isset($rteHtmlParsers[$pid])) {
+			if (!is_array($rteHtmlParsers)) {
+				$rteHtmlParsers = array();
+			}
+			/** @var $htmlParser \TYPO3\CMS\Core\Html\RteHtmlParser */
+			$rteHtmlParsers[$pid] = GeneralUtility::makeInstance('TYPO3\\CMS\\Core\\Html\\RteHtmlParser');
+			$rteHtmlParsers[$pid]->init('tx_news_domain_model_news:bodytext', $pid);
+		}
+
+		// Perform transformation
+		$tsConfig = \TYPO3\CMS\Backend\Utility\BackendUtility::getPagesTSconfig($pid);
+		return $rteHtmlParsers[$pid]->RTE_transform(trim($text), array('rte_transform' => array('parameters' => array('flag=rte_disabled','mode=ts_css'))), 'db', $tsConfig['RTE.']['default.']);
 	}
 
 	/**
