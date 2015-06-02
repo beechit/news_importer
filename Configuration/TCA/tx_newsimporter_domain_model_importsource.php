@@ -160,7 +160,10 @@ items = item
 item {
 	guid = guid
 	title = title
-	link = link
+	externalurl = link
+	type {
+		defaultValue = 2
+	}
 	bodytext = description
 	datetime {
 		selector = pubDate
