@@ -100,22 +100,27 @@ class ImportNewsCommandController extends \TYPO3\CMS\Extbase\Mvc\Controller\Comm
 				if (!$this->alreadyImported($importSource->getStoragePid(), $item->getGuid())) {
 
 					$data = $item->toArray();
-					$data['pid'] = $importSource->getStoragePid();
-					$data['import_id'] = $item->getGuid();
-					$data['import_source'] = 'ext:news_importer';
+					if (!$importSource->getFilterWords() || $this->matchFilter($data, $importSource->getFilterWords())) {
 
-					// clean body text
-					if (!empty($data['bodytext'])) {
-						$data['bodytext'] = $this->cleanBodyText($data['bodytext'], $data['pid']);
+						$data['pid'] = $importSource->getStoragePid();
+						$data['import_id'] = $item->getGuid();
+						$data['import_source'] = 'ext:news_importer';
+
+						// clean body text
+						if (!empty($data['bodytext'])) {
+							$data['bodytext'] = $this->cleanBodyText($data['bodytext'], $data['pid']);
+						}
+
+						// parse media
+						$data['media'] = $this->processMedia($data, $importSource);
+
+						$this->newsImportService->import(array($data));
+
+						$this->outputLine('Imported: ' . $item->getGuid());
+						$importReport[] = $data['title'] . '; ' . $item->getGuid();
+					} else {
+						$this->outputLine('Skipped: ' . $item->getGuid() . '; Filter mismatch');
 					}
-
-					// parse media
-					$data['media'] = $this->processMedia($data, $importSource);
-
-					$this->newsImportService->import(array($data));
-
-					$this->outputLine('Imported: ' . $item->getGuid());
-					$importReport[] = $data['title'] . '; ' . $item->getGuid();
 				} else {
 					$this->outputLine('Already imported: ' . $item->getGuid());
 				}
@@ -123,6 +128,7 @@ class ImportNewsCommandController extends \TYPO3\CMS\Extbase\Mvc\Controller\Comm
 			$importSource->setLastRun(new \DateTime());
 			$this->importSourceRepository->update($importSource);
 		}
+
 		if ($importReport !== array() && !empty($this->settings['notification']['recipients'])) {
 			/** @var MailMessage $message */
 			$message = GeneralUtility::makeInstance('TYPO3\\CMS\\Core\\Mail\\MailMessage');
@@ -159,6 +165,31 @@ class ImportNewsCommandController extends \TYPO3\CMS\Extbase\Mvc\Controller\Comm
 			'deleted=0 AND pid=' . (int)$pid . ' AND import_source = \'ext:news_importer\' AND import_id=' . $guid
 		);
 		return $record ? TRUE : FALSE;
+	}
+
+	/**
+	 * Check if item matches filter
+	 *
+	 * @param array $data
+	 * @param array $filterWords
+	 * @return boolean
+	 */
+	protected function matchFilter(array $data, $filterWords) {
+		if (isset($this->settings['filter']['searchFields']) && is_array($this->settings['filter']['searchFields'])) {
+			$searchFields = $this->settings['filter']['searchFields'];
+		} else {
+			$searchFields = array('title', 'bodytext');
+		}
+
+		foreach ($searchFields as $fieldName) {
+			foreach ($filterWords as $filter) {
+				if (stripos($data[$fieldName], $filter) !== FALSE) {
+					return TRUE;
+				}
+			}
+		}
+
+		return FALSE;
 	}
 
 	/**

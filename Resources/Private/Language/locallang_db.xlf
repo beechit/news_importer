@@ -24,6 +24,9 @@
 			<trans-unit id="tx_newsimporter_domain_model_importsource.image_folder">
 				<source>Image Folder (if not set images will not get imported, mapping field: image)</source>
 			</trans-unit>
+			<trans-unit id="tx_newsimporter_domain_model_importsource.filter">
+				<source>Only items with one of these strings (comma separated, ignored when empty)</source>
+			</trans-unit>
 		</body>
 	</file>
 </xliff>

@@ -26,6 +26,7 @@ namespace BeechIt\NewsImporter\Domain\Model;
  *
  *  This copyright notice MUST APPEAR in all copies of the script!
  ***************************************************************/
+use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Extbase\Domain\Model\FileReference;
 
 /**
@@ -74,6 +75,11 @@ class ImportSource extends \TYPO3\CMS\Extbase\DomainObject\AbstractEntity {
 	 * @var string
 	 */
 	protected $imageFolder = '';
+
+	/**
+	 * @var string
+	 */
+	protected $filter;
 
 	/**
 	 * Returns the url
@@ -188,4 +194,34 @@ class ImportSource extends \TYPO3\CMS\Extbase\DomainObject\AbstractEntity {
 		$this->imageFolder = $imageFolder;
 	}
 
+	/**
+	 * Get filter
+	 *
+	 * @return string
+	 */
+	public function getFilter() {
+		return $this->filter;
+	}
+
+	/**
+	 * Set filter
+	 *
+	 * @param string $filter
+	 */
+	public function setFilter($filter) {
+		$this->filter = $filter;
+	}
+
+	/**
+	 * Get filter words as a array
+	 *
+	 * @return array
+	 */
+	public function getFilterWords() {
+		if ($this->filter) {
+			return GeneralUtility::trimExplode(',', $this->filter, TRUE);
+		} else {
+			return array();
+		}
+	}
 }

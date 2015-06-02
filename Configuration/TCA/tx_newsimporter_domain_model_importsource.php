@@ -4,6 +4,8 @@ return array(
 	'ctrl' => array(
 		'title'	=> 'LLL:EXT:news_importer/Resources/Private/Language/locallang_db.xlf:tx_newsimporter_domain_model_importsource',
 		'label' => 'url',
+		'label_alt' => 'storage_pid',
+		'label_alt_force' => TRUE,
 		'tstamp' => 'tstamp',
 		'crdate' => 'crdate',
 		'cruser_id' => 'cruser_id',
@@ -21,11 +23,11 @@ return array(
 			'starttime' => 'starttime',
 			'endtime' => 'endtime',
 		),
-		'searchFields' => 'url,mapping,',
+		'searchFields' => 'url,mapping,filter',
 		'iconfile' => \TYPO3\CMS\Core\Utility\ExtensionManagementUtility::extRelPath('news_importer') . 'ext_icon.png'
 	),
 	'interface' => array(
-		'showRecordFieldList' => 'sys_language_uid, l10n_parent, l10n_diffsource, hidden, url, mapping, last_run, storage_pid, default_image, image_folder'
+		'showRecordFieldList' => 'sys_language_uid, l10n_parent, l10n_diffsource, hidden, url, mapping, last_run, storage_pid, default_image, image_folder, filter'
 	),
 	'types' => array(
 		'1' => array('showitem' => '
@@ -35,6 +37,7 @@ return array(
 			storage_pid,
 			default_image,
 			image_folder,
+			filter,
 			--div--;LLL:EXT:cms/locallang_ttc.xlf:tabs.access,sys_language_uid;;;;1-1-1, l10n_parent, l10n_diffsource, hidden;;1, starttime, endtime'
 		),
 	),
@@ -189,7 +192,7 @@ item {
 			)
 		),
 		'default_image' => array(
-			'exclude' => 0,
+			'exclude' => 1,
 			'label' => 'LLL:EXT:news_importer/Resources/Private/Language/locallang_db.xlf:tx_newsimporter_domain_model_importsource.default_image',
 			'config' => \TYPO3\CMS\Core\Utility\ExtensionManagementUtility::getFileFieldTCAConfig(
 				'default_image',
@@ -265,6 +268,15 @@ item {
 					)
 				),
 			),
+		),
+		'filter' => array(
+			'exclude' => 1,
+			'label' => 'LLL:EXT:news_importer/Resources/Private/Language/locallang_db.xlf:tx_newsimporter_domain_model_importsource.filter',
+			'config' => array(
+				'type' => 'input',
+				'size' => '50',
+				'eval' => 'trim'
+			)
 		),
 
 	),

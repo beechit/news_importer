@@ -6,4 +6,10 @@ module.tx_newsimporter.settings {
 #			1 = support@beech.it
 		}
 	}
+	filter {
+		searchFields {
+			1 = title
+			2 = bodytext
+		}
+	}
 }
