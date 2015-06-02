@@ -48,4 +48,32 @@ class ExtractorServiceTest extends \TYPO3\CMS\Core\Tests\FunctionalTestCase {
 		$this->assertEquals('http://www.nu.nl/walcheren/4048130/middelburg-verwijdert-verkeerd-geparkeerde-fietsen-station-.html', $items[0]->extractValue('link'));
 		$this->assertEquals(1431452309, $items[0]->extractValue('pubDate'));
 	}
+
+	/**
+	 * @test
+	 */
+	public function rssFeedWithCustomNamespaceImportTest() {
+		$this->extractorService->setSource(__DIR__ . '/../Fixtures/RemoteData/rss2.xml');
+		$this->extractorService->setMapping(array(
+			'items' => 'item',
+			'item' => array(
+				'title' => 'title',
+				'link' => 'link',
+				'datetime' => array(
+					'selector' => 'date', // real tag = dc:date namespace can be dropped
+					'strtotime' => 1
+				),
+				'image' => array(
+					'selector' => 'leadimage', // real tag = agsci:leadimage namespace can be dropped
+					'attr' => 'url'
+				)
+			)
+		));
+		$items = $this->extractorService->getItems();
+		$this->assertEquals(25, count($items));
+		$this->assertEquals('Flea Beetle Management', $items[0]->extractValue('title'));
+		$this->assertEquals('http://extension.psu.edu/plants/vegetable-fruit/news/2015/flea-beetle-management', $items[0]->extractValue('link'));
+		$this->assertEquals(1433188535, $items[0]->extractValue('datetime'));
+		$this->assertEquals('http://extension.psu.edu/plants/vegetable-fruit/news/2015/flea-beetle-management/image', $items[0]->extractValue('image'));
+	}
 }

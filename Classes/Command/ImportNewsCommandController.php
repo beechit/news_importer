@@ -9,8 +9,11 @@ namespace BeechIt\NewsImporter\Command;
 use BeechIt\NewsImporter\Domain\Model\ImportSource;
 use BeechIt\NewsImporter\Domain\Model\Remote;
 use TYPO3\CMS\Core\Mail\MailMessage;
+use TYPO3\CMS\Core\Resource\ResourceFactory;
+use TYPO3\CMS\Core\Resource\StorageRepository;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Extbase\Configuration\ConfigurationManagerInterface;
+use TYPO3\CMS\Rsaauth\Storage\StorageFactory;
 
 /**
  * Class ImportNewsCommand controller
@@ -53,6 +56,11 @@ class ImportNewsCommandController extends \TYPO3\CMS\Extbase\Mvc\Controller\Comm
 		$this->settings = $this->configurationManager->getConfiguration(
 			ConfigurationManagerInterface::CONFIGURATION_TYPE_SETTINGS, 'newsImporter'
 		);
+		/** @var StorageRepository $storageRepository */
+		$storageRepository = $this->objectManager->get(StorageRepository::class);
+		foreach($storageRepository->findAll() as $storage) {
+			$storage->setEvaluatePermissions(FALSE);
+		}
 		parent::callCommandMethod();
 	}
 
@@ -70,7 +78,7 @@ class ImportNewsCommandController extends \TYPO3\CMS\Extbase\Mvc\Controller\Comm
 			$this->outputLine('No remotes found!');
 		}
 		$this->outputDashedLine();
-		$this->outputLine('settings: ' . print_r($this->settings, 1));
+		$this->outputLine('settings: ' . ($this->settings ? print_r($this->settings, 1) : 'NO TYPOSCRIPT SETTINGS'));
 		$this->outputDashedLine();
 	}
 
@@ -100,6 +108,9 @@ class ImportNewsCommandController extends \TYPO3\CMS\Extbase\Mvc\Controller\Comm
 					if (!empty($data['bodytext'])) {
 						$data['bodytext'] = $this->cleanBodyText($data['bodytext'], $data['pid']);
 					}
+
+					// parse media
+					$data['media'] = $this->processMedia($data, $importSource);
 
 					$this->newsImportService->import(array($data));
 
@@ -171,6 +182,51 @@ class ImportNewsCommandController extends \TYPO3\CMS\Extbase\Mvc\Controller\Comm
 		// Perform transformation
 		$tsConfig = \TYPO3\CMS\Backend\Utility\BackendUtility::getPagesTSconfig($pid);
 		return $rteHtmlParsers[$pid]->RTE_transform(trim($text), array('rte_transform' => array('parameters' => array('flag=rte_disabled','mode=ts_css'))), 'db', $tsConfig['RTE.']['default.']);
+	}
+
+	/**
+	 * @param array $data
+	 * @param ImportSource $importSource
+	 * @return NULL|array
+	 */
+	protected function processMedia(array $data, ImportSource $importSource) {
+		$media = NULL;
+		if (empty($data['image']) && $importSource->getDefaultImage()) {
+			return array(
+				array(
+					'type' => 0,
+					'image' => $importSource->getDefaultImage()->getOriginalResource()->getCombinedIdentifier(),
+					'showinpreview' => 1
+				)
+			);
+		}
+
+		$folder = NULL;
+		if ($importSource->getImageFolder()) {
+			try {
+				$folder = ResourceFactory::getInstance()->getFolderObjectFromCombinedIdentifier(ltrim($importSource->getImageFolder(), 'file:'));
+			} catch (\Exception $e) {}
+		}
+
+		if (!empty($data['image']) && $folder) {
+			$tmp = GeneralUtility::getUrl($data['image']);
+			if ($tmp) {
+				$tempFile = GeneralUtility::tempnam('news_importer');
+				file_put_contents($tempFile, $tmp);
+				list(,,$imageType) = getimagesize($tempFile);
+				try {
+					$image = $folder->addFile($tempFile, ($data['title'] ?: 'news_import') . image_type_to_extension($imageType, TRUE), 'changeName');
+					$media = array(
+						array(
+							'type' => 0,
+							'image' => $image->getCombinedIdentifier(),
+							'showinpreview' => 1
+						)
+					);
+				} catch (\Exception $e) {}
+			}
+		}
+		return $media;
 	}
 
 	/**

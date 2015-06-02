@@ -51,6 +51,9 @@ class ExtractorService {
 	 */
 	public function setSource($source) {
 		$this->source = $source;
+		// reset rawContent && items
+		$this->rawContent = NULL;
+		$this->items = NULL;
 	}
 
 	/**

@@ -102,6 +102,10 @@ class ExtractedItem {
 		if (empty($guid)) {
 			$guid = $this->extractValue('link');
 		}
+		// `import_id` db field is varchar(100)
+		if (strlen($guid) > 90) {
+			$guid = sha1($guid);
+		}
 		return $guid;
 	}
 

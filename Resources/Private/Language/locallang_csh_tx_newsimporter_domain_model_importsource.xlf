@@ -6,8 +6,50 @@
 			<trans-unit id="url.description">
 				<source>url</source>
 			</trans-unit>
-			<trans-unit id="mapping.description">
-				<source>mapping</source>
+			<trans-unit id="mapping.description" xml:space="preserve">
+				<source><![CDATA[
+				Mapping options:
+					_POST = _LOGINNAME=KK5758&_LOGINPASS=5758DEA02083
+					items {
+						source {
+							selector = script
+							preg = /document.location.href="(\/agro\.asp\?[a-z0-9\=\&]+)";/i
+							wrap = http://www.agroondernemer.nl|
+						}
+						selector = div.itemREC
+					}
+					item {
+						title = div.header2 a
+						datetime {
+							selector = div.datumaktief
+							preg = /([0-9\-]+)/
+							strtotime = 1
+						}
+						guid {
+							selector = div.header2 a
+							attr = href
+							preg = /\?([0-9a-z=\-]+)&/i
+						}
+						link {
+							selector = div.header2 a
+							attr = href
+							wrap = http://www.agroondernemer.nl|
+						}
+						bodytext {
+							source {
+								selector = div.header2 a
+								attr = href
+								wrap = http://www.agroondernemer.nl|
+							}
+							selector = div.content
+							innerHTML = 1
+							preg = /<div class="clearall"\/>&#13;(.*)<div\/>/ims
+						}
+						hidden {
+							defaultValue = 1
+						}
+					}
+				]]></source>
 			</trans-unit>
 			<trans-unit id="last_run.description">
 				<source>lastRun</source>

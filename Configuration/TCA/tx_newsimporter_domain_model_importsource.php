@@ -21,14 +21,22 @@ return array(
 			'starttime' => 'starttime',
 			'endtime' => 'endtime',
 		),
-		'searchFields' => 'url,mapping,last_run,storage_pid,image_folder,',
+		'searchFields' => 'url,mapping,',
 		'iconfile' => \TYPO3\CMS\Core\Utility\ExtensionManagementUtility::extRelPath('news_importer') . 'ext_icon.png'
 	),
 	'interface' => array(
-		'showRecordFieldList' => 'sys_language_uid, l10n_parent, l10n_diffsource, hidden, url, mapping, last_run, storage_pid', //todo: implement: image_folder
+		'showRecordFieldList' => 'sys_language_uid, l10n_parent, l10n_diffsource, hidden, url, mapping, last_run, storage_pid, default_image, image_folder'
 	),
 	'types' => array(
-		'1' => array('showitem' => 'url, mapping, storage_pid, last_run, --div--;LLL:EXT:cms/locallang_ttc.xlf:tabs.access,sys_language_uid;;;;1-1-1, l10n_parent, l10n_diffsource, hidden;;1, starttime, endtime'),
+		'1' => array('showitem' => '
+			url,
+			last_run,
+			mapping,
+			storage_pid,
+			default_image,
+			image_folder,
+			--div--;LLL:EXT:cms/locallang_ttc.xlf:tabs.access,sys_language_uid;;;;1-1-1, l10n_parent, l10n_diffsource, hidden;;1, starttime, endtime'
+		),
 	),
 	'palettes' => array(
 		'1' => array('showitem' => ''),
@@ -136,12 +144,17 @@ return array(
 				'default' => '
 items = item
 item {
+	guid = guid
 	title = title
 	link = link
 	bodytext = description
 	datetime {
 		selector = pubDate
 		strtotime = 1
+	}
+	image {
+		selector = image
+		attr = url
 	}
 }
 				'
@@ -174,6 +187,56 @@ item {
 					),
 				),
 			)
+		),
+		'default_image' => array(
+			'exclude' => 0,
+			'label' => 'LLL:EXT:news_importer/Resources/Private/Language/locallang_db.xlf:tx_newsimporter_domain_model_importsource.default_image',
+			'config' => \TYPO3\CMS\Core\Utility\ExtensionManagementUtility::getFileFieldTCAConfig(
+				'default_image',
+				array('maxitems' => 1,
+					'appearance' => array(
+						'createNewRelationLinkTitle' => 'LLL:EXT:cms/locallang_ttc.xlf:images.addFileReference'
+					),
+					'foreign_types' => array(
+						'0' => array(
+							'showitem' => '
+							--palette--;LLL:EXT:lang/locallang_tca.xlf:sys_file_reference.imageoverlayPalette;imageoverlayPalette,
+							--palette--;;filePalette'
+						),
+						\TYPO3\CMS\Core\Resource\File::FILETYPE_TEXT => array(
+							'showitem' => '
+							--palette--;LLL:EXT:lang/locallang_tca.xlf:sys_file_reference.imageoverlayPalette;imageoverlayPalette,
+							--palette--;;filePalette'
+						),
+						\TYPO3\CMS\Core\Resource\File::FILETYPE_IMAGE => array(
+							'showitem' => '
+							--palette--;LLL:EXT:lang/locallang_tca.xlf:sys_file_reference.imageoverlayPalette;imageoverlayPalette,
+							--palette--;;filePalette'
+						),
+						\TYPO3\CMS\Core\Resource\File::FILETYPE_AUDIO => array(
+							'showitem' => '
+							--palette--;LLL:EXT:lang/locallang_tca.xlf:sys_file_reference.imageoverlayPalette;imageoverlayPalette,
+							--palette--;;filePalette'
+						),
+						\TYPO3\CMS\Core\Resource\File::FILETYPE_VIDEO => array(
+							'showitem' => '
+							--palette--;LLL:EXT:lang/locallang_tca.xlf:sys_file_reference.imageoverlayPalette;imageoverlayPalette,
+							--palette--;;filePalette'
+						),
+						\TYPO3\CMS\Core\Resource\File::FILETYPE_APPLICATION => array(
+							'showitem' => '
+							--palette--;LLL:EXT:lang/locallang_tca.xlf:sys_file_reference.imageoverlayPalette;imageoverlayPalette,
+							--palette--;;filePalette'
+						)
+					),
+					// foreing_match is needed for FE upload purposes
+					'foreign_match_fields' => array(
+						'fieldname' => 'default_image',
+						'tablenames' => 'tx_newsimporter_domain_model_importsource',
+						'table_local' => 'sys_file',
+					),
+				), $GLOBALS['TYPO3_CONF_VARS']['GFX']['imagefile_ext']
+			),
 		),
 		'image_folder' => array(
 			'exclude' => 1,

@@ -11,6 +11,7 @@ CREATE TABLE tx_newsimporter_domain_model_importsource (
 	last_run int(11) DEFAULT '0' NOT NULL,
 	storage_pid int(11) DEFAULT '0' NOT NULL,
 	image_folder varchar(255) DEFAULT '' NOT NULL,
+	default_image int(11) DEFAULT '0' NOT NULL,
 
 	tstamp int(11) unsigned DEFAULT '0' NOT NULL,
 	crdate int(11) unsigned DEFAULT '0' NOT NULL,

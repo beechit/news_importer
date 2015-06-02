@@ -26,6 +26,7 @@ namespace BeechIt\NewsImporter\Domain\Model;
  *
  *  This copyright notice MUST APPEAR in all copies of the script!
  ***************************************************************/
+use TYPO3\CMS\Extbase\Domain\Model\FileReference;
 
 /**
  * ImportSource
@@ -59,6 +60,13 @@ class ImportSource extends \TYPO3\CMS\Extbase\DomainObject\AbstractEntity {
 	 * @var integer
 	 */
 	protected $storagePid = 0;
+
+	/**
+	 * default image
+	 *
+	 * @var \TYPO3\CMS\Extbase\Domain\Model\FileReference
+	 */
+	protected $defaultImage = NULL;
 
 	/**
 	 * imageFolder
@@ -141,6 +149,24 @@ class ImportSource extends \TYPO3\CMS\Extbase\DomainObject\AbstractEntity {
 	 */
 	public function setStoragePid($storagePid) {
 		$this->storagePid = $storagePid;
+	}
+
+	/**
+	 * Get defaultImage
+	 *
+	 * @return \TYPO3\CMS\Extbase\Domain\Model\FileReference
+	 */
+	public function getDefaultImage() {
+		return $this->defaultImage;
+	}
+
+	/**
+	 * Set defaultImage
+	 *
+	 * @param \TYPO3\CMS\Extbase\Domain\Model\FileReference $defaultImage
+	 */
+	public function setDefaultImage(FileReference $defaultImage = NULL) {
+		$this->defaultImage = $defaultImage;
 	}
 
 	/**

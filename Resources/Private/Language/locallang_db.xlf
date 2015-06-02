@@ -18,6 +18,9 @@
 			<trans-unit id="tx_newsimporter_domain_model_importsource.storage_pid">
 				<source>News storage Pid</source>
 			</trans-unit>
+			<trans-unit id="tx_newsimporter_domain_model_importsource.default_image">
+				<source>Default image to add if no image found in source</source>
+			</trans-unit>
 			<trans-unit id="tx_newsimporter_domain_model_importsource.image_folder">
 				<source>Image Folder (if not set images will not get imported, mapping field: image)</source>
 			</trans-unit>
