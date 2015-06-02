@@ -3,8 +3,8 @@
 return array(
 	'ctrl' => array(
 		'title'	=> 'LLL:EXT:news_importer/Resources/Private/Language/locallang_db.xlf:tx_newsimporter_domain_model_importsource',
-		'label' => 'url',
-		'label_alt' => 'storage_pid',
+		'label' => 'title',
+		'label_alt' => 'storage_pid, url',
 		'label_alt_force' => TRUE,
 		'tstamp' => 'tstamp',
 		'crdate' => 'crdate',
@@ -23,21 +23,23 @@ return array(
 			'starttime' => 'starttime',
 			'endtime' => 'endtime',
 		),
-		'searchFields' => 'url,mapping,filter',
+		'searchFields' => 'title,url,mapping,filter',
 		'iconfile' => \TYPO3\CMS\Core\Utility\ExtensionManagementUtility::extRelPath('news_importer') . 'ext_icon.png'
 	),
 	'interface' => array(
-		'showRecordFieldList' => 'sys_language_uid, l10n_parent, l10n_diffsource, hidden, url, mapping, last_run, storage_pid, default_image, image_folder, filter'
+		'showRecordFieldList' => 'sys_language_uid, l10n_parent, l10n_diffsource, hidden, title, url, mapping, last_run, storage_pid, default_image, image_folder, filter, update_interval'
 	),
 	'types' => array(
 		'1' => array('showitem' => '
+			title,
 			url,
-			last_run,
 			mapping,
 			storage_pid,
 			default_image,
 			image_folder,
 			filter,
+			last_run,
+			update_interval,
 			--div--;LLL:EXT:cms/locallang_ttc.xlf:tabs.access,sys_language_uid;;;;1-1-1, l10n_parent, l10n_diffsource, hidden;;1, starttime, endtime'
 		),
 	),
@@ -127,6 +129,15 @@ return array(
 			),
 		),
 
+		'title' => array(
+			'exclude' => 0,
+			'label' => 'LLL:EXT:news_importer/Resources/Private/Language/locallang_db.xlf:tx_newsimporter_domain_model_importsource.title',
+			'config' => array(
+				'type' => 'input',
+				'size' => '30',
+				'eval' => 'trim'
+			)
+		),
 		'url' => array(
 			'exclude' => 1,
 			'label' => 'LLL:EXT:news_importer/Resources/Private/Language/locallang_db.xlf:tx_newsimporter_domain_model_importsource.url',
@@ -279,5 +290,15 @@ item {
 			)
 		),
 
+		'update_interval' => array(
+			'exclude' => 1,
+			'label' => 'LLL:EXT:news_importer/Resources/Private/Language/locallang_db.xlf:tx_newsimporter_domain_model_importsource.update_interval',
+			'config' => array(
+				'type' => 'input',
+				'size' => 4,
+				'eval' => 'timesec',
+				'default' => '7200'
+			)
+		),
 	),
 );

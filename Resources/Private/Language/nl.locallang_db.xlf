@@ -8,30 +8,38 @@
 			</trans-unit>
 			<trans-unit id="tx_newsimporter_domain_model_importsource.title">
 				<source>Title</source>
+				<target>Omschrijving</target>
 			</trans-unit>
 			<trans-unit id="tx_newsimporter_domain_model_importsource.url">
 				<source>Url</source>
+				<target>Url/link</target>
 			</trans-unit>
 			<trans-unit id="tx_newsimporter_domain_model_importsource.mapping">
 				<source>Mapping</source>
 			</trans-unit>
 			<trans-unit id="tx_newsimporter_domain_model_importsource.last_run">
 				<source>Last Run</source>
+				<target>Laatst uitgevoerd op</target>
 			</trans-unit>
 			<trans-unit id="tx_newsimporter_domain_model_importsource.storage_pid">
 				<source>News storage Pid</source>
+				<target>Nieuws storage pid</target>
 			</trans-unit>
 			<trans-unit id="tx_newsimporter_domain_model_importsource.default_image">
 				<source>Default image to add if no image found in source</source>
+				<target>Standaard afbeelding die wordt toegevoegd als er geen afbeelding (image) in het item is gevonden</target>
 			</trans-unit>
 			<trans-unit id="tx_newsimporter_domain_model_importsource.image_folder">
 				<source>Image Folder (if not set images will not get imported, mapping field: image)</source>
+				<target>Afbeeldingen folder (indien niet gezet worden er ook geen afbeeldingen geïmporteerd, mapping veld: image)</target>
 			</trans-unit>
 			<trans-unit id="tx_newsimporter_domain_model_importsource.filter">
 				<source>Only items with one of these strings (comma separated, ignored when empty)</source>
+				<target>Alleen items importeren als een vand de volgende woorden voorkomt (komma gescheiden, wordt genegeerd indien leeg)</target>
 			</trans-unit>
 			<trans-unit id="tx_newsimporter_domain_model_importsource.update_interval">
 				<source>Update interval (h:mm:ss)</source>
+				<target>Update interval (u:mm:ss)</target>
 			</trans-unit>
 		</body>
 	</file>

@@ -32,6 +32,12 @@ class ImportNewsCommandController extends \TYPO3\CMS\Extbase\Mvc\Controller\Comm
 	protected $configurationManager;
 
 	/**
+	 * @var \TYPO3\CMS\Extbase\Persistence\Generic\PersistenceManager
+	 * @inject
+	 */
+	protected $persistenceManager;
+
+	/**
 	 * @var \BeechIt\NewsImporter\Domain\Repository\ImportSourceRepository
 	 * @inject
 	 */
@@ -88,8 +94,8 @@ class ImportNewsCommandController extends \TYPO3\CMS\Extbase\Mvc\Controller\Comm
 	 * @param int $limit number of sources to check
 	 */
 	public function runCommand($limit = 1) {
-		// todo: implement $limit
-		$importSources = $this->importSourceRepository->findAll();
+
+		$importSources = $this->importSourceRepository->findSourcesToImport($limit);
 		$importReport = array();
 
 		/** @var ImportSource $importSource */
@@ -127,6 +133,7 @@ class ImportNewsCommandController extends \TYPO3\CMS\Extbase\Mvc\Controller\Comm
 			}
 			$importSource->setLastRun(new \DateTime());
 			$this->importSourceRepository->update($importSource);
+			$this->persistenceManager->persistAll();
 		}
 
 		if ($importReport !== array() && !empty($this->settings['notification']['recipients'])) {
