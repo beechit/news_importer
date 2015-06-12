@@ -35,7 +35,7 @@
 			</trans-unit>
 			<trans-unit id="tx_newsimporter_domain_model_importsource.filter">
 				<source>Only items with one of these strings (comma separated, ignored when empty)</source>
-				<target>Alleen items importeren als een vand de volgende woorden voorkomt (komma gescheiden, wordt genegeerd indien leeg)</target>
+				<target>Alleen items importeren als een van de volgende woorden voorkomt (komma gescheiden, wordt genegeerd indien leeg)</target>
 			</trans-unit>
 			<trans-unit id="tx_newsimporter_domain_model_importsource.update_interval">
 				<source>Update interval (h:mm:ss)</source>

@@ -170,7 +170,7 @@ item {
 		strtotime = 1
 	}
 	image {
-		selector = image
+		selector = enclosure
 		attr = url
 	}
 }
