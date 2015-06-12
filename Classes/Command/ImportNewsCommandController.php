@@ -98,11 +98,17 @@ class ImportNewsCommandController extends \TYPO3\CMS\Extbase\Mvc\Controller\Comm
 		$importSources = $this->importSourceRepository->findSourcesToImport($limit);
 		$importReport = array();
 
+		$this->outputLine();
+
 		/** @var ImportSource $importSource */
 		foreach ($importSources as $importSource) {
+			$this->outputLine($importSource->getTitle());
+			$this->outputDashedLine();
+
 			$this->extractorService->setSource($importSource->getUrl());
 			$this->extractorService->setMapping($importSource->getMapping());
-			foreach ($this->extractorService->getItems() as $item) {
+			$items = $this->extractorService->getItems();
+			foreach ($items as $item) {
 				if (!$this->alreadyImported($importSource->getStoragePid(), $item->getGuid())) {
 
 					$data = $item->toArray();
@@ -130,6 +136,9 @@ class ImportNewsCommandController extends \TYPO3\CMS\Extbase\Mvc\Controller\Comm
 				} else {
 					$this->outputLine('Already imported: ' . $item->getGuid());
 				}
+			}
+			if (!$items) {
+				$this->outputLine('No items found');
 			}
 			$importSource->setLastRun(new \DateTime());
 			$this->importSourceRepository->update($importSource);
