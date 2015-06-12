@@ -75,7 +75,7 @@ class ExtractedItem {
 		if (!empty($mapping['selector'])) {
 			if (!empty($mapping['source'])) {
 				$source = $this->extractorService->extractValue($this->item, $mapping['source']);
-				$source = $this->extractorService->getRawContent($source);
+				$source = $this->extractorService->fetchRawContent($source);
 				try {
 					$item = qp($source);
 				} catch (\QueryPath\Exception $e) {

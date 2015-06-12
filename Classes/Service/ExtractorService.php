@@ -57,14 +57,21 @@ class ExtractorService {
 	}
 
 	/**
-	 * Get URL content
+	 * @return string
+	 */
+	public function getRawContent() {
+		return $this->rawContent;
+	}
+
+	/**
+	 * Fetch URL content
 	 * Wrapper function so we can mock this for testing
 	 *
 	 * @param string $source
 	 * @param string $postVars
 	 * @return string
 	 */
-	public function getRawContent($source, $postVars = NULL) {
+	public function fetchRawContent($source, $postVars = NULL) {
 		if (is_file($source)) {
 			return file_get_contents($source);
 		} elseif ($postVars !== NULL) {
@@ -166,14 +173,14 @@ class ExtractorService {
 		$itemsSelector = !empty($this->itemMapping['items']) ? $this->itemMapping['items'] : 'item';
 
 		if ($this->rawContent === NULL) {
-			$this->rawContent = $this->getRawContent($this->source, !empty($this->itemMapping['_POST']) ? $this->itemMapping['_POST'] : NULL);
+			$this->rawContent = $this->fetchRawContent($this->source, !empty($this->itemMapping['_POST']) ? $this->itemMapping['_POST'] : NULL);
 		}
 
 		$domQuery = $this->stringToDOMQuery($this->rawContent);
 		if (is_array($itemsSelector)) {
 			if (!empty($itemsSelector['source'])) {
 				$source = $this->extractValue($domQuery, $itemsSelector['source']);
-				$source = $this->getRawContent($source, !empty($itemsSelector['source']['_POST']) ? $itemsSelector['source']['_POST'] : NULL);
+				$source = $this->fetchRawContent($source, !empty($itemsSelector['source']['_POST']) ? $itemsSelector['source']['_POST'] : NULL);
 				$domQuery = $this->stringToDOMQuery($source);
 			}
 			$itemsSelector = !empty($itemsSelector['selector']) ? $itemsSelector['selector'] : 'item';
