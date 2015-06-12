@@ -37,14 +37,15 @@ return array(
 			storage_pid,
 			default_image,
 			image_folder,
-			filter,
-			last_run,
-			update_interval,
+			--palette--;LLL:EXT:news_importer/Resources/Private/Language/locallang_db.xlf:palette.automation;cron,
 			--div--;LLL:EXT:cms/locallang_ttc.xlf:tabs.access,sys_language_uid;;;;1-1-1, l10n_parent, l10n_diffsource, hidden;;1, starttime, endtime'
 		),
 	),
 	'palettes' => array(
-		'1' => array('showitem' => ''),
+		'cron' => array(
+			'showitem' => 'filter, --linebreak--, last_run, update_interval,',
+			'canNotCollapse' => TRUE
+		),
 	),
 	'columns' => array(
 

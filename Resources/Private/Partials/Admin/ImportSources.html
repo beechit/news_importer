@@ -1,0 +1,30 @@
+<div xmlns="http://www.w3.org/1999/xhtml" lang="en"
+	  xmlns:f="http://typo3.org/ns/fluid/ViewHelpers"
+	  xmlns:ni="http://typo3.org/ns/BeechIt/NewsImporter/ViewHelpers">
+
+<f:section name="ImportSources">
+
+	<table class="typo3-dblist table table-striped">
+		<tr class="t3-row-header">
+			<td class="col-title"><f:translate key="LLL:EXT:news_importer/Resources/Private/Language/locallang_db.xlf:tx_newsimporter_domain_model_importsource.title" /></td>
+			<td><f:translate key="LLL:EXT:news_importer/Resources/Private/Language/locallang_db.xlf:tx_newsimporter_domain_model_importsource.last_run" /></td>
+			<td><f:translate key="LLL:EXT:news_importer/Resources/Private/Language/locallang_db.xlf:tx_newsimporter_domain_model_importsource.storage_pid" /></td>
+			<td></td>
+		</tr>
+
+		<f:for each="{importSources}" as="importSource">
+			<tr class="<f:cycle values="{0: 'db_list_normal', 1: 'db_list_alt'}" as="cycle">{cycle}</f:cycle> {f:if(condition:iteration.isFirst,then:' firstcol')}{f:if(condition:iteration.isLast,then:' lastcol')}">
+				<td class="col-title">{importSource.title}</td>
+				<td>{importSource.lastRun -> f:format.date()}</td>
+				<td>{importSource.storagePid}</td>
+				<td>
+					<f:link.action action="show" arguments="{importSource: importSource}"><span class="t3-icon t3-icon-actions t3-icon-actions-system t3-icon-system-list-open">&nbsp;</span></f:link.action>
+					<span class="t3-icon t3-icon-actions t3-icon-actions-document t3-icon-document-open" onclick="{ni:be.editLink(table:'tx_newsimporter_domain_model_importsource', uid:importSource.uid)}">&nbsp;</span>
+				</td>
+			</tr>
+		</f:for>
+
+	</table>
+</f:section>
+
+</div>

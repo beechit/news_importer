@@ -7,6 +7,7 @@ namespace BeechIt\NewsImporter\Service;
  * All code (c) Beech Applications B.V. all rights reserved
  */
 use BeechIt\NewsImporter\Domain\Model\ExtractedItem;
+use TYPO3\CMS\Core\SingletonInterface;
 use TYPO3\CMS\Core\TypoScript\Parser\TypoScriptParser;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Extbase\Service\TypoScriptService;
@@ -14,7 +15,7 @@ use TYPO3\CMS\Extbase\Service\TypoScriptService;
 /**
  * Class ExtractorService
  */
-class ExtractorService {
+class ExtractorService implements SingletonInterface {
 
 	/**
 	 * @var array

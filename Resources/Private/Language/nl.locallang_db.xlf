@@ -41,6 +41,10 @@
 				<source>Update interval (h:mm:ss)</source>
 				<target>Update interval (u:mm:ss)</target>
 			</trans-unit>
+			<trans-unit id="palette.automation">
+				<source>Automation (when executed by cli/scheduler task)</source>
+				<target>Automatisering (instellingen voor als items via command line/scheduler worden verwerkt)</target>
+			</trans-unit>
 		</body>
 	</file>
 </xliff>

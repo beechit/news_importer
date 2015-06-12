@@ -50,10 +50,10 @@ class ImportNewsCommandController extends \TYPO3\CMS\Extbase\Mvc\Controller\Comm
 	protected $extractorService;
 
 	/**
-	 * @var \Tx_News_Domain_Service_NewsImportService
+	 * @var \BeechIt\NewsImporter\Service\ImportService
 	 * @inject
 	 */
-	protected $newsImportService;
+	protected $importService;
 
 	/**
 	 * Call command
@@ -97,6 +97,11 @@ class ImportNewsCommandController extends \TYPO3\CMS\Extbase\Mvc\Controller\Comm
 
 		$importSources = $this->importSourceRepository->findSourcesToImport($limit);
 		$importReport = array();
+		if (isset($this->settings['filter']['searchFields']) && is_array($this->settings['filter']['searchFields'])) {
+			$searchFields = $this->settings['filter']['searchFields'];
+		} else {
+			$searchFields = array('title', 'bodytext');
+		}
 
 		$this->outputLine();
 
@@ -108,35 +113,19 @@ class ImportNewsCommandController extends \TYPO3\CMS\Extbase\Mvc\Controller\Comm
 			$this->extractorService->setSource($importSource->getUrl());
 			$this->extractorService->setMapping($importSource->getMapping());
 			$items = $this->extractorService->getItems();
+
 			foreach ($items as $item) {
-				if (!$this->alreadyImported($importSource->getStoragePid(), $item->getGuid())) {
-
-					$data = $item->toArray();
-					if (!$importSource->getFilterWords() || $this->matchFilter($data, $importSource->getFilterWords())) {
-
-						$data['pid'] = $importSource->getStoragePid();
-						$data['import_id'] = $item->getGuid();
-						$data['import_source'] = 'ext:news_importer';
-
-						// clean body text
-						if (!empty($data['bodytext'])) {
-							$data['bodytext'] = $this->cleanBodyText($data['bodytext'], $data['pid']);
-						}
-
-						// parse media
-						$data['media'] = $this->processMedia($data, $importSource);
-
-						$this->newsImportService->import(array($data));
-
-						$this->outputLine('Imported: ' . $item->getGuid());
-						$importReport[] = $data['title'] . '; ' . $item->getGuid();
-					} else {
-						$this->outputLine('Skipped: ' . $item->getGuid() . '; Filter mismatch');
-					}
-				} else {
+				if ($this->importService->alreadyImported($importSource->getStoragePid(), $item->getGuid())) {
 					$this->outputLine('Already imported: ' . $item->getGuid());
+				} elseif ($importSource->getFilterWords() && !$this->importService->matchFilter($item, $importSource->getFilterWords(), $searchFields)) {
+					$this->outputLine('Skipped: ' . $item->getGuid() . '; Filter mismatch');
+				} else {
+					$this->importService->importItem($importSource, $item);
+					$this->outputLine('Imported: ' . $item->getGuid());
+					$importReport[] = $item->extractValue('title') . '; ' . $item->getGuid();
 				}
 			}
+
 			if (!$items) {
 				$this->outputLine('No items found');
 			}
@@ -164,116 +153,6 @@ class ImportNewsCommandController extends \TYPO3\CMS\Extbase\Mvc\Controller\Comm
 			);
 			$message->send();
 		}
-	}
-
-	/**
-	 * Check if news item already exists
-	 *
-	 * @param int $pid
-	 * @param string $guid
-	 * @return bool
-	 */
-	protected function alreadyImported($pid, $guid) {
-		$guid =  $this->getDatabaseConnection()->fullQuoteStr($guid, 'tx_news_domain_model_news');
-		$record = $this->getDatabaseConnection()->exec_SELECTgetSingleRow(
-			'uid',
-			'tx_news_domain_model_news',
-			'deleted=0 AND pid=' . (int)$pid . ' AND import_source = \'ext:news_importer\' AND import_id=' . $guid
-		);
-		return $record ? TRUE : FALSE;
-	}
-
-	/**
-	 * Check if item matches filter
-	 *
-	 * @param array $data
-	 * @param array $filterWords
-	 * @return boolean
-	 */
-	protected function matchFilter(array $data, $filterWords) {
-		if (isset($this->settings['filter']['searchFields']) && is_array($this->settings['filter']['searchFields'])) {
-			$searchFields = $this->settings['filter']['searchFields'];
-		} else {
-			$searchFields = array('title', 'bodytext');
-		}
-
-		foreach ($searchFields as $fieldName) {
-			foreach ($filterWords as $filter) {
-				if (stripos($data[$fieldName], $filter) !== FALSE) {
-					return TRUE;
-				}
-			}
-		}
-
-		return FALSE;
-	}
-
-	/**
-	 * Clean body text by RTE settings
-	 *
-	 * @param string $text
-	 * @param int $pid
-	 */
-	protected function cleanBodyText($text, $pid) {
-		static $rteHtmlParsers;
-
-		if (!isset($rteHtmlParsers[$pid])) {
-			if (!is_array($rteHtmlParsers)) {
-				$rteHtmlParsers = array();
-			}
-			/** @var $htmlParser \TYPO3\CMS\Core\Html\RteHtmlParser */
-			$rteHtmlParsers[$pid] = GeneralUtility::makeInstance('TYPO3\\CMS\\Core\\Html\\RteHtmlParser');
-			$rteHtmlParsers[$pid]->init('tx_news_domain_model_news:bodytext', $pid);
-		}
-
-		// Perform transformation
-		$tsConfig = \TYPO3\CMS\Backend\Utility\BackendUtility::getPagesTSconfig($pid);
-		return $rteHtmlParsers[$pid]->RTE_transform(trim($text), array('rte_transform' => array('parameters' => array('flag=rte_disabled','mode=ts_css'))), 'db', $tsConfig['RTE.']['default.']);
-	}
-
-	/**
-	 * @param array $data
-	 * @param ImportSource $importSource
-	 * @return NULL|array
-	 */
-	protected function processMedia(array $data, ImportSource $importSource) {
-		$media = NULL;
-		if (empty($data['image']) && $importSource->getDefaultImage()) {
-			return array(
-				array(
-					'type' => 0,
-					'image' => $importSource->getDefaultImage()->getOriginalResource()->getCombinedIdentifier(),
-					'showinpreview' => 1
-				)
-			);
-		}
-
-		$folder = NULL;
-		if ($importSource->getImageFolder()) {
-			try {
-				$folder = ResourceFactory::getInstance()->getFolderObjectFromCombinedIdentifier(ltrim($importSource->getImageFolder(), 'file:'));
-			} catch (\Exception $e) {}
-		}
-
-		if (!empty($data['image']) && $folder) {
-			$tmp = GeneralUtility::getUrl($data['image']);
-			if ($tmp) {
-				$tempFile = GeneralUtility::tempnam('news_importer');
-				file_put_contents($tempFile, $tmp);
-				list(,,$imageType) = getimagesize($tempFile);
-				try {
-					$image = $folder->addFile($tempFile, ($data['title'] ?: 'news_import') . image_type_to_extension($imageType, TRUE), 'changeName');
-					$media = array(
-						array(
-							'type' => 0,
-							'image' => $image->getCombinedIdentifier(),
-							'showinpreview' => 1
-						)
-					);
-				} catch (\Exception $e) {}
-			}
-		}
-		return $media;
 	}
 
 	/**
