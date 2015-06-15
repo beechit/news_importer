@@ -156,6 +156,27 @@ class ImportNewsCommandController extends \TYPO3\CMS\Extbase\Mvc\Controller\Comm
 	}
 
 	/**
+	 * Test import source by counting found items and displaying data of first item
+	 *
+	 * @param ImportSource $importSource
+	 */
+	public function testSourceCommand(ImportSource $importSource) {
+		$this->outputLine('Fetch: ' . $importSource->getUrl());
+		$this->outputDashedLine();
+
+		$this->extractorService->setSource($importSource->getUrl());
+		$this->extractorService->setMapping($importSource->getMapping());
+		$items = $this->extractorService->getItems();
+
+		$this->outputLine('Found ' . count($items) . ' items');
+		$this->outputDashedLine();
+
+		if (count($items)) {
+			$this->outputLine(print_r($items[0]->toArray(), 1));
+		}
+	}
+
+	/**
 	 * @param string $char
 	 */
 	protected function outputDashedLine($char = '-') {
