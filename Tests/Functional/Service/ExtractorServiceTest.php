@@ -43,7 +43,7 @@ class ExtractorServiceTest extends \TYPO3\CMS\Core\Tests\FunctionalTestCase {
 			)
 		));
 		$items = $this->extractorService->getItems();
-		$this->assertEquals(10, count($items));
+		$this->assertCount(10, $items);
 		$this->assertEquals('Middelburg verwijdert verkeerd geparkeerde fietsen op station   ', $items[0]->extractValue('title'));
 		$this->assertEquals('http://www.nu.nl/walcheren/4048130/middelburg-verwijdert-verkeerd-geparkeerde-fietsen-station-.html', $items[0]->extractValue('link'));
 		$this->assertEquals(1431452309, $items[0]->extractValue('pubDate'));
@@ -70,10 +70,54 @@ class ExtractorServiceTest extends \TYPO3\CMS\Core\Tests\FunctionalTestCase {
 			)
 		));
 		$items = $this->extractorService->getItems();
-		$this->assertEquals(25, count($items));
+		$this->assertCount(25, $items);
 		$this->assertEquals('Flea Beetle Management', $items[0]->extractValue('title'));
 		$this->assertEquals('http://extension.psu.edu/plants/vegetable-fruit/news/2015/flea-beetle-management', $items[0]->extractValue('link'));
 		$this->assertEquals(1433188535, $items[0]->extractValue('datetime'));
 		$this->assertEquals('http://extension.psu.edu/plants/vegetable-fruit/news/2015/flea-beetle-management/image', $items[0]->extractValue('image'));
+	}
+
+	/**
+	 * @test
+	 */
+	public function xmlImportWithMultipleValuesTest() {
+		$this->extractorService->setSource(__DIR__ . '/../Fixtures/RemoteData/custom.xml');
+		$this->extractorService->setMapping(array(
+			'items' => 'item',
+			'item' => array(
+				'title' => 'title',
+				'link' => 'link',
+				'datetime' => array(
+					'selector' => 'pubDate',
+					'strtotime' => 1
+				),
+				'related_links' => array(
+					'selector' => 'related_link',
+					'multiple' => array(
+						'uri' => array('attr' => 'href'), # method 1 to get attribute value
+						'title' => 'title', # method 2 to get a attribute value
+					)
+				),
+				'image' => array(
+					'selector' => 'enclosure',
+					'multiple' => 1,
+					'attr' => 'url',
+				)
+			)
+		));
+		$items = $this->extractorService->getItems();
+		$this->assertCount(10, $items);
+		$this->assertEquals('Middelburg verwijdert verkeerd geparkeerde fietsen op station', $items[0]->extractValue('title'));
+		$this->assertEquals('http://www.nu.nl/walcheren/4048130/middelburg-verwijdert-verkeerd-geparkeerde-fietsen-station-.html', $items[0]->extractValue('link'));
+		$this->assertEquals(1431452309, $items[0]->extractValue('datetime'));
+
+		$images = $items[0]->extractValue('image');
+		$this->assertCount(2, $images);
+		$this->assertEquals('http://media.nu.nl/m/m1oxhrpa8daz_sqr256.jpg/middelburg-verwijdert-verkeerd-geparkeerde-fietsen-station-.jpg', $images[0]);
+
+		$relatedLinks = $items[0]->extractValue('related_links');
+		$this->assertCount(2, $relatedLinks);
+		$this->assertEquals('http://www.nu.nl/walcheren/4048130/middelburg-verwijdert-verkeerd-geparkeerde-fietsen-station-.html', $relatedLinks[0]['uri']);
+		$this->assertEquals('Extra link 1', $relatedLinks[0]['title']);
 	}
 }

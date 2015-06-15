@@ -60,6 +60,62 @@ Import RSS Feed as external news items::
 		}
 	}
 
+Import RSS feed with multiple images::
+
+	items = item
+	item {
+		guid = guid
+		title = title
+		externalurl = link
+		type {
+			defaultValue = 2
+		}
+		bodytext = description
+		datetime {
+			selector = pubDate
+			strtotime = 1
+		}
+		image {
+			selector = enclosure
+			attr = url
+			multiple = 1
+		}
+	}
+
+
+Import custom RSS feed with multiple related links::
+
+	items = item
+	item {
+		guid = guid
+		title = title
+		externalurl = link
+		type {
+			defaultValue = 2
+		}
+		bodytext = description
+		datetime {
+			selector = pubDate
+			strtotime = 1
+		}
+		image {
+			selector = enclosure
+			attr = url
+		}
+		related_links {
+			selector = related_link
+			multiple {
+				# fetch attr href from each
+				uri = href
+
+				# alternative way of fetching attr value and using other mapping options
+				title {
+					attr = title
+					wrap = See also: |
+				}
+			}
+		}
+	}
 
 Todo:
 -----

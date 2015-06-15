@@ -91,21 +91,59 @@ class ExtractorService implements SingletonInterface {
 	}
 
 	/**
-	 * @param $mapping
+	 * Extract value
+	 *
+	 * @param \QueryPath\DOMQuery $item
+	 * @param array $mapping
+	 * @param string $value
+	 * @return string|array
+	 */
+	public function extractValue(\QueryPath\DOMQuery $item, array $mapping, $value = '') {
+
+		if (empty($mapping['multiple'])) {
+			/** @var \QueryPath\DOMQuery $tmp */
+			$tmp = $item->find($mapping['selector'])->first();
+			$return = $this->_extractValue($tmp, $mapping, $value);
+
+		} elseif(is_array($mapping['multiple'])) {
+			$return = array();
+			foreach ($item->find($mapping['selector']) as $tmp) {
+				$value = array();
+				foreach ($mapping['multiple'] as $key => $subMapping) {
+					$value[$key] = $this->_extractValue(
+						$tmp,
+						is_string($subMapping) ? array('attr' => $subMapping) : $subMapping,
+						is_string($subMapping) ? $subMapping : ''
+					);
+				}
+				$return[] = $value;
+			}
+
+		} else {
+			$return = array();
+			foreach ($item->find($mapping['selector']) as $tmp) {
+				$return[] = $this->_extractValue($tmp, $mapping, $value);
+			}
+		}
+		return $return;
+	}
+
+	/**
+	 * Extract a single value
+	 *
+	 * @param \QueryPath\DOMQuery $item
+	 * @param array $mapping
 	 * @param string $value
 	 * @return string
 	 */
-	public function extractValue(\QueryPath\DOMQuery $item, $mapping, $value = '') {
-
-		/** @var \QueryPath\DOMQuery $tmp */
-		$tmp = $item->find($mapping['selector'])->first();
-		if ($tmp) {
+	protected function _extractValue(\QueryPath\DOMQuery $item, array $mapping, $value = '') {
+		if ($item) {
 			if (!empty($mapping['attr'])) {
-				$value = $tmp->attr($mapping['attr']);
+				$value = $item->attr($mapping['attr']);
 			} elseif (!empty($mapping['innerHTML'])) {
-				$value = $tmp->innerHTML();
+				$value = $item->innerHTML();
 			} else {
-				$value = $tmp->text();
+				$value = $item->text();
 			}
 		}
 		$value = mb_convert_encoding($value, 'UTF-8', 'auto');

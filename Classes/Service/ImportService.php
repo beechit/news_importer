@@ -139,21 +139,27 @@ class ImportService implements SingletonInterface {
 		}
 
 		if (!empty($data['image']) && $folder) {
-			$tmp = GeneralUtility::getUrl($data['image']);
-			if ($tmp) {
-				$tempFile = GeneralUtility::tempnam('news_importer');
-				file_put_contents($tempFile, $tmp);
-				list(,,$imageType) = getimagesize($tempFile);
-				try {
-					$image = $folder->addFile($tempFile, ($data['title'] ?: 'news_import') . image_type_to_extension($imageType, TRUE), 'changeName');
-					$media = array(
-						array(
-							'type' => 0,
-							'image' => $image->getCombinedIdentifier(),
-							'showinpreview' => 1
-						)
-					);
-				} catch (\Exception $e) {}
+			$media = array();
+			if (!is_array($data['image'])) {
+				$data['image'] = array($data['image']);
+			}
+			foreach ($data['image'] as $image) {
+				$tmp = GeneralUtility::getUrl($image);
+				if ($tmp) {
+					$tempFile = GeneralUtility::tempnam('news_importer');
+					file_put_contents($tempFile, $tmp);
+					list(, , $imageType) = getimagesize($tempFile);
+					try {
+						$falImage = $folder->addFile($tempFile, ($data['title'] ?: 'news_import') . image_type_to_extension($imageType, TRUE), 'changeName');
+						$media[] =
+							array(
+								'type' => 0,
+								'image' => $falImage->getCombinedIdentifier(),
+								'showinpreview' => 1
+							);
+					} catch (\Exception $e) {
+					}
+				}
 			}
 		}
 		return $media;
