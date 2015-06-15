@@ -78,7 +78,13 @@ class ImportNewsCommandController extends \TYPO3\CMS\Extbase\Mvc\Controller\Comm
 		$remotes = $this->importSourceRepository->findAll();
 		/** @var ImportSource $remote */
 		foreach ($remotes as $remote) {
-			$this->outputLine('[' . $remote->getUid() . '] ' . $remote->getUrl() . ($remote->getDisableAutoImport() ? ' - auto import is disabled!' : ' - last run: ' . $remote->getLastRun()->format('Y-m-d H:i:s')));
+			$lastRun = '';
+			if ($remote->getDisableAutoImport()) {
+				$lastRun = ' - auto import is disabled!';
+			} elseif ($remote->getLastRun()) {
+				$lastRun = ' - last run: ' . $remote->getLastRun()->format('Y-m-d H:i:s');
+			}
+			$this->outputLine('[' . $remote->getUid() . '] ' . $remote->getUrl() . $lastRun);
 		}
 		if ($remotes->count() === 0) {
 			$this->outputLine('No remotes found!');
@@ -172,6 +178,8 @@ class ImportNewsCommandController extends \TYPO3\CMS\Extbase\Mvc\Controller\Comm
 		$this->outputDashedLine();
 
 		if (count($items)) {
+			$this->outputLine('GUID: ' . $items[0]->getGuid());
+			$this->outputDashedLine();
 			$this->outputLine(print_r($items[0]->toArray(), 1));
 		}
 	}
