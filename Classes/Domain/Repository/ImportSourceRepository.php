@@ -53,7 +53,7 @@ class ImportSourceRepository extends \TYPO3\CMS\Extbase\Persistence\Repository {
 		$query = $this->createQuery();
 
 		$rawQuery = 'SELECT * FROM tx_newsimporter_domain_model_importsource WHERE';
-		$rawQuery .= ' hidden = 0 AND deleted = 0';
+		$rawQuery .= ' hidden = 0 AND deleted = 0 AND disable_auto_import = 0';
 		$rawQuery .= ' AND last_run < (' . $_SERVER['REQUEST_TIME'] . '- update_interval)';
 		$rawQuery .= ' AND (starttime = 0 OR starttime <= ' . $_SERVER['REQUEST_TIME'] . ')';
 		$rawQuery .= ' AND (endtime = 0 OR endtime > ' . $_SERVER['REQUEST_TIME'] . ')';

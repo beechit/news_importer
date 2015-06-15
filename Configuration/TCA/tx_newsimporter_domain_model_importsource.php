@@ -23,11 +23,14 @@ return array(
 			'starttime' => 'starttime',
 			'endtime' => 'endtime',
 		),
+
+		'requestUpdate' => 'disable_auto_import',
+
 		'searchFields' => 'title,url,mapping,filter',
 		'iconfile' => \TYPO3\CMS\Core\Utility\ExtensionManagementUtility::extRelPath('news_importer') . 'ext_icon.png'
 	),
 	'interface' => array(
-		'showRecordFieldList' => 'sys_language_uid, l10n_parent, l10n_diffsource, hidden, title, url, mapping, last_run, storage_pid, default_image, image_folder, filter, update_interval'
+		'showRecordFieldList' => 'sys_language_uid, l10n_parent, l10n_diffsource, hidden, title, url, mapping, last_run, storage_pid, default_image, image_folder, filter, update_interval, disable_auto_import'
 	),
 	'types' => array(
 		'1' => array('showitem' => '
@@ -43,7 +46,7 @@ return array(
 	),
 	'palettes' => array(
 		'cron' => array(
-			'showitem' => 'filter, --linebreak--, last_run, update_interval,',
+			'showitem' => 'filter, --linebreak--, last_run, update_interval,disable_auto_import',
 			'canNotCollapse' => TRUE
 		),
 	),
@@ -178,8 +181,16 @@ item {
 				'
 			)
 		),
+		'disable_auto_import' => array(
+			'exclude' => 1,
+			'label' => 'LLL:EXT:news_importer/Resources/Private/Language/locallang_db.xlf:tx_newsimporter_domain_model_importsource.disable_auto_import',
+			'config' => array(
+				'type' => 'check',
+			),
+		),
 		'last_run' => array(
 			'exclude' => 1,
+			'displayCond' => 'FIELD:disable_auto_import:REQ:false',
 			'label' => 'LLL:EXT:news_importer/Resources/Private/Language/locallang_db.xlf:tx_newsimporter_domain_model_importsource.last_run',
 			'config' => array(
 				'type' => 'input',
@@ -286,6 +297,7 @@ item {
 		),
 		'filter' => array(
 			'exclude' => 1,
+			'displayCond' => 'FIELD:disable_auto_import:REQ:false',
 			'label' => 'LLL:EXT:news_importer/Resources/Private/Language/locallang_db.xlf:tx_newsimporter_domain_model_importsource.filter',
 			'config' => array(
 				'type' => 'input',
@@ -296,6 +308,7 @@ item {
 
 		'update_interval' => array(
 			'exclude' => 1,
+			'displayCond' => 'FIELD:disable_auto_import:REQ:false',
 			'label' => 'LLL:EXT:news_importer/Resources/Private/Language/locallang_db.xlf:tx_newsimporter_domain_model_importsource.update_interval',
 			'config' => array(
 				'type' => 'input',

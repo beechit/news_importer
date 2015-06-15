@@ -76,9 +76,9 @@ class ImportNewsCommandController extends \TYPO3\CMS\Extbase\Mvc\Controller\Comm
 	public function statusCommand() {
 		$this->outputDashedLine();
 		$remotes = $this->importSourceRepository->findAll();
-		/** @var Remote $remote */
+		/** @var ImportSource $remote */
 		foreach ($remotes as $remote) {
-			$this->outputLine($remote->getUrl());
+			$this->outputLine('[' . $remote->getUid() . '] ' . $remote->getUrl() . ($remote->getDisableAutoImport() ? ' - auto import is disabled!' : ' - last run: ' . $remote->getLastRun()->format('Y-m-d H:i:s')));
 		}
 		if ($remotes->count() === 0) {
 			$this->outputLine('No remotes found!');

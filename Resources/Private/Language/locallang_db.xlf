@@ -33,6 +33,9 @@
 			<trans-unit id="tx_newsimporter_domain_model_importsource.update_interval">
 				<source>Update interval (h:mm:ss)</source>
 			</trans-unit>
+			<trans-unit id="tx_newsimporter_domain_model_importsource.disable_auto_import">
+				<source>Disable automation</source>
+			</trans-unit>
 			<trans-unit id="palette.automation">
 				<source>Automation (when executed by cli/scheduler task)</source>
 			</trans-unit>

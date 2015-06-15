@@ -54,6 +54,11 @@ class ImportSource extends \TYPO3\CMS\Extbase\DomainObject\AbstractEntity {
 	protected $mapping = '';
 
 	/**
+	 * @var bool
+	 */
+	protected $disableAutoImport = FALSE;
+
+	/**
 	 * lastRun
 	 *
 	 * @var \DateTime
@@ -140,6 +145,24 @@ class ImportSource extends \TYPO3\CMS\Extbase\DomainObject\AbstractEntity {
 	 */
 	public function setMapping($mapping) {
 		$this->mapping = $mapping;
+	}
+
+	/**
+	 * Get disableAutoImport
+	 *
+	 * @return boolean
+	 */
+	public function getDisableAutoImport() {
+		return $this->disableAutoImport;
+	}
+
+	/**
+	 * Set disableAutoImport
+	 *
+	 * @param boolean $disableAutoImport
+	 */
+	public function setDisableAutoImport($disableAutoImport) {
+		$this->disableAutoImport = $disableAutoImport;
 	}
 
 	/**
