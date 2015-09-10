@@ -34,6 +34,29 @@ Requirements:
 -------------
 - TYPO3 => 6.2.12
 
+Getting started
+---------------
+
+After installation of the extension:
+
+- Create a record "Import source" on a define page/storage. (Listview -> add -> Import source)
+- Enter the url of the desired import feed
+- Add a mapping for the items (see example mapping configurations)
+- Add news storage pid were the imported news items will be saved
+- Adjust/add other fields
+
+After defining which items to import:
+
+- Create a scheduler task
+- Choose Extbase command controller
+- Select Command controller command: NewsImporter ImportNews:run
+- Adjust settings to your preferences (frequency etc)
+
+NOTE:
+
+- In the import source there is an additional setting for interval!
+- Importing can also be invoked by cmdline with ./typo3cms importnews:run (typo3_console ext have to be installed)
+
 
 
 Example mapping configurations:
@@ -116,6 +139,10 @@ Import custom RSS feed with multiple related links::
 			}
 		}
 	}
+
+Setting a default value can done by e.g. default author::
+
+	author.defaultvalue = Authorname
 
 Todo:
 -----
