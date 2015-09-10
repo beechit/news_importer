@@ -20,7 +20,7 @@ use TYPO3\CMS\Core\Resource\StorageRepository;
 class ImportService implements SingletonInterface {
 
 	/**
-	 * @var \Tx_News_Domain_Service_NewsImportService
+	 * @var \GeorgRinger\News\Domain\Service\NewsImportService
 	 * @inject
 	 */
 	protected $newsImportService;
