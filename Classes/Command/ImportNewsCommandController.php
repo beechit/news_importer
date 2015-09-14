@@ -21,6 +21,11 @@ use TYPO3\CMS\Rsaauth\Storage\StorageFactory;
 class ImportNewsCommandController extends \TYPO3\CMS\Extbase\Mvc\Controller\CommandController {
 
 	/**
+	 * Define maximum line length of the terminal
+	 */
+	const MAXIMUM_LINE_LENGTH = 29;
+
+	/**
 	 * @var array
 	 */
 	protected $settings;
