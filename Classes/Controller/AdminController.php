@@ -92,7 +92,7 @@ class AdminController extends \TYPO3\CMS\Extbase\Mvc\Controller\ActionController
 			$this->addFlashMessage('select-page-with-importsources', '', AbstractMessage::WARNING);
 		}
 		if ($importSources->count() === 1) {
-			$this->redirect('show', NULL, NULL, array('importSource' => $importSources->getFirst()));
+			$this->redirect('show', NULL, NULL, ['importSource' => $importSources->getFirst()]);
 		}
 		$this->view->assign('importSources', $importSources);
 	}
@@ -107,16 +107,16 @@ class AdminController extends \TYPO3\CMS\Extbase\Mvc\Controller\ActionController
 		$this->extractorService->setMapping($importSource->getMapping());
 		$extractedItems = $this->extractorService->getItems();
 
-		$items = array();
+		$items = [];
 		/** @var ExtractedItem $item */
 		foreach ($extractedItems as $item) {
-			$items[] = array(
+			$items[] = [
 				'guid' => $item->getGuid(),
 				'title' => $item->extractValue('title'),
 				'link' => $item->extractValue('link'),
 				'datetime' => $item->extractValue('datetime'),
 				'newsUid' => $this->importService->alreadyImported($importSource->getPid(), $item->getGuid())
-			);
+            ];
 		}
 
 		$this->view->assign('items', $items);
@@ -144,12 +144,12 @@ class AdminController extends \TYPO3\CMS\Extbase\Mvc\Controller\ActionController
 				if (\TYPO3\CMS\Core\Utility\GeneralUtility::getIndpEnv('TYPO3_SSL')) {
 					$this->uriBuilder->setAbsoluteUriScheme('https');
 				}
-				$returnUrl = $this->uriBuilder->uriFor('show', array('importSource' => $importSource), $this->request->getControllerName());
+				$returnUrl = $this->uriBuilder->uriFor('show', ['importSource' => $importSource], $this->request->getControllerName());
 				$this->redirectToUri('alt_doc.php?returnUrl=' . rawurlencode($returnUrl) . '&edit[tx_news_domain_model_news][' . $itemUid . ']=edit&disHelp=1');
 			}
 		}
 
 		$this->addFlashMessage('requested-item-not-found', '', AbstractMessage::ERROR);
-		$this->redirect('show', NULL, NULL, array('importSource' => $importSource));
+		$this->redirect('show', NULL, NULL, ['importSource' => $importSource]);
 	}
 }

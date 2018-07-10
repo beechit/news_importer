@@ -45,7 +45,7 @@ class ImportService implements SingletonInterface {
 		// parse media
 		$data['media'] = $this->processMedia($data, $importSource);
 
-		$this->newsImportService->import(array($data));
+		$this->newsImportService->import([$data]);
 	}
 
 	/**
@@ -75,7 +75,7 @@ class ImportService implements SingletonInterface {
 	 * @param array $searchFields
 	 * @return bool
 	 */
-	public function matchFilter(ExtractedItem $item, $filterWords, array $searchFields = array('title', 'bodytext')) {
+	public function matchFilter(ExtractedItem $item, $filterWords, array $searchFields = ['title', 'bodytext']) {
 		if (empty($searchFields)) {
 			return TRUE;
 		}
@@ -102,7 +102,7 @@ class ImportService implements SingletonInterface {
 
 		if (!isset($rteHtmlParsers[$pid])) {
 			if (!is_array($rteHtmlParsers)) {
-				$rteHtmlParsers = array();
+				$rteHtmlParsers = [];
 			}
 			/** @var $htmlParser \TYPO3\CMS\Core\Html\RteHtmlParser */
 			$rteHtmlParsers[$pid] = GeneralUtility::makeInstance('TYPO3\\CMS\\Core\\Html\\RteHtmlParser');
@@ -111,7 +111,7 @@ class ImportService implements SingletonInterface {
 
 		// Perform transformation
 		$tsConfig = BackendUtility::getPagesTSconfig($pid);
-		return $rteHtmlParsers[$pid]->RTE_transform(trim($text), array('rte_transform' => array('parameters' => array('flag=rte_disabled','mode=ts_css'))), 'db', $tsConfig['RTE.']['default.']);
+		return $rteHtmlParsers[$pid]->RTE_transform(trim($text), ['rte_transform' => ['parameters' => ['flag=rte_disabled','mode=ts_css']]], 'db', $tsConfig['RTE.']['default.']);
 	}
 
 	/**
@@ -122,13 +122,13 @@ class ImportService implements SingletonInterface {
 	protected function processMedia(array $data, ImportSource $importSource) {
 		$media = NULL;
 		if (empty($data['image']) && $importSource->getDefaultImage()) {
-			return array(
-				array(
+			return [
+				[
 					'type' => 0,
 					'image' => $importSource->getDefaultImage()->getOriginalResource()->getCombinedIdentifier(),
 					'showinpreview' => 1
-				)
-			);
+                ]
+            ];
 		}
 
 		$folder = NULL;
@@ -139,9 +139,9 @@ class ImportService implements SingletonInterface {
 		}
 
 		if (!empty($data['image']) && $folder) {
-			$media = array();
+			$media = [];
 			if (!is_array($data['image'])) {
-				$data['image'] = array($data['image']);
+				$data['image'] = [$data['image']];
 			}
 			foreach ($data['image'] as $image) {
 				$tmp = GeneralUtility::getUrl($image);
@@ -152,11 +152,11 @@ class ImportService implements SingletonInterface {
 					try {
 						$falImage = $folder->addFile($tempFile, ($data['title'] ?: 'news_import') . image_type_to_extension($imageType, TRUE), 'changeName');
 						$media[] =
-							array(
+							[
 								'type' => 0,
 								'image' => $falImage->getCombinedIdentifier(),
 								'showinpreview' => 1
-							);
+                            ];
 					} catch (\Exception $e) {
 					}
 				}

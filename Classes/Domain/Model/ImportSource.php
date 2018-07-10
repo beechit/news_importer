@@ -267,7 +267,7 @@ class ImportSource extends \TYPO3\CMS\Extbase\DomainObject\AbstractEntity {
 		if ($this->filter) {
 			return GeneralUtility::trimExplode(',', $this->filter, TRUE);
 		} else {
-			return array();
+			return [];
 		}
 	}
 }

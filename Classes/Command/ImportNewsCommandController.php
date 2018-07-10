@@ -107,11 +107,11 @@ class ImportNewsCommandController extends \TYPO3\CMS\Extbase\Mvc\Controller\Comm
 	public function runCommand($limit = 1) {
 
 		$importSources = $this->importSourceRepository->findSourcesToImport($limit);
-		$importReport = array();
+		$importReport = [];
 		if (isset($this->settings['filter']['searchFields']) && is_array($this->settings['filter']['searchFields'])) {
 			$searchFields = $this->settings['filter']['searchFields'];
 		} else {
-			$searchFields = array('title', 'bodytext');
+			$searchFields = ['title', 'bodytext'];
 		}
 
 		$this->outputLine();
@@ -145,7 +145,7 @@ class ImportNewsCommandController extends \TYPO3\CMS\Extbase\Mvc\Controller\Comm
 			$this->persistenceManager->persistAll();
 		}
 
-		if ($importReport !== array() && !empty($this->settings['notification']['recipients'])) {
+		if ($importReport !== [] && !empty($this->settings['notification']['recipients'])) {
 			/** @var MailMessage $message */
 			$message = GeneralUtility::makeInstance('TYPO3\\CMS\\Core\\Mail\\MailMessage');
 			$message->setTo($this->settings['notification']['recipients'])
@@ -156,10 +156,10 @@ class ImportNewsCommandController extends \TYPO3\CMS\Extbase\Mvc\Controller\Comm
 			$message->setBody(
 				vsprintf(
 					$this->settings['notification']['body'] ?: 'Imported %1$d items: %2$s',
-					array(
+					[
 						count($importReport),
 						PHP_EOL . PHP_EOL . implode(PHP_EOL, $importReport)
-					)
+                    ]
 				)
 			);
 			$message->send();

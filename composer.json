@@ -4,7 +4,7 @@
 	"description": "\"News importer\": Import news feeds into your TYPO3 CMS",
 	"license": ["GPL-2.0+"],
 	"require": {
-		"typo3/cms-core": ">=6.2.1,<8.0",
+		"typo3/cms-core": ">=6.2.1 || >=7.6.0 || >=8.7.0",
         "querypath/querypath": "^3"
 	},
     "autoload": {

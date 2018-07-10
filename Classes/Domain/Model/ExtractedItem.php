@@ -32,7 +32,7 @@ class ExtractedItem {
 	/**
 	 * @var array
 	 */
-	protected $extractedValues = array();
+	protected $extractedValues = [];
 
 	/**
 	 * @param DOMQuery $item
@@ -64,7 +64,7 @@ class ExtractedItem {
 		}
 		$mapping = isset($this->itemMapping[$name]) ? $this->itemMapping[$name] : $name;
 		if (is_string($mapping)) {
-			$mapping = array('selector' => $mapping);
+			$mapping = ['selector' => $mapping];
 		}
 		$value = !empty($mapping['defaultValue']) ? $mapping['defaultValue'] : '';
 

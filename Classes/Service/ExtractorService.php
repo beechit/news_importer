@@ -32,13 +32,13 @@ class ExtractorService implements SingletonInterface {
 	/**
 	 * @var array
 	 */
-	protected $itemMapping = array(
+	protected $itemMapping = [
 		'items' => 'item',
-		'item' => array(
+		'item' => [
 			'title' => 'title',
 			'link' => 'link'
-		)
-	);
+        ]
+    ];
 
 	/**
 	 * @var string
@@ -76,13 +76,13 @@ class ExtractorService implements SingletonInterface {
 		if (is_file($source)) {
 			return file_get_contents($source);
 		} elseif ($postVars !== NULL) {
-			$options = array(
-				'http' => array(
+			$options = [
+				'http' => [
 					'header'  => "Content-type: application/x-www-form-urlencoded\r\n",
 					'method'  => 'POST',
 					'content' => $postVars,
-				),
-			);
+                ],
+            ];
 			$context  = stream_context_create($options);
 			return file_get_contents($source, false, $context);
 		} else {
@@ -106,13 +106,13 @@ class ExtractorService implements SingletonInterface {
 			$return = $this->_extractValue($tmp, $mapping, $value);
 
 		} elseif(is_array($mapping['multiple'])) {
-			$return = array();
+			$return = [];
 			foreach ($item->find($mapping['selector']) as $tmp) {
-				$value = array();
+				$value = [];
 				foreach ($mapping['multiple'] as $key => $subMapping) {
 					$value[$key] = $this->_extractValue(
 						$tmp,
-						is_string($subMapping) ? array('attr' => $subMapping) : $subMapping,
+						is_string($subMapping) ? ['attr' => $subMapping] : $subMapping,
 						is_string($subMapping) ? $subMapping : ''
 					);
 				}
@@ -120,7 +120,7 @@ class ExtractorService implements SingletonInterface {
 			}
 
 		} else {
-			$return = array();
+			$return = [];
 			foreach ($item->find($mapping['selector']) as $tmp) {
 				$return[] = $this->_extractValue($tmp, $mapping, $value);
 			}
@@ -208,7 +208,7 @@ class ExtractorService implements SingletonInterface {
 	 * Extract items
 	 */
 	protected function extractItems() {
-		$this->items = array();
+		$this->items = [];
 		$itemsSelector = !empty($this->itemMapping['items']) ? $this->itemMapping['items'] : 'item';
 
 		if ($this->rawContent === NULL) {

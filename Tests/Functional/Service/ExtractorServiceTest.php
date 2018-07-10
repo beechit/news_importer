@@ -19,7 +19,7 @@ class ExtractorServiceTest extends \TYPO3\CMS\Core\Tests\FunctionalTestCase {
 	 */
 	protected $extractorService;
 
-	protected $testExtensionsToLoad = array('typo3conf/ext/news_importer');
+	protected $testExtensionsToLoad = ['typo3conf/ext/news_importer'];
 
 	public function setUp() {
 		parent::setUp();
@@ -31,17 +31,17 @@ class ExtractorServiceTest extends \TYPO3\CMS\Core\Tests\FunctionalTestCase {
 	 */
 	public function basicRssFeedImportTest() {
 		$this->extractorService->setSource(__DIR__ . '/../Fixtures/RemoteData/rss.xml');
-		$this->extractorService->setMapping(array(
+		$this->extractorService->setMapping([
 			'items' => 'item',
-			'item' => array(
+			'item' => [
 				'title' => 'title',
 				'link' => 'link',
-				'pubDate' => array(
+				'pubDate' => [
 					'selector' => 'pubDate',
 					'strtotime' => 1
-				)
-			)
-		));
+                ]
+            ]
+        ]);
 		$items = $this->extractorService->getItems();
 		$this->assertCount(10, $items);
 		$this->assertEquals('Middelburg verwijdert verkeerd geparkeerde fietsen op station   ', $items[0]->extractValue('title'));
@@ -54,21 +54,21 @@ class ExtractorServiceTest extends \TYPO3\CMS\Core\Tests\FunctionalTestCase {
 	 */
 	public function rssFeedWithCustomNamespaceImportTest() {
 		$this->extractorService->setSource(__DIR__ . '/../Fixtures/RemoteData/rss2.xml');
-		$this->extractorService->setMapping(array(
+		$this->extractorService->setMapping([
 			'items' => 'item',
-			'item' => array(
+			'item' => [
 				'title' => 'title',
 				'link' => 'link',
-				'datetime' => array(
+				'datetime' => [
 					'selector' => 'date', // real tag = dc:date namespace can be dropped
 					'strtotime' => 1
-				),
-				'image' => array(
+                ],
+				'image' => [
 					'selector' => 'leadimage', // real tag = agsci:leadimage namespace can be dropped
 					'attr' => 'url'
-				)
-			)
-		));
+                ]
+            ]
+        ]);
 		$items = $this->extractorService->getItems();
 		$this->assertCount(25, $items);
 		$this->assertEquals('Flea Beetle Management', $items[0]->extractValue('title'));
@@ -82,29 +82,29 @@ class ExtractorServiceTest extends \TYPO3\CMS\Core\Tests\FunctionalTestCase {
 	 */
 	public function xmlImportWithMultipleValuesTest() {
 		$this->extractorService->setSource(__DIR__ . '/../Fixtures/RemoteData/custom.xml');
-		$this->extractorService->setMapping(array(
+		$this->extractorService->setMapping([
 			'items' => 'item',
-			'item' => array(
+			'item' => [
 				'title' => 'title',
 				'link' => 'link',
-				'datetime' => array(
+				'datetime' => [
 					'selector' => 'pubDate',
 					'strtotime' => 1
-				),
-				'related_links' => array(
+                ],
+				'related_links' => [
 					'selector' => 'related_link',
-					'multiple' => array(
-						'uri' => array('attr' => 'href'), # method 1 to get attribute value
+					'multiple' => [
+						'uri' => ['attr' => 'href'], # method 1 to get attribute value
 						'title' => 'title', # method 2 to get a attribute value
-					)
-				),
-				'image' => array(
+                    ]
+                ],
+				'image' => [
 					'selector' => 'enclosure',
 					'multiple' => 1,
 					'attr' => 'url',
-				)
-			)
-		));
+                ]
+            ]
+        ]);
 		$items = $this->extractorService->getItems();
 		$this->assertCount(10, $items);
 		$this->assertEquals('Middelburg verwijdert verkeerd geparkeerde fietsen op station', $items[0]->extractValue('title'));
