@@ -163,8 +163,15 @@ class AdminController extends \TYPO3\CMS\Extbase\Mvc\Controller\ActionController
 				if (\TYPO3\CMS\Core\Utility\GeneralUtility::getIndpEnv('TYPO3_SSL')) {
 					$this->uriBuilder->setAbsoluteUriScheme('https');
 				}
-				$returnUrl = $this->uriBuilder->uriFor('show', ['importSource' => $importSource], $this->request->getControllerName());
-				$this->redirectToUri('alt_doc.php?returnUrl=' . rawurlencode($returnUrl) . '&edit[tx_news_domain_model_news][' . $itemUid . ']=edit&disHelp=1');
+                $uri =  BackendUtility::getModuleUrl('record_edit', [
+                    'edit' => [
+                        'tx_news_domain_model_news' => [
+                            $itemUid => 'edit'
+                        ]
+                    ],
+                    'returnUrl' => $this->uriBuilder->uriFor('show', ['importSource' => $importSource], $this->request->getControllerName())
+                ]);
+				$this->redirectToUri($uri);
 			}
 		}
 

@@ -1,6 +1,7 @@
 <div xmlns="http://www.w3.org/1999/xhtml" lang="en"
 	  xmlns:f="http://typo3.org/ns/fluid/ViewHelpers"
-	  xmlns:ni="http://typo3.org/ns/BeechIt/NewsImporter/ViewHelpers">
+	  xmlns:ni="http://typo3.org/ns/BeechIt/NewsImporter/ViewHelpers"
+     xmlns:core="http://typo3.org/ns/TYPO3/CMS/Core/ViewHelpers">
 
 <f:section name="ImportSources">
 
@@ -18,8 +19,12 @@
 				<td>{importSource.lastRun -> f:format.date()}</td>
 				<td>{importSource.storagePid}</td>
 				<td>
-					<f:link.action action="show" arguments="{importSource: importSource}"><span class="t3-icon t3-icon-actions t3-icon-actions-system t3-icon-system-list-open">&nbsp;</span></f:link.action>
-					<span class="t3-icon t3-icon-actions t3-icon-actions-document t3-icon-document-open" onclick="{ni:be.editLink(table:'tx_newsimporter_domain_model_importsource', uid:importSource.uid)}">&nbsp;</span>
+					<f:link.action action="show" arguments="{importSource: importSource}">
+                        <core:icon identifier="actions-system-list-open"/>
+                    </f:link.action>
+                    <a href="{ni:be.editLink(table:'tx_newsimporter_domain_model_importsource', uid:importSource.uid)}" class="btn btn-default btn-sm">
+                        <core:icon identifier="actions-document-open"/>
+                    </a>
 				</td>
 			</tr>
 		</f:for>
