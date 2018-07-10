@@ -58,23 +58,44 @@ class AdminController extends \TYPO3\CMS\Extbase\Mvc\Controller\ActionController
 		}
 	}
 
-	/**
-	 * Add flash message (with auto translation handling title and body)
-	 *
-	 * @param string $messageBody
-	 * @param string $messageTitle
-	 * @param int $severity
-	 * @param array $arguments the arguments of the extension, being passed over to vsprintf
-	 * @param bool $storeInSession
-	 */
-	public function addFlashMessage($messageBody, $messageTitle = '', $severity = AbstractMessage::OK, array $arguments = NULL, $storeInSession = TRUE) {
-		parent::addFlashMessage(
-			$messageBody ? LocalizationUtility::translate($messageBody, $this->extensionName, $arguments) ?: $messageBody : '',
-			$messageTitle ? LocalizationUtility::translate($messageTitle, $this->extensionName, $arguments) ?: $messageTitle : '',
-			$severity,
-			$storeInSession
-		);
-	}
+    /**
+     * Add flash message (with auto translation handling title and body)
+     *
+     * @param $messageBody
+     * @param string $messageTitle
+     * @param int $severity
+     * @param array|null $arguments
+     * @param bool $storeInSession
+     */
+    public function addTranslatedFlashMessage(
+        $messageBody,
+        $messageTitle = '',
+        $severity = AbstractMessage::OK,
+        array $arguments = null,
+        $storeInSession = true
+    ) {
+        $this->addFlashMessage($this->getTranslatedString($messageBody, $arguments),
+            $this->getTranslatedString($messageTitle, $arguments),
+            $severity,
+            $storeInSession
+        );
+    }
+
+    /**
+     * Translate input string with additional arguments
+     *
+     * @param $input
+     * @param $arguments
+     * @return string
+     */
+    public function getTranslatedString($input, $arguments): string
+    {
+        if (!$input) {
+            return '';
+        }
+        $translated = LocalizationUtility::translate($input, $this->extensionName, $arguments);
+        return $translated ?: '';
+    }
 
 	/**
 	 * @return \TYPO3\CMS\Core\Authentication\BackendUserAuthentication
@@ -89,7 +110,7 @@ class AdminController extends \TYPO3\CMS\Extbase\Mvc\Controller\ActionController
 	public function indexAction() {
 		$importSources = $this->importSourceRepository->findByPid((int)$_GET['id']);
 		if ($importSources->count() === 0) {
-			$this->addFlashMessage('select-page-with-importsources', '', AbstractMessage::WARNING);
+			$this->addTranslatedFlashMessage('select-page-with-importsources', '', AbstractMessage::WARNING);
 		}
 		if ($importSources->count() === 1) {
 			$this->redirect('show', NULL, NULL, ['importSource' => $importSources->getFirst()]);
@@ -147,7 +168,7 @@ class AdminController extends \TYPO3\CMS\Extbase\Mvc\Controller\ActionController
 			}
 		}
 
-		$this->addFlashMessage('requested-item-not-found', '', AbstractMessage::ERROR);
+		$this->addTranslatedFlashMessage('requested-item-not-found', '', AbstractMessage::ERROR);
 		$this->redirect('show', NULL, NULL, ['importSource' => $importSource]);
 	}
 }
