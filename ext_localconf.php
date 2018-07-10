@@ -1,5 +1,7 @@
 <?php
-if (!defined('TYPO3_MODE')) die ('Access denied.');
+if (!defined('TYPO3_MODE')) {
+    die ('Access denied.');
+}
 
 
 $pathQueryLib = \TYPO3\CMS\Core\Utility\ExtensionManagementUtility::extPath($_EXTKEY) .
@@ -7,7 +9,7 @@ $pathQueryLib = \TYPO3\CMS\Core\Utility\ExtensionManagementUtility::extPath($_EX
 // Add custom autoloader for QueryPath
 
 if(file_exists($pathQueryLib)) {
-	require_once($pathQueryLib);
+	require_once $pathQueryLib;
 }
 
 if (TYPO3_MODE === 'BE') {

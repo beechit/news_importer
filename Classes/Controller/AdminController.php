@@ -122,14 +122,12 @@ class AdminController extends \TYPO3\CMS\Extbase\Mvc\Controller\ActionController
 		$this->view->assign('items', $items);
 	}
 
-	/**
-	 * Import item
-	 *
-	 * @param ImportSource $importSource
-	 * @param string $guid
-	 * @return string
-	 * @throws \TYPO3\CMS\Extbase\Mvc\Exception\UnsupportedRequestTypeException
-	 */
+    /**
+     * @param ImportSource $importSource
+     * @param string $guid
+     * @throws \TYPO3\CMS\Extbase\Mvc\Exception\StopActionException
+     * @throws \TYPO3\CMS\Extbase\Mvc\Exception\UnsupportedRequestTypeException
+     */
 	public function importAction(ImportSource $importSource, $guid) {
 		$this->extractorService->setSource($importSource->getUrl());
 		$this->extractorService->setMapping($importSource->getMapping());

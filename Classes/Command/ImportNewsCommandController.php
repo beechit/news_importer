@@ -7,13 +7,10 @@ namespace BeechIt\NewsImporter\Command;
  * All code (c) Beech Applications B.V. all rights reserved
  */
 use BeechIt\NewsImporter\Domain\Model\ImportSource;
-use BeechIt\NewsImporter\Domain\Model\Remote;
 use TYPO3\CMS\Core\Mail\MailMessage;
-use TYPO3\CMS\Core\Resource\ResourceFactory;
 use TYPO3\CMS\Core\Resource\StorageRepository;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Extbase\Configuration\ConfigurationManagerInterface;
-use TYPO3\CMS\Rsaauth\Storage\StorageFactory;
 
 /**
  * Class ImportNewsCommand controller
@@ -99,11 +96,13 @@ class ImportNewsCommandController extends \TYPO3\CMS\Extbase\Mvc\Controller\Comm
 		$this->outputDashedLine();
 	}
 
-	/**
-	 * Run importer
-	 *
-	 * @param int $limit number of sources to check
-	 */
+    /**
+     * Run importer
+     *
+     * @param int $limit number of sources to check
+     * @throws \TYPO3\CMS\Extbase\Persistence\Exception\IllegalObjectTypeException
+     * @throws \TYPO3\CMS\Extbase\Persistence\Exception\UnknownObjectException
+     */
 	public function runCommand($limit = 1) {
 
 		$importSources = $this->importSourceRepository->findSourcesToImport($limit);

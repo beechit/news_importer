@@ -264,10 +264,6 @@ class ImportSource extends \TYPO3\CMS\Extbase\DomainObject\AbstractEntity {
 	 * @return array
 	 */
 	public function getFilterWords() {
-		if ($this->filter) {
-			return GeneralUtility::trimExplode(',', $this->filter, TRUE);
-		} else {
-			return [];
-		}
+        return $this->filter ? GeneralUtility::trimExplode(',', $this->filter, true) : [];
 	}
 }

@@ -138,7 +138,7 @@ class ImportService implements SingletonInterface {
 			} catch (\Exception $e) {}
 		}
 
-		if (!empty($data['image']) && $folder) {
+		if ($folder && !empty($data['image'])) {
 			$media = [];
 			if (!is_array($data['image'])) {
 				$data['image'] = [$data['image']];
