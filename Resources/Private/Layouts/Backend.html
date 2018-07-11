@@ -1,33 +1,8 @@
 <f:be.container
-		loadJQuery="1"
-		includeCssFiles="{0:'{f:uri.resource(path:\'Css/backend.css\')}'}"
-		>
-	<div class="typo3-fullDoc">
-		<div id="typo3-docheader">
-			<div id="typo3-docheader-row1">
-				<div class="buttonsleft">
+        loadJQuery="1"
+        includeCssFiles="{0:'{f:uri.resource(path:\'Css/backend.css\')}'}"
+>
 
-				</div>
-				<div class="buttonsright">
-					<f:link.page addQueryString="1"><span class="t3-icon t3-icon-actions t3-icon-actions-system t3-icon-system-refresh">&nbsp;</span></f:link.page>
-					<f:be.buttons.shortcut/>
-				</div>
-			</div>
-			<div id="typo3-docheader-row2">
-				<div class="docheader-row2-left">
-
-				</div>
-				<div class="docheader-row2-right">
-					<f:be.pagePath/>
-				</div>
-			</div>
-
-		</div>
-		<div id="typo3-docbody">
-			<div id="typo3-inner-docbody">
-				<f:flashMessages/>
-				<f:render section="main" />
-			</div>
-		</div>
-	</div>
+    <f:flashMessages/>
+    <f:render section="main"/>
 </f:be.container>

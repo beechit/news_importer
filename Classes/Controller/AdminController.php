@@ -8,10 +8,14 @@ namespace BeechIt\NewsImporter\Controller;
  */
 use BeechIt\NewsImporter\Domain\Model\ExtractedItem;
 use BeechIt\NewsImporter\Domain\Model\ImportSource;
+use TYPO3\CMS\Backend\Template\Components\ButtonBar;
+use TYPO3\CMS\Backend\View\BackendTemplateView;
+use TYPO3\CMS\Core\Imaging\Icon;
+use TYPO3\CMS\Core\Imaging\IconFactory;
+use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Extbase\Mvc\View\ViewInterface;
 use TYPO3\CMS\Backend\Utility\BackendUtility;
 use TYPO3\CMS\Core\Messaging\AbstractMessage;
-use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Extbase\Utility\LocalizationUtility;
 
 
@@ -38,7 +42,25 @@ class AdminController extends \TYPO3\CMS\Extbase\Mvc\Controller\ActionController
 	 */
 	protected $importService;
 
-	/**
+    /**
+     * @var BackendTemplateView
+     */
+    protected $view;
+
+    /**
+     * BackendTemplateView Container
+     *
+     * @var BackendTemplateView
+     */
+    protected $defaultViewObjectName = BackendTemplateView::class;
+
+
+    /**
+     * The module name of this BE module
+     */
+    const MODULE_NAME = 'web_NewsImporterNewsimporter';
+
+    /**
 	 * @return bool|string
 	 */
 	protected function getErrorFlashMessage() {
@@ -49,6 +71,7 @@ class AdminController extends \TYPO3\CMS\Extbase\Mvc\Controller\ActionController
 	 * initialize view
 	 */
 	public function initializeView(ViewInterface $view) {
+        /** @var BackendTemplateView $view */
 		parent::initializeView($view);
 		if ($this->getBackendUser()) {
 			$lang = $this->getBackendUser()->uc['lang'] ?: 'en';
@@ -122,7 +145,9 @@ class AdminController extends \TYPO3\CMS\Extbase\Mvc\Controller\ActionController
 	 * @param ImportSource $importSource
 	 */
 	public function showAction(ImportSource $importSource) {
-		$this->view->assign('importSource', $importSource);
+        $this->registerButtons();
+
+        $this->view->assign('importSource', $importSource);
 
 		$this->extractorService->setSource($importSource->getUrl());
 		$this->extractorService->setMapping($importSource->getMapping());
@@ -178,4 +203,49 @@ class AdminController extends \TYPO3\CMS\Extbase\Mvc\Controller\ActionController
 		$this->addTranslatedFlashMessage('requested-item-not-found', '', AbstractMessage::ERROR);
 		$this->redirect('show', NULL, NULL, ['importSource' => $importSource]);
 	}
+
+
+    /**
+     * Create the panel of buttons for submitting the form or otherwise perform operations.
+     *
+     * @return array All available buttons as an assoc. array
+     */
+    protected function registerButtons()
+    {
+        /** @var ButtonBar $buttonBar */
+        $buttonBar = $this->view->getModuleTemplate()->getDocHeaderComponent()->getButtonBar();
+
+        /** @var IconFactory $iconFactory */
+        $iconFactory = $this->view->getModuleTemplate()->getIconFactory();
+
+        $lang = $this->getLanguageService();
+
+        // Refresh page
+        $refreshLink = GeneralUtility::linkThisScript(
+            [
+                'target' => rawurlencode('#'),
+            ]
+        );
+        $refreshButton = $buttonBar->makeLinkButton()
+            ->setHref($refreshLink)
+            ->setTitle($lang->sL('LLL:EXT:lang/locallang_core.xlf:labels.reload'))
+            ->setIcon($iconFactory->getIcon('actions-refresh', Icon::SIZE_SMALL));
+        $buttonBar->addButton($refreshButton, ButtonBar::BUTTON_POSITION_RIGHT);
+
+        // Shortcut
+        if ($this->getBackendUser()->mayMakeShortcut()) {
+            $shortCutButton = $buttonBar->makeShortcutButton()->setModuleName(self::MODULE_NAME);
+            $buttonBar->addButton($shortCutButton, ButtonBar::BUTTON_POSITION_RIGHT);
+        }
+    }
+
+    /**
+     * Returns an instance of LanguageService
+     *
+     * @return \TYPO3\CMS\Lang\LanguageService
+     */
+    protected function getLanguageService()
+    {
+        return $GLOBALS['LANG'];
+    }
 }
