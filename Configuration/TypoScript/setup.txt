@@ -1,15 +1,16 @@
 module.tx_newsimporter.settings {
-	notification {
-		subject = New items imported
-		body = Imported %1$d items: %2$s
-		recipients {
-#			1 = support@beech.it
-		}
-	}
-	filter {
-		searchFields {
-			1 = title
-			2 = bodytext
-		}
-	}
+    notification {
+        subject = New items imported
+        body = Imported %1$d items: %2$s
+        recipients {
+            #            1 = support@beech.it
+        }
+    }
+
+    filter {
+        searchFields {
+            1 = title
+            2 = bodytext
+        }
+    }
 }

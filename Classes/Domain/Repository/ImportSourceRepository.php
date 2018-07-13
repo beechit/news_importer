@@ -1,4 +1,5 @@
 <?php
+
 namespace BeechIt\NewsImporter\Domain\Repository;
 
 
@@ -31,39 +32,42 @@ use TYPO3\CMS\Extbase\Persistence\QueryInterface;
 /**
  * The repository for ImportSources
  */
-class ImportSourceRepository extends \TYPO3\CMS\Extbase\Persistence\Repository {
+class ImportSourceRepository extends \TYPO3\CMS\Extbase\Persistence\Repository
+{
 
-	/**
-	 * Disable respect storage
-	 */
-	public function initializeObject() {
-		/* @var $querySettings \TYPO3\CMS\Extbase\Persistence\Generic\Typo3QuerySettings */
-		$querySettings = $this->objectManager->get('TYPO3\\CMS\\Extbase\\Persistence\\Generic\\Typo3QuerySettings');
-		$querySettings->setRespectStoragePage(FALSE);
-		$this->setDefaultQuerySettings($querySettings);
-	}
+    /**
+     * Disable respect storage
+     */
+    public function initializeObject()
+    {
+        /* @var $querySettings \TYPO3\CMS\Extbase\Persistence\Generic\Typo3QuerySettings */
+        $querySettings = $this->objectManager->get('TYPO3\\CMS\\Extbase\\Persistence\\Generic\\Typo3QuerySettings');
+        $querySettings->setRespectStoragePage(false);
+        $this->setDefaultQuerySettings($querySettings);
+    }
 
-	/**
-	 * Find all sources to import
-	 *
-	 * @param int $limit
-	 * @return \TYPO3\CMS\Extbase\Persistence\QueryResultInterface
-	 */
-	public function findSourcesToImport($limit = 0) {
-		$query = $this->createQuery();
+    /**
+     * Find all sources to import
+     *
+     * @param int $limit
+     * @return \TYPO3\CMS\Extbase\Persistence\QueryResultInterface
+     */
+    public function findSourcesToImport($limit = 0)
+    {
+        $query = $this->createQuery();
 
-		$rawQuery = 'SELECT * FROM tx_newsimporter_domain_model_importsource WHERE';
-		$rawQuery .= ' hidden = 0 AND deleted = 0 AND disable_auto_import = 0';
-		$rawQuery .= ' AND last_run < (' . $_SERVER['REQUEST_TIME'] . '- update_interval)';
-		$rawQuery .= ' AND (starttime = 0 OR starttime <= ' . $_SERVER['REQUEST_TIME'] . ')';
-		$rawQuery .= ' AND (endtime = 0 OR endtime > ' . $_SERVER['REQUEST_TIME'] . ')';
-		$rawQuery .= ' ORDER BY last_run ASC';
+        $rawQuery = 'SELECT * FROM tx_newsimporter_domain_model_importsource WHERE';
+        $rawQuery .= ' hidden = 0 AND deleted = 0 AND disable_auto_import = 0';
+        $rawQuery .= ' AND last_run < (' . $_SERVER['REQUEST_TIME'] . '- update_interval)';
+        $rawQuery .= ' AND (starttime = 0 OR starttime <= ' . $_SERVER['REQUEST_TIME'] . ')';
+        $rawQuery .= ' AND (endtime = 0 OR endtime > ' . $_SERVER['REQUEST_TIME'] . ')';
+        $rawQuery .= ' ORDER BY last_run ASC';
 
-		if ($limit) {
-			$rawQuery .= ' LIMIT ' . (int) $limit;
-		}
+        if ($limit) {
+            $rawQuery .= ' LIMIT ' . (int)$limit;
+        }
 
-		$query->statement($rawQuery);
-		return $query->execute();
-	}
+        $query->statement($rawQuery);
+        return $query->execute();
+    }
 }

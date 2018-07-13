@@ -1,37 +1,38 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
 <xliff version="1.0">
-	<file source-language="en" datatype="plaintext" original="messages" date="2015-05-13T09:46:52Z" product-name="news_importer">
-		<header/>
-		<body>
-			<trans-unit id="news_importer">
-				<source>News importer</source>
-			</trans-unit>
-			<trans-unit id="select-page-with-importsources">
-				<source>Select folder with import sources</source>
-			</trans-unit>
-			<trans-unit id="requested-item-not-found">
-				<source>Requested item not found</source>
-			</trans-unit>
+    <file source-language="en" datatype="plaintext" original="messages" date="2015-05-13T09:46:52Z"
+          product-name="news_importer">
+        <header/>
+        <body>
+            <trans-unit id="news_importer">
+                <source>News importer</source>
+            </trans-unit>
+            <trans-unit id="select-page-with-importsources">
+                <source>Select folder with import sources</source>
+            </trans-unit>
+            <trans-unit id="requested-item-not-found">
+                <source>Requested item not found</source>
+            </trans-unit>
 
-			<trans-unit id="item.title">
-				<source>Title</source>
-			</trans-unit>
-			<trans-unit id="item.datetime">
-				<source>Date</source>
-			</trans-unit>
-			<trans-unit id="item.datetime.format">
-				<source>d-m-Y H:i</source>
-			</trans-unit>
+            <trans-unit id="item.title">
+                <source>Title</source>
+            </trans-unit>
+            <trans-unit id="item.datetime">
+                <source>Date</source>
+            </trans-unit>
+            <trans-unit id="item.datetime.format">
+                <source>d-m-Y H:i</source>
+            </trans-unit>
 
-			<trans-unit id="show-original">
-				<source>Show original item</source>
-			</trans-unit>
-			<trans-unit id="edit-item">
-				<source>Edit imported item</source>
-			</trans-unit>
-			<trans-unit id="import-item">
-				<source>Import item</source>
-			</trans-unit>
-		</body>
-	</file>
+            <trans-unit id="show-original">
+                <source>Show original item</source>
+            </trans-unit>
+            <trans-unit id="edit-item">
+                <source>Edit imported item</source>
+            </trans-unit>
+            <trans-unit id="import-item">
+                <source>Import item</source>
+            </trans-unit>
+        </body>
+    </file>
 </xliff>

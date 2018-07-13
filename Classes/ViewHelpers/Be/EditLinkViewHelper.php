@@ -1,4 +1,5 @@
 <?php
+
 namespace BeechIt\NewsImporter\ViewHelpers\Be;
 
 /*
@@ -13,17 +14,19 @@ use TYPO3\CMS\Core\Utility\GeneralUtility;
 /**
  * Class EditLinkViewHelper
  */
-class EditLinkViewHelper extends \TYPO3\CMS\Fluid\Core\ViewHelper\AbstractViewHelper {
+class EditLinkViewHelper extends \TYPO3\CMS\Fluid\Core\ViewHelper\AbstractViewHelper
+{
 
-	/**
-	 * Render the onclick JavaScript for editing given fields of given record
-	 *
-	 * @param string $table
-	 * @param int $uid
-	 * @param string $command
-	 * @return string
-	 */
-	public function render($table, $uid, $command = 'edit') {
+    /**
+     * Render the onclick JavaScript for editing given fields of given record
+     *
+     * @param string $table
+     * @param int $uid
+     * @param string $command
+     * @return string
+     */
+    public function render($table, $uid, $command = 'edit')
+    {
 
         return BackendUtility::getModuleUrl('record_edit', array(
             'edit' => array(
@@ -33,5 +36,5 @@ class EditLinkViewHelper extends \TYPO3\CMS\Fluid\Core\ViewHelper\AbstractViewHe
             ),
             'returnUrl' => GeneralUtility::getIndpEnv('REQUEST_URI')
         ));
-	}
+    }
 }

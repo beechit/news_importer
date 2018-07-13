@@ -1,4 +1,5 @@
 <?php
+
 namespace BeechIt\NewsImporter\Controller;
 
 /*
@@ -22,25 +23,26 @@ use TYPO3\CMS\Extbase\Utility\LocalizationUtility;
 /**
  * Class AdminController
  */
-class AdminController extends \TYPO3\CMS\Extbase\Mvc\Controller\ActionController {
+class AdminController extends \TYPO3\CMS\Extbase\Mvc\Controller\ActionController
+{
 
-	/**
-	 * @var \BeechIt\NewsImporter\Domain\Repository\ImportSourceRepository
-	 * @inject
-	 */
-	protected $importSourceRepository;
+    /**
+     * @var \BeechIt\NewsImporter\Domain\Repository\ImportSourceRepository
+     * @inject
+     */
+    protected $importSourceRepository;
 
-	/**
-	 * @var \BeechIt\NewsImporter\Service\ExtractorService
-	 * @inject
-	 */
-	protected $extractorService;
+    /**
+     * @var \BeechIt\NewsImporter\Service\ExtractorService
+     * @inject
+     */
+    protected $extractorService;
 
-	/**
-	 * @var \BeechIt\NewsImporter\Service\ImportService
-	 * @inject
-	 */
-	protected $importService;
+    /**
+     * @var \BeechIt\NewsImporter\Service\ImportService
+     * @inject
+     */
+    protected $importService;
 
     /**
      * @var BackendTemplateView
@@ -61,25 +63,28 @@ class AdminController extends \TYPO3\CMS\Extbase\Mvc\Controller\ActionController
     const MODULE_NAME = 'web_NewsImporterNewsimporter';
 
     /**
-	 * @return bool|string
-	 */
-	protected function getErrorFlashMessage() {
-		return FALSE;
-	}
+     * @return bool|string
+     */
+    protected function getErrorFlashMessage()
+    {
+        return false;
+    }
 
-	/**
-	 * initialize view
-	 */
-	public function initializeView(ViewInterface $view) {
+    /**
+     * initialize view
+     */
+    public function initializeView(ViewInterface $view)
+    {
         /** @var BackendTemplateView $view */
-		parent::initializeView($view);
-		if ($this->getBackendUser()) {
-			$lang = $this->getBackendUser()->uc['lang'] ?: 'en';
-			$locale = $lang . '_' . strtoupper($lang);
-			setlocale(LC_ALL, $lang, $locale, $locale . '.utf8', $this->getBackendUser()->uc['lang'], $GLOBALS['TYPO3_CONF_VARS']['SYS']['systemLocale']);
-			$view->assign('locale', $locale);
-		}
-	}
+        parent::initializeView($view);
+        if ($this->getBackendUser()) {
+            $lang = $this->getBackendUser()->uc['lang'] ?: 'en';
+            $locale = $lang . '_' . strtoupper($lang);
+            setlocale(LC_ALL, $lang, $locale, $locale . '.utf8', $this->getBackendUser()->uc['lang'],
+                $GLOBALS['TYPO3_CONF_VARS']['SYS']['systemLocale']);
+            $view->assign('locale', $locale);
+        }
+    }
 
     /**
      * Add flash message (with auto translation handling title and body)
@@ -120,53 +125,56 @@ class AdminController extends \TYPO3\CMS\Extbase\Mvc\Controller\ActionController
         return $translated ?: '';
     }
 
-	/**
-	 * @return \TYPO3\CMS\Core\Authentication\BackendUserAuthentication
-	 */
-	protected function getBackendUser() {
-		return $GLOBALS['BE_USER'];
-	}
+    /**
+     * @return \TYPO3\CMS\Core\Authentication\BackendUserAuthentication
+     */
+    protected function getBackendUser()
+    {
+        return $GLOBALS['BE_USER'];
+    }
 
-	/**
-	 * Index action
-	 */
-	public function indexAction() {
-		$importSources = $this->importSourceRepository->findByPid((int)$_GET['id']);
-		if ($importSources->count() === 0) {
-			$this->addTranslatedFlashMessage('select-page-with-importsources', '', AbstractMessage::WARNING);
-		}
-		if ($importSources->count() === 1) {
-			$this->redirect('show', NULL, NULL, ['importSource' => $importSources->getFirst()]);
-		}
-		$this->view->assign('importSources', $importSources);
-	}
+    /**
+     * Index action
+     */
+    public function indexAction()
+    {
+        $importSources = $this->importSourceRepository->findByPid((int)$_GET['id']);
+        if ($importSources->count() === 0) {
+            $this->addTranslatedFlashMessage('select-page-with-importsources', '', AbstractMessage::WARNING);
+        }
+        if ($importSources->count() === 1) {
+            $this->redirect('show', null, null, ['importSource' => $importSources->getFirst()]);
+        }
+        $this->view->assign('importSources', $importSources);
+    }
 
-	/**
-	 * @param ImportSource $importSource
-	 */
-	public function showAction(ImportSource $importSource) {
+    /**
+     * @param ImportSource $importSource
+     */
+    public function showAction(ImportSource $importSource)
+    {
         $this->registerButtons();
 
         $this->view->assign('importSource', $importSource);
 
-		$this->extractorService->setSource($importSource->getUrl());
-		$this->extractorService->setMapping($importSource->getMapping());
-		$extractedItems = $this->extractorService->getItems();
+        $this->extractorService->setSource($importSource->getUrl());
+        $this->extractorService->setMapping($importSource->getMapping());
+        $extractedItems = $this->extractorService->getItems();
 
-		$items = [];
-		/** @var ExtractedItem $item */
-		foreach ($extractedItems as $item) {
-			$items[] = [
-				'guid' => $item->getGuid(),
-				'title' => $item->extractValue('title'),
-				'link' => $item->extractValue('link'),
-				'datetime' => $item->extractValue('datetime'),
-				'newsUid' => $this->importService->alreadyImported($importSource->getPid(), $item->getGuid())
+        $items = [];
+        /** @var ExtractedItem $item */
+        foreach ($extractedItems as $item) {
+            $items[] = [
+                'guid' => $item->getGuid(),
+                'title' => $item->extractValue('title'),
+                'link' => $item->extractValue('link'),
+                'datetime' => $item->extractValue('datetime'),
+                'newsUid' => $this->importService->alreadyImported($importSource->getPid(), $item->getGuid())
             ];
-		}
+        }
 
-		$this->view->assign('items', $items);
-	}
+        $this->view->assign('items', $items);
+    }
 
     /**
      * @param ImportSource $importSource
@@ -174,35 +182,37 @@ class AdminController extends \TYPO3\CMS\Extbase\Mvc\Controller\ActionController
      * @throws \TYPO3\CMS\Extbase\Mvc\Exception\StopActionException
      * @throws \TYPO3\CMS\Extbase\Mvc\Exception\UnsupportedRequestTypeException
      */
-	public function importAction(ImportSource $importSource, $guid) {
-		$this->extractorService->setSource($importSource->getUrl());
-		$this->extractorService->setMapping($importSource->getMapping());
-		$extractedItems = $this->extractorService->getItems();
+    public function importAction(ImportSource $importSource, $guid)
+    {
+        $this->extractorService->setSource($importSource->getUrl());
+        $this->extractorService->setMapping($importSource->getMapping());
+        $extractedItems = $this->extractorService->getItems();
 
-		foreach ($extractedItems as $item) {
-			if ($item->getGuid() === $guid) {
-				$this->importService->importItem($importSource, $item);
-				$itemUid = $this->importService->alreadyImported($importSource->getPid(), $guid);
+        foreach ($extractedItems as $item) {
+            if ($item->getGuid() === $guid) {
+                $this->importService->importItem($importSource, $item);
+                $itemUid = $this->importService->alreadyImported($importSource->getPid(), $guid);
 
-				$this->uriBuilder->reset()->setCreateAbsoluteUri(TRUE);
-				if (\TYPO3\CMS\Core\Utility\GeneralUtility::getIndpEnv('TYPO3_SSL')) {
-					$this->uriBuilder->setAbsoluteUriScheme('https');
-				}
-                $uri =  BackendUtility::getModuleUrl('record_edit', [
+                $this->uriBuilder->reset()->setCreateAbsoluteUri(true);
+                if (\TYPO3\CMS\Core\Utility\GeneralUtility::getIndpEnv('TYPO3_SSL')) {
+                    $this->uriBuilder->setAbsoluteUriScheme('https');
+                }
+                $uri = BackendUtility::getModuleUrl('record_edit', [
                     'edit' => [
                         'tx_news_domain_model_news' => [
                             $itemUid => 'edit'
                         ]
                     ],
-                    'returnUrl' => $this->uriBuilder->uriFor('show', ['importSource' => $importSource], $this->request->getControllerName())
+                    'returnUrl' => $this->uriBuilder->uriFor('show', ['importSource' => $importSource],
+                        $this->request->getControllerName())
                 ]);
-				$this->redirectToUri($uri);
-			}
-		}
+                $this->redirectToUri($uri);
+            }
+        }
 
-		$this->addTranslatedFlashMessage('requested-item-not-found', '', AbstractMessage::ERROR);
-		$this->redirect('show', NULL, NULL, ['importSource' => $importSource]);
-	}
+        $this->addTranslatedFlashMessage('requested-item-not-found', '', AbstractMessage::ERROR);
+        $this->redirect('show', null, null, ['importSource' => $importSource]);
+    }
 
 
     /**

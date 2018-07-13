@@ -1,52 +1,61 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en"
-	  xmlns:f="http://typo3.org/ns/fluid/ViewHelpers"
-	  xmlns:ni="http://typo3.org/ns/BeechIt/NewsImporter/ViewHelpers"
-	  xmlns:core="http://typo3.org/ns/TYPO3/CMS/Core/ViewHelpers">
+      xmlns:f="http://typo3.org/ns/fluid/ViewHelpers"
+      xmlns:ni="http://typo3.org/ns/BeechIt/NewsImporter/ViewHelpers"
+      xmlns:core="http://typo3.org/ns/TYPO3/CMS/Core/ViewHelpers">
 
 <f:layout name="Backend"/>
 
 <f:section name="main">
 
 
-	<h1>{importSource.title}
-		<br /><a class="small" href="{importSource.url}" target="_blank">{importSource.url}</a>
-	</h1>
+    <h1>{importSource.title}
+        <br/><a class="small" href="{importSource.url}" target="_blank">{importSource.url}</a>
+    </h1>
 
-	<table class="typo3-dblist table table-striped">
-		<tr class="t3-row-header">
-			<td class="col-title"><f:translate key="item.title" /></td>
-			<td><f:translate key="item.datetime" /></td>
-			<td></td>
-		</tr>
+    <table class="typo3-dblist table table-striped">
+        <tr class="t3-row-header">
+            <td class="col-title">
+                <f:translate key="item.title"/>
+            </td>
+            <td>
+                <f:translate key="item.datetime"/>
+            </td>
+            <td></td>
+        </tr>
 
-		<f:for each="{items}" as="item">
-			<tr class="<f:cycle values="{0: 'db_list_normal', 1: 'db_list_alt'}" as="cycle">{cycle}</f:cycle> {f:if(condition:iteration.isFirst,then:' firstcol')}{f:if(condition:iteration.isLast,then:' lastcol')}">
-				<td class="col-title">{item.title}</td>
-				<td>{item.datetime -> f:format.date(format:'{f:translate(key:\'item.datetime.format\')}')}</td>
-				<td class="align-right">
-					<f:if condition="{item.link}">
-						<a href="{item.link}" target="_blank" title="{f:translate(key:'show-original')}" class="btn btn-default btn-sm">
-							<core:icon identifier="actions-document-view"/>
-						</a>
-					</f:if>
-					<f:if condition="{item.newsUid}">
-						<f:then>
-							<a href="{ni:be.editLink(table:'tx_news_domain_model_news', uid:item.newsUid)}" class="btn btn-default btn-sm">
-								<core:icon identifier="actions-document-open"/>
-							</a>
-						</f:then>
-						<f:else>
-							<f:link.action action="import" title="{f:translate(key:'import-item')}" arguments="{importSource:importSource,guid:item.guid}" class="btn btn-default btn-sm">
-								<core:icon identifier="actions-document-import-t3d"/>
-							</f:link.action>
-						</f:else>
-					</f:if>
-				</td>
-			</tr>
-		</f:for>
+        <f:for each="{items}" as="item">
+            <tr class="<f:cycle values=" {0:
+            'db_list_normal', 1: 'db_list_alt'}" as="cycle">{cycle}</f:cycle> {f:if(condition:iteration.isFirst,then:'
+            firstcol')}{f:if(condition:iteration.isLast,then:' lastcol')}">
+            <td class="col-title">{item.title}</td>
+            <td>{item.datetime -> f:format.date(format:'{f:translate(key:\'item.datetime.format\')}')}</td>
+            <td class="align-right">
+                <f:if condition="{item.link}">
+                    <a href="{item.link}" target="_blank" title="{f:translate(key:'show-original')}"
+                       class="btn btn-default btn-sm">
+                        <core:icon identifier="actions-document-view"/>
+                    </a>
+                </f:if>
+                <f:if condition="{item.newsUid}">
+                    <f:then>
+                        <a href="{ni:be.editLink(table:'tx_news_domain_model_news', uid:item.newsUid)}"
+                           class="btn btn-default btn-sm">
+                            <core:icon identifier="actions-document-open"/>
+                        </a>
+                    </f:then>
+                    <f:else>
+                        <f:link.action action="import" title="{f:translate(key:'import-item')}"
+                                       arguments="{importSource:importSource,guid:item.guid}"
+                                       class="btn btn-default btn-sm">
+                            <core:icon identifier="actions-document-import-t3d"/>
+                        </f:link.action>
+                    </f:else>
+                </f:if>
+            </td>
+            </tr>
+        </f:for>
 
-	</table>
-
+    </table>
 
 
 </f:section>

@@ -1,16 +1,16 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en"
-	  xmlns:f="http://typo3.org/ns/fluid/ViewHelpers"
-	  xmlns:ni="http://typo3.org/ns/BeechIt/NewsImporter/ViewHelpers">
+      xmlns:f="http://typo3.org/ns/fluid/ViewHelpers"
+      xmlns:ni="http://typo3.org/ns/BeechIt/NewsImporter/ViewHelpers">
 
 <f:layout name="Backend"/>
 
 <f:section name="main">
 
-	<f:if condition="{importSources}">
-		<h1>
-			<f:translate key="news_importer" />
-		</h1>
-		<f:render partial="Admin/ImportSources" section="ImportSources" arguments="{_all}" />
-	</f:if>
+    <f:if condition="{importSources}">
+        <h1>
+            <f:translate key="news_importer"/>
+        </h1>
+        <f:render partial="Admin/ImportSources" section="ImportSources" arguments="{_all}"/>
+    </f:if>
 
 </f:section>
