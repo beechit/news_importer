@@ -1,4 +1,5 @@
 <?php
+
 namespace BeechIt\NewsImporter\Domain\Model;
 
 
@@ -32,242 +33,258 @@ use TYPO3\CMS\Extbase\Domain\Model\FileReference;
 /**
  * ImportSource
  */
-class ImportSource extends \TYPO3\CMS\Extbase\DomainObject\AbstractEntity {
+class ImportSource extends \TYPO3\CMS\Extbase\DomainObject\AbstractEntity
+{
 
-	/**
-	 * @var string
-	 */
-	protected $title = '';
+    /**
+     * @var string
+     */
+    protected $title = '';
 
-	/**
-	 * url
-	 *
-	 * @var string
-	 */
-	protected $url = '';
+    /**
+     * url
+     *
+     * @var string
+     */
+    protected $url = '';
 
-	/**
-	 * mapping
-	 *
-	 * @var string
-	 */
-	protected $mapping = '';
+    /**
+     * mapping
+     *
+     * @var string
+     */
+    protected $mapping = '';
 
-	/**
-	 * @var bool
-	 */
-	protected $disableAutoImport = FALSE;
+    /**
+     * @var bool
+     */
+    protected $disableAutoImport = false;
 
-	/**
-	 * lastRun
-	 *
-	 * @var \DateTime
-	 */
-	protected $lastRun = NULL;
+    /**
+     * lastRun
+     *
+     * @var \DateTime
+     */
+    protected $lastRun = null;
 
-	/**
-	 * storagePid
-	 *
-	 * @var integer
-	 */
-	protected $storagePid = 0;
+    /**
+     * storagePid
+     *
+     * @var integer
+     */
+    protected $storagePid = 0;
 
-	/**
-	 * default image
-	 *
-	 * @var \TYPO3\CMS\Extbase\Domain\Model\FileReference
-	 */
-	protected $defaultImage = NULL;
+    /**
+     * default image
+     *
+     * @var \TYPO3\CMS\Extbase\Domain\Model\FileReference
+     */
+    protected $defaultImage = null;
 
-	/**
-	 * imageFolder
-	 *
-	 * @var string
-	 */
-	protected $imageFolder = '';
+    /**
+     * imageFolder
+     *
+     * @var string
+     */
+    protected $imageFolder = '';
 
-	/**
-	 * @var string
-	 */
-	protected $filter;
+    /**
+     * @var string
+     */
+    protected $filter;
 
-	/**
-	 * Get title
-	 *
-	 * @return string
-	 */
-	public function getTitle() {
-		return $this->title;
-	}
+    /**
+     * Get title
+     *
+     * @return string
+     */
+    public function getTitle()
+    {
+        return $this->title;
+    }
 
-	/**
-	 * Set title
-	 *
-	 * @param string $title
-	 */
-	public function setTitle($title) {
-		$this->title = $title;
-	}
+    /**
+     * Set title
+     *
+     * @param string $title
+     */
+    public function setTitle($title)
+    {
+        $this->title = $title;
+    }
 
-	/**
-	 * Returns the url
-	 *
-	 * @return string $url
-	 */
-	public function getUrl() {
-		return $this->url;
-	}
+    /**
+     * Returns the url
+     *
+     * @return string $url
+     */
+    public function getUrl()
+    {
+        return $this->url;
+    }
 
-	/**
-	 * Sets the url
-	 *
-	 * @param string $url
-	 * @return void
-	 */
-	public function setUrl($url) {
-		$this->url = $url;
-	}
+    /**
+     * Sets the url
+     *
+     * @param string $url
+     * @return void
+     */
+    public function setUrl($url)
+    {
+        $this->url = $url;
+    }
 
-	/**
-	 * Returns the mapping
-	 *
-	 * @return string $mapping
-	 */
-	public function getMapping() {
-		return $this->mapping;
-	}
+    /**
+     * Returns the mapping
+     *
+     * @return string $mapping
+     */
+    public function getMapping()
+    {
+        return $this->mapping;
+    }
 
-	/**
-	 * Sets the mapping
-	 *
-	 * @param string $mapping
-	 * @return void
-	 */
-	public function setMapping($mapping) {
-		$this->mapping = $mapping;
-	}
+    /**
+     * Sets the mapping
+     *
+     * @param string $mapping
+     * @return void
+     */
+    public function setMapping($mapping)
+    {
+        $this->mapping = $mapping;
+    }
 
-	/**
-	 * Get disableAutoImport
-	 *
-	 * @return boolean
-	 */
-	public function getDisableAutoImport() {
-		return $this->disableAutoImport;
-	}
+    /**
+     * Get disableAutoImport
+     *
+     * @return boolean
+     */
+    public function getDisableAutoImport()
+    {
+        return $this->disableAutoImport;
+    }
 
-	/**
-	 * Set disableAutoImport
-	 *
-	 * @param boolean $disableAutoImport
-	 */
-	public function setDisableAutoImport($disableAutoImport) {
-		$this->disableAutoImport = $disableAutoImport;
-	}
+    /**
+     * Set disableAutoImport
+     *
+     * @param boolean $disableAutoImport
+     */
+    public function setDisableAutoImport($disableAutoImport)
+    {
+        $this->disableAutoImport = $disableAutoImport;
+    }
 
-	/**
-	 * Returns the lastRun
-	 *
-	 * @return \DateTime $lastRun
-	 */
-	public function getLastRun() {
-		return $this->lastRun;
-	}
+    /**
+     * Returns the lastRun
+     *
+     * @return \DateTime $lastRun
+     */
+    public function getLastRun()
+    {
+        return $this->lastRun;
+    }
 
-	/**
-	 * Sets the lastRun
-	 *
-	 * @param \DateTime $lastRun
-	 * @return void
-	 */
-	public function setLastRun(\DateTime $lastRun) {
-		$this->lastRun = $lastRun;
-	}
+    /**
+     * Sets the lastRun
+     *
+     * @param \DateTime $lastRun
+     * @return void
+     */
+    public function setLastRun(\DateTime $lastRun)
+    {
+        $this->lastRun = $lastRun;
+    }
 
-	/**
-	 * Returns the storagePid
-	 *
-	 * @return integer $storagePid
-	 */
-	public function getStoragePid() {
-		return $this->storagePid;
-	}
+    /**
+     * Returns the storagePid
+     *
+     * @return integer $storagePid
+     */
+    public function getStoragePid()
+    {
+        return $this->storagePid;
+    }
 
-	/**
-	 * Sets the storagePid
-	 *
-	 * @param integer $storagePid
-	 * @return void
-	 */
-	public function setStoragePid($storagePid) {
-		$this->storagePid = $storagePid;
-	}
+    /**
+     * Sets the storagePid
+     *
+     * @param integer $storagePid
+     * @return void
+     */
+    public function setStoragePid($storagePid)
+    {
+        $this->storagePid = $storagePid;
+    }
 
-	/**
-	 * Get defaultImage
-	 *
-	 * @return \TYPO3\CMS\Extbase\Domain\Model\FileReference
-	 */
-	public function getDefaultImage() {
-		return $this->defaultImage;
-	}
+    /**
+     * Get defaultImage
+     *
+     * @return \TYPO3\CMS\Extbase\Domain\Model\FileReference
+     */
+    public function getDefaultImage()
+    {
+        return $this->defaultImage;
+    }
 
-	/**
-	 * Set defaultImage
-	 *
-	 * @param \TYPO3\CMS\Extbase\Domain\Model\FileReference $defaultImage
-	 */
-	public function setDefaultImage(FileReference $defaultImage = NULL) {
-		$this->defaultImage = $defaultImage;
-	}
+    /**
+     * Set defaultImage
+     *
+     * @param \TYPO3\CMS\Extbase\Domain\Model\FileReference $defaultImage
+     */
+    public function setDefaultImage(FileReference $defaultImage = null)
+    {
+        $this->defaultImage = $defaultImage;
+    }
 
-	/**
-	 * Returns the imageFolder
-	 *
-	 * @return string $imageFolder
-	 */
-	public function getImageFolder() {
-		return $this->imageFolder;
-	}
+    /**
+     * Returns the imageFolder
+     *
+     * @return string $imageFolder
+     */
+    public function getImageFolder()
+    {
+        return $this->imageFolder;
+    }
 
-	/**
-	 * Sets the imageFolder
-	 *
-	 * @param string $imageFolder
-	 * @return void
-	 */
-	public function setImageFolder($imageFolder) {
-		$this->imageFolder = $imageFolder;
-	}
+    /**
+     * Sets the imageFolder
+     *
+     * @param string $imageFolder
+     * @return void
+     */
+    public function setImageFolder($imageFolder)
+    {
+        $this->imageFolder = $imageFolder;
+    }
 
-	/**
-	 * Get filter
-	 *
-	 * @return string
-	 */
-	public function getFilter() {
-		return $this->filter;
-	}
+    /**
+     * Get filter
+     *
+     * @return string
+     */
+    public function getFilter()
+    {
+        return $this->filter;
+    }
 
-	/**
-	 * Set filter
-	 *
-	 * @param string $filter
-	 */
-	public function setFilter($filter) {
-		$this->filter = $filter;
-	}
+    /**
+     * Set filter
+     *
+     * @param string $filter
+     */
+    public function setFilter($filter)
+    {
+        $this->filter = $filter;
+    }
 
-	/**
-	 * Get filter words as a array
-	 *
-	 * @return array
-	 */
-	public function getFilterWords() {
-		if ($this->filter) {
-			return GeneralUtility::trimExplode(',', $this->filter, TRUE);
-		} else {
-			return array();
-		}
-	}
+    /**
+     * Get filter words as a array
+     *
+     * @return array
+     */
+    public function getFilterWords()
+    {
+        return $this->filter ? GeneralUtility::trimExplode(',', $this->filter, true) : [];
+    }
 }
