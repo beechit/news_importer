@@ -24,9 +24,7 @@
         </tr>
 
         <f:for each="{items}" as="item">
-            <tr class="<f:cycle values=" {0:
-            'db_list_normal', 1: 'db_list_alt'}" as="cycle">{cycle}</f:cycle> {f:if(condition:iteration.isFirst,then:'
-            firstcol')}{f:if(condition:iteration.isLast,then:' lastcol')}">
+            <tr class=" {f:if(condition:iteration.isFirst,then:'firstcol')}{f:if(condition:iteration.isLast,then:' lastcol')}">
             <td class="col-title">{item.title}</td>
             <td>{item.datetime -> f:format.date(format:'{f:translate(key:\'item.datetime.format\')}')}</td>
             <td class="align-right">
