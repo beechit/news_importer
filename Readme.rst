@@ -32,7 +32,7 @@ The extension is still beta but it is used already in multiple live projects
 
 Requirements:
 -------------
-- TYPO3 => 6.2.12
+- TYPO3 => 7.6
 
 Getting started
 ---------------
