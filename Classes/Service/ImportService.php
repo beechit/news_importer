@@ -9,6 +9,7 @@ namespace BeechIt\NewsImporter\Service;
  */
 use BeechIt\NewsImporter\Domain\Model\ExtractedItem;
 use BeechIt\NewsImporter\Domain\Model\ImportSource;
+use TYPO3\CMS\Core\Resource\DuplicationBehavior;
 use TYPO3\CMS\Core\SingletonInterface;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Backend\Utility\BackendUtility;
@@ -163,7 +164,7 @@ class ImportService implements SingletonInterface
                     try {
                         $falImage = $folder->addFile($tempFile,
                             ($data['title'] ?: 'news_import') . image_type_to_extension($imageType, true),
-                            'changeName');
+                            DuplicationBehavior::RENAME);
                         $media[] =
                             [
                                 'type' => 0,
