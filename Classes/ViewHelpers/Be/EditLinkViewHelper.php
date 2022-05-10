@@ -27,14 +27,13 @@ class EditLinkViewHelper extends \TYPO3\CMS\Fluid\Core\ViewHelper\AbstractViewHe
      */
     public function render($table, $uid, $command = 'edit')
     {
-
-        return BackendUtility::getModuleUrl('record_edit', array(
-            'edit' => array(
-                $table => array(
-                    $uid => 'edit'
-                )
-            ),
-            'returnUrl' => GeneralUtility::getIndpEnv('REQUEST_URI')
-        ));
+        return BackendUtility::getModuleUrl('record_edit', [
+            'edit' => [
+                $table => [
+                    $uid => 'edit',
+                ],
+            ],
+            'returnUrl' => GeneralUtility::getIndpEnv('REQUEST_URI'),
+        ]);
     }
 }

@@ -38,8 +38,8 @@ class ExtractorService implements SingletonInterface
         'items' => 'item',
         'item' => [
             'title' => 'title',
-            'link' => 'link'
-        ]
+            'link' => 'link',
+        ],
     ];
 
     /**
@@ -80,7 +80,8 @@ class ExtractorService implements SingletonInterface
     {
         if (is_file($source)) {
             return file_get_contents($source);
-        } elseif ($postVars !== null) {
+        }
+        if ($postVars !== null) {
             $options = [
                 'http' => [
                     'header' => "Content-type: application/x-www-form-urlencoded\r\n",
@@ -90,9 +91,8 @@ class ExtractorService implements SingletonInterface
             ];
             $context = stream_context_create($options);
             return file_get_contents($source, false, $context);
-        } else {
-            return GeneralUtility::getUrl($source);
         }
+        return GeneralUtility::getUrl($source);
     }
 
     /**
@@ -105,12 +105,10 @@ class ExtractorService implements SingletonInterface
      */
     public function extractValue(\QueryPath\DOMQuery $item, array $mapping, $value = '')
     {
-
         if (empty($mapping['multiple'])) {
             /** @var \QueryPath\DOMQuery $tmp */
             $tmp = $item->find($mapping['selector'])->first();
             $return = $this->_extractValue($tmp, $mapping, $value);
-
         } elseif (is_array($mapping['multiple'])) {
             $return = [];
             foreach ($item->find($mapping['selector']) as $tmp) {
@@ -124,7 +122,6 @@ class ExtractorService implements SingletonInterface
                 }
                 $return[] = $value;
             }
-
         } else {
             $return = [];
             foreach ($item->find($mapping['selector']) as $tmp) {
@@ -221,16 +218,20 @@ class ExtractorService implements SingletonInterface
         $itemsSelector = !empty($this->itemMapping['items']) ? $this->itemMapping['items'] : 'item';
 
         if ($this->rawContent === null) {
-            $this->rawContent = $this->fetchRawContent($this->source,
-                !empty($this->itemMapping['_POST']) ? $this->itemMapping['_POST'] : null);
+            $this->rawContent = $this->fetchRawContent(
+                $this->source,
+                !empty($this->itemMapping['_POST']) ? $this->itemMapping['_POST'] : null
+            );
         }
 
         $domQuery = $this->stringToDOMQuery($this->rawContent);
         if (is_array($itemsSelector)) {
             if (!empty($itemsSelector['source'])) {
                 $source = $this->extractValue($domQuery, $itemsSelector['source']);
-                $source = $this->fetchRawContent($source,
-                    !empty($itemsSelector['source']['_POST']) ? $itemsSelector['source']['_POST'] : null);
+                $source = $this->fetchRawContent(
+                    $source,
+                    !empty($itemsSelector['source']['_POST']) ? $itemsSelector['source']['_POST'] : null
+                );
                 $domQuery = $this->stringToDOMQuery($source);
             }
             $itemsSelector = !empty($itemsSelector['selector']) ? $itemsSelector['selector'] : 'item';

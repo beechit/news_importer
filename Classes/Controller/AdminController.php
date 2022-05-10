@@ -10,15 +10,14 @@ namespace BeechIt\NewsImporter\Controller;
 use BeechIt\NewsImporter\Domain\Model\ExtractedItem;
 use BeechIt\NewsImporter\Domain\Model\ImportSource;
 use TYPO3\CMS\Backend\Template\Components\ButtonBar;
+use TYPO3\CMS\Backend\Utility\BackendUtility;
 use TYPO3\CMS\Backend\View\BackendTemplateView;
 use TYPO3\CMS\Core\Imaging\Icon;
 use TYPO3\CMS\Core\Imaging\IconFactory;
+use TYPO3\CMS\Core\Messaging\AbstractMessage;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Extbase\Mvc\View\ViewInterface;
-use TYPO3\CMS\Backend\Utility\BackendUtility;
-use TYPO3\CMS\Core\Messaging\AbstractMessage;
 use TYPO3\CMS\Extbase\Utility\LocalizationUtility;
-
 
 /**
  * Class AdminController
@@ -56,7 +55,6 @@ class AdminController extends \TYPO3\CMS\Extbase\Mvc\Controller\ActionController
      */
     protected $defaultViewObjectName = BackendTemplateView::class;
 
-
     /**
      * The module name of this BE module
      */
@@ -80,8 +78,14 @@ class AdminController extends \TYPO3\CMS\Extbase\Mvc\Controller\ActionController
         if ($this->getBackendUser()) {
             $lang = $this->getBackendUser()->uc['lang'] ?: 'en';
             $locale = $lang . '_' . strtoupper($lang);
-            setlocale(LC_ALL, $lang, $locale, $locale . '.utf8', $this->getBackendUser()->uc['lang'],
-                $GLOBALS['TYPO3_CONF_VARS']['SYS']['systemLocale']);
+            setlocale(
+                LC_ALL,
+                $lang,
+                $locale,
+                $locale . '.utf8',
+                $this->getBackendUser()->uc['lang'],
+                $GLOBALS['TYPO3_CONF_VARS']['SYS']['systemLocale']
+            );
             $view->assign('locale', $locale);
         }
     }
@@ -102,7 +106,8 @@ class AdminController extends \TYPO3\CMS\Extbase\Mvc\Controller\ActionController
         array $arguments = null,
         $storeInSession = true
     ) {
-        $this->addFlashMessage($this->getTranslatedString($messageBody, $arguments),
+        $this->addFlashMessage(
+            $this->getTranslatedString($messageBody, $arguments),
             $this->getTranslatedString($messageTitle, $arguments),
             $severity,
             $storeInSession
@@ -169,7 +174,7 @@ class AdminController extends \TYPO3\CMS\Extbase\Mvc\Controller\ActionController
                 'title' => $item->extractValue('title'),
                 'link' => $item->extractValue('link'),
                 'datetime' => $item->extractValue('datetime'),
-                'newsUid' => $this->importService->alreadyImported($importSource->getPid(), $item->getGuid())
+                'newsUid' => $this->importService->alreadyImported($importSource->getPid(), $item->getGuid()),
             ];
         }
 
@@ -200,11 +205,14 @@ class AdminController extends \TYPO3\CMS\Extbase\Mvc\Controller\ActionController
                 $uri = BackendUtility::getModuleUrl('record_edit', [
                     'edit' => [
                         'tx_news_domain_model_news' => [
-                            $itemUid => 'edit'
-                        ]
+                            $itemUid => 'edit',
+                        ],
                     ],
-                    'returnUrl' => $this->uriBuilder->uriFor('show', ['importSource' => $importSource],
-                        $this->request->getControllerName())
+                    'returnUrl' => $this->uriBuilder->uriFor(
+                        'show',
+                        ['importSource' => $importSource],
+                        $this->request->getControllerName()
+                    ),
                 ]);
                 $this->redirectToUri($uri);
             }
@@ -213,7 +221,6 @@ class AdminController extends \TYPO3\CMS\Extbase\Mvc\Controller\ActionController
         $this->addTranslatedFlashMessage('requested-item-not-found', '', AbstractMessage::ERROR);
         $this->redirect('show', null, null, ['importSource' => $importSource]);
     }
-
 
     /**
      * Create the panel of buttons for submitting the form or otherwise perform operations.

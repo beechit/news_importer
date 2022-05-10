@@ -65,7 +65,8 @@ class ImportNewsCommandController extends \TYPO3\CMS\Extbase\Mvc\Controller\Comm
     protected function callCommandMethod()
     {
         $this->settings = $this->configurationManager->getConfiguration(
-            ConfigurationManagerInterface::CONFIGURATION_TYPE_SETTINGS, 'newsImporter'
+            ConfigurationManagerInterface::CONFIGURATION_TYPE_SETTINGS,
+            'newsImporter'
         );
         /** @var StorageRepository $storageRepository */
         $storageRepository = $this->objectManager->get(StorageRepository::class);
@@ -109,7 +110,6 @@ class ImportNewsCommandController extends \TYPO3\CMS\Extbase\Mvc\Controller\Comm
      */
     public function runCommand($limit = 1)
     {
-
         $importSources = $this->importSourceRepository->findSourcesToImport($limit);
         $importReport = [];
         if (isset($this->settings['filter']['searchFields']) && is_array($this->settings['filter']['searchFields'])) {
@@ -132,8 +132,11 @@ class ImportNewsCommandController extends \TYPO3\CMS\Extbase\Mvc\Controller\Comm
             foreach ($items as $item) {
                 if ($this->importService->alreadyImported($importSource->getStoragePid(), $item->getGuid())) {
                     $this->outputLine('Already imported: ' . $item->getGuid());
-                } elseif ($importSource->getFilterWords() && !$this->importService->matchFilter($item,
-                        $importSource->getFilterWords(), $searchFields)) {
+                } elseif ($importSource->getFilterWords() && !$this->importService->matchFilter(
+                    $item,
+                    $importSource->getFilterWords(),
+                    $searchFields
+                )) {
                     $this->outputLine('Skipped: ' . $item->getGuid() . '; Filter mismatch');
                 } else {
                     $this->importService->importItem($importSource, $item);
@@ -156,15 +159,17 @@ class ImportNewsCommandController extends \TYPO3\CMS\Extbase\Mvc\Controller\Comm
             $message->setTo($this->settings['notification']['recipients'])
                 ->setSubject($this->settings['notification']['subject'] ?: 'New items imported');
             if ($GLOBALS['TYPO3_CONF_VARS']['MAIL']['defaultMailFromAddress']) {
-                $message->setFrom($GLOBALS['TYPO3_CONF_VARS']['MAIL']['defaultMailFromAddress'],
-                    $GLOBALS['TYPO3_CONF_VARS']['MAIL']['defaultMailFromName'] ?: null);
+                $message->setFrom(
+                    $GLOBALS['TYPO3_CONF_VARS']['MAIL']['defaultMailFromAddress'],
+                    $GLOBALS['TYPO3_CONF_VARS']['MAIL']['defaultMailFromName'] ?: null
+                );
             }
             $message->setBody(
                 vsprintf(
                     $this->settings['notification']['body'] ?: 'Imported %1$d items: %2$s',
                     [
                         count($importReport),
-                        PHP_EOL . PHP_EOL . implode(PHP_EOL, $importReport)
+                        PHP_EOL . PHP_EOL . implode(PHP_EOL, $importReport),
                     ]
                 )
             );

@@ -9,12 +9,11 @@ namespace BeechIt\NewsImporter\Service;
  */
 use BeechIt\NewsImporter\Domain\Model\ExtractedItem;
 use BeechIt\NewsImporter\Domain\Model\ImportSource;
+use TYPO3\CMS\Backend\Utility\BackendUtility;
 use TYPO3\CMS\Core\Resource\DuplicationBehavior;
+use TYPO3\CMS\Core\Resource\ResourceFactory;
 use TYPO3\CMS\Core\SingletonInterface;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
-use TYPO3\CMS\Backend\Utility\BackendUtility;
-use TYPO3\CMS\Core\Resource\ResourceFactory;
-use TYPO3\CMS\Core\Resource\StorageRepository;
 
 /**
  * Class ImportService
@@ -118,15 +117,18 @@ class ImportService implements SingletonInterface
 
         // Perform transformation
         $tsConfig = BackendUtility::getPagesTSconfig($pid);
-        return $rteHtmlParsers[$pid]->RTE_transform(trim($text),
-            ['rte_transform' => ['parameters' => ['flag=rte_disabled', 'mode=ts_css']]], 'db',
-            $tsConfig['RTE.']['default.']);
+        return $rteHtmlParsers[$pid]->RTE_transform(
+            trim($text),
+            ['rte_transform' => ['parameters' => ['flag=rte_disabled', 'mode=ts_css']]],
+            'db',
+            $tsConfig['RTE.']['default.']
+        );
     }
 
     /**
      * @param array $data
      * @param ImportSource $importSource
-     * @return NULL|array
+     * @return array|null
      */
     protected function processMedia(array $data, ImportSource $importSource)
     {
@@ -136,16 +138,18 @@ class ImportService implements SingletonInterface
                 [
                     'type' => 0,
                     'image' => $importSource->getDefaultImage()->getOriginalResource()->getCombinedIdentifier(),
-                    'showinpreview' => 1
-                ]
+                    'showinpreview' => 1,
+                ],
             ];
         }
 
         $folder = null;
         if ($importSource->getImageFolder()) {
             try {
-                $folder = ResourceFactory::getInstance()->getFolderObjectFromCombinedIdentifier(ltrim($importSource->getImageFolder(),
-                    'file:'));
+                $folder = ResourceFactory::getInstance()->getFolderObjectFromCombinedIdentifier(ltrim(
+                    $importSource->getImageFolder(),
+                    'file:'
+                ));
             } catch (\Exception $e) {
             }
         }
@@ -162,14 +166,16 @@ class ImportService implements SingletonInterface
                     file_put_contents($tempFile, $tmp);
                     list(, , $imageType) = getimagesize($tempFile);
                     try {
-                        $falImage = $folder->addFile($tempFile,
+                        $falImage = $folder->addFile(
+                            $tempFile,
                             ($data['title'] ?: 'news_import') . image_type_to_extension($imageType, true),
-                            DuplicationBehavior::RENAME);
+                            DuplicationBehavior::RENAME
+                        );
                         $media[] =
                             [
                                 'type' => 0,
                                 'image' => $falImage->getCombinedIdentifier(),
-                                'showinpreview' => 1
+                                'showinpreview' => 1,
                             ];
                     } catch (\Exception $e) {
                     }

@@ -27,10 +27,10 @@ return [
         'requestUpdate' => 'disable_auto_import',
 
         'searchFields' => 'title,url,mapping,filter',
-        'iconfile' => \TYPO3\CMS\Core\Utility\ExtensionManagementUtility::extRelPath('news_importer') . 'ext_icon.png'
+        'iconfile' => \TYPO3\CMS\Core\Utility\ExtensionManagementUtility::extRelPath('news_importer') . 'ext_icon.png',
     ],
     'interface' => [
-        'showRecordFieldList' => 'sys_language_uid, l10n_parent, l10n_diffsource, hidden, title, url, mapping, last_run, storage_pid, default_image, image_folder, filter, update_interval, disable_auto_import'
+        'showRecordFieldList' => 'sys_language_uid, l10n_parent, l10n_diffsource, hidden, title, url, mapping, last_run, storage_pid, default_image, image_folder, filter, update_interval, disable_auto_import',
     ],
     'types' => [
         '1' => [
@@ -42,13 +42,13 @@ return [
 			default_image,
 			image_folder,
 			--palette--;LLL:EXT:news_importer/Resources/Private/Language/locallang_db.xlf:palette.automation;cron,
-			--div--;LLL:EXT:cms/locallang_ttc.xlf:tabs.access,sys_language_uid;;;;1-1-1, l10n_parent, l10n_diffsource, hidden;;1, starttime, endtime'
+			--div--;LLL:EXT:cms/locallang_ttc.xlf:tabs.access,sys_language_uid;;;;1-1-1, l10n_parent, l10n_diffsource, hidden;;1, starttime, endtime',
         ],
     ],
     'palettes' => [
         'cron' => [
             'showitem' => 'filter, --linebreak--, last_run, update_interval,disable_auto_import',
-            'canNotCollapse' => true
+            'canNotCollapse' => true,
         ],
     ],
     'columns' => [
@@ -62,7 +62,7 @@ return [
                 'foreign_table_where' => 'ORDER BY sys_language.title',
                 'items' => [
                     ['LLL:EXT:lang/locallang_general.xlf:LGL.allLanguages', -1],
-                    ['LLL:EXT:lang/locallang_general.xlf:LGL.default_value', 0]
+                    ['LLL:EXT:lang/locallang_general.xlf:LGL.default_value', 0],
                 ],
             ],
         ],
@@ -91,7 +91,7 @@ return [
                 'type' => 'input',
                 'size' => 30,
                 'max' => 255,
-            ]
+            ],
         ],
 
         'hidden' => [
@@ -113,7 +113,7 @@ return [
                 'checkbox' => 0,
                 'default' => 0,
                 'range' => [
-                    'lower' => mktime(0, 0, 0, date('m'), date('d'), date('Y'))
+                    'lower' => mktime(0, 0, 0, date('m'), date('d'), date('Y')),
                 ],
             ],
         ],
@@ -129,7 +129,7 @@ return [
                 'checkbox' => 0,
                 'default' => 0,
                 'range' => [
-                    'lower' => mktime(0, 0, 0, date('m'), date('d'), date('Y'))
+                    'lower' => mktime(0, 0, 0, date('m'), date('d'), date('Y')),
                 ],
             ],
         ],
@@ -140,8 +140,8 @@ return [
             'config' => [
                 'type' => 'input',
                 'size' => '30',
-                'eval' => 'trim'
-            ]
+                'eval' => 'trim',
+            ],
         ],
         'url' => [
             'exclude' => 1,
@@ -149,7 +149,7 @@ return [
             'config' => [
                 'type' => 'input',
                 'size' => 30,
-                'eval' => 'trim'
+                'eval' => 'trim',
             ],
         ],
         'mapping' => [
@@ -179,8 +179,8 @@ item {
 		attr = url
 	}
 }
-				'
-            ]
+				',
+            ],
         ],
         'disable_auto_import' => [
             'exclude' => 1,
@@ -197,7 +197,7 @@ item {
                 'type' => 'input',
                 'size' => 10,
                 'eval' => 'datetime',
-                'readOnly' => 1
+                'readOnly' => 1,
             ],
         ],
         'storage_pid' => [
@@ -216,7 +216,7 @@ item {
                         'type' => 'suggest',
                     ],
                 ],
-            ]
+            ],
         ],
         'default_image' => [
             'exclude' => 1,
@@ -226,39 +226,39 @@ item {
                 [
                     'maxitems' => 1,
                     'appearance' => [
-                        'createNewRelationLinkTitle' => 'LLL:EXT:cms/locallang_ttc.xlf:images.addFileReference'
+                        'createNewRelationLinkTitle' => 'LLL:EXT:cms/locallang_ttc.xlf:images.addFileReference',
                     ],
                     'foreign_types' => [
                         '0' => [
                             'showitem' => '
 							--palette--;LLL:EXT:lang/locallang_tca.xlf:sys_file_reference.imageoverlayPalette;imageoverlayPalette,
-							--palette--;;filePalette'
+							--palette--;;filePalette',
                         ],
                         \TYPO3\CMS\Core\Resource\File::FILETYPE_TEXT => [
                             'showitem' => '
 							--palette--;LLL:EXT:lang/locallang_tca.xlf:sys_file_reference.imageoverlayPalette;imageoverlayPalette,
-							--palette--;;filePalette'
+							--palette--;;filePalette',
                         ],
                         \TYPO3\CMS\Core\Resource\File::FILETYPE_IMAGE => [
                             'showitem' => '
 							--palette--;LLL:EXT:lang/locallang_tca.xlf:sys_file_reference.imageoverlayPalette;imageoverlayPalette,
-							--palette--;;filePalette'
+							--palette--;;filePalette',
                         ],
                         \TYPO3\CMS\Core\Resource\File::FILETYPE_AUDIO => [
                             'showitem' => '
 							--palette--;LLL:EXT:lang/locallang_tca.xlf:sys_file_reference.imageoverlayPalette;imageoverlayPalette,
-							--palette--;;filePalette'
+							--palette--;;filePalette',
                         ],
                         \TYPO3\CMS\Core\Resource\File::FILETYPE_VIDEO => [
                             'showitem' => '
 							--palette--;LLL:EXT:lang/locallang_tca.xlf:sys_file_reference.imageoverlayPalette;imageoverlayPalette,
-							--palette--;;filePalette'
+							--palette--;;filePalette',
                         ],
                         \TYPO3\CMS\Core\Resource\File::FILETYPE_APPLICATION => [
                             'showitem' => '
 							--palette--;LLL:EXT:lang/locallang_tca.xlf:sys_file_reference.imageoverlayPalette;imageoverlayPalette,
-							--palette--;;filePalette'
-                        ]
+							--palette--;;filePalette',
+                        ],
                     ],
                     // foreing_match is needed for FE upload purposes
                     'foreign_match_fields' => [
@@ -266,7 +266,8 @@ item {
                         'tablenames' => 'tx_newsimporter_domain_model_importsource',
                         'table_local' => 'sys_file',
                     ],
-                ], $GLOBALS['TYPO3_CONF_VARS']['GFX']['imagefile_ext']
+                ],
+                $GLOBALS['TYPO3_CONF_VARS']['GFX']['imagefile_ext']
             ),
         ],
         'image_folder' => [
@@ -285,15 +286,15 @@ item {
                         'module' => [
                             'name' => 'wizard_element_browser',
                             'urlParameters' => [
-                                'mode' => 'wizard'
-                            ]
+                                'mode' => 'wizard',
+                            ],
                         ],
                         'params' => [
                             'blindLinkOptions' => 'page,file,mail,spec,url',
-                            'blindLinkFields' => 'target,title,class,params'
+                            'blindLinkFields' => 'target,title,class,params',
                         ],
-                        'JSopenParams' => 'height=800,width=600,status=0,menubar=0,scrollbars=1'
-                    ]
+                        'JSopenParams' => 'height=800,width=600,status=0,menubar=0,scrollbars=1',
+                    ],
                 ],
             ],
         ],
@@ -304,8 +305,8 @@ item {
             'config' => [
                 'type' => 'input',
                 'size' => '50',
-                'eval' => 'trim'
-            ]
+                'eval' => 'trim',
+            ],
         ],
 
         'update_interval' => [
@@ -316,8 +317,8 @@ item {
                 'type' => 'input',
                 'size' => 4,
                 'eval' => 'timesec',
-                'default' => '7200'
-            ]
+                'default' => '7200',
+            ],
         ],
     ],
 ];

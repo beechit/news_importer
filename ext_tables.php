@@ -1,15 +1,21 @@
 <?php
+
 if (!defined('TYPO3_MODE')) {
     die('Access denied.');
 }
 
 call_user_func(
     function ($packageKey) {
-        \TYPO3\CMS\Core\Utility\ExtensionManagementUtility::addStaticFile($packageKey, 'Configuration/TypoScript',
-            'News importer');
+        \TYPO3\CMS\Core\Utility\ExtensionManagementUtility::addStaticFile(
+            $packageKey,
+            'Configuration/TypoScript',
+            'News importer'
+        );
 
-        \TYPO3\CMS\Core\Utility\ExtensionManagementUtility::addLLrefForTCAdescr('tx_newsimporter_domain_model_importsource',
-            'EXT:news_importer/Resources/Private/Language/locallang_csh_tx_newsimporter_domain_model_importsource.xlf');
+        \TYPO3\CMS\Core\Utility\ExtensionManagementUtility::addLLrefForTCAdescr(
+            'tx_newsimporter_domain_model_importsource',
+            'EXT:news_importer/Resources/Private/Language/locallang_csh_tx_newsimporter_domain_model_importsource.xlf'
+        );
 
         // Register icons
         /** @var \TYPO3\CMS\Core\Imaging\IconRegistry $iconRegistry */

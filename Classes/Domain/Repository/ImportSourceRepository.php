@@ -2,7 +2,6 @@
 
 namespace BeechIt\NewsImporter\Domain\Repository;
 
-
 /***************************************************************
  *
  *  Copyright notice
@@ -27,7 +26,6 @@ namespace BeechIt\NewsImporter\Domain\Repository;
  *
  *  This copyright notice MUST APPEAR in all copies of the script!
  ***************************************************************/
-use TYPO3\CMS\Extbase\Persistence\QueryInterface;
 
 /**
  * The repository for ImportSources
