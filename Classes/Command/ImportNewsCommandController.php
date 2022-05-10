@@ -7,18 +7,18 @@ namespace BeechIt\NewsImporter\Command;
  * Date: 12-05-2015 15:21
  * All code (c) Beech Applications B.V. all rights reserved
  */
-use TYPO3\CMS\Extbase\Mvc\Controller\CommandController;
-use TYPO3\CMS\Extbase\Persistence\Generic\PersistenceManager;
+use BeechIt\NewsImporter\Domain\Model\ImportSource;
 use BeechIt\NewsImporter\Domain\Repository\ImportSourceRepository;
 use BeechIt\NewsImporter\Service\ExtractorService;
 use BeechIt\NewsImporter\Service\ImportService;
-use TYPO3\CMS\Extbase\Persistence\Exception\IllegalObjectTypeException;
-use TYPO3\CMS\Extbase\Persistence\Exception\UnknownObjectException;
-use BeechIt\NewsImporter\Domain\Model\ImportSource;
 use TYPO3\CMS\Core\Mail\MailMessage;
 use TYPO3\CMS\Core\Resource\StorageRepository;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Extbase\Configuration\ConfigurationManagerInterface;
+use TYPO3\CMS\Extbase\Mvc\Controller\CommandController;
+use TYPO3\CMS\Extbase\Persistence\Exception\IllegalObjectTypeException;
+use TYPO3\CMS\Extbase\Persistence\Exception\UnknownObjectException;
+use TYPO3\CMS\Extbase\Persistence\Generic\PersistenceManager;
 
 /**
  * Class ImportNewsCommand controller

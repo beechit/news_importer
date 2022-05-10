@@ -2,8 +2,9 @@
 
 namespace BeechIt\NewsImporter\Domain\Repository;
 
-use TYPO3\CMS\Extbase\Persistence\Repository;
 use TYPO3\CMS\Extbase\Persistence\QueryResultInterface;
+use TYPO3\CMS\Extbase\Persistence\Repository;
+
 /***************************************************************
  *
  *  Copyright notice

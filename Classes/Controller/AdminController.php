@@ -7,24 +7,23 @@ namespace BeechIt\NewsImporter\Controller;
  * Date: 12-06-2015
  * All code (c) Beech Applications B.V. all rights reserved
  */
-use TYPO3\CMS\Backend\Routing\UriBuilder;
-use TYPO3\CMS\Core\Localization\LanguageService;
-use TYPO3\CMS\Extbase\Mvc\Controller\ActionController;
+use BeechIt\NewsImporter\Domain\Model\ExtractedItem;
+use BeechIt\NewsImporter\Domain\Model\ImportSource;
 use BeechIt\NewsImporter\Domain\Repository\ImportSourceRepository;
 use BeechIt\NewsImporter\Service\ExtractorService;
 use BeechIt\NewsImporter\Service\ImportService;
-use TYPO3\CMS\Core\Authentication\BackendUserAuthentication;
-use TYPO3\CMS\Extbase\Mvc\Exception\StopActionException;
-use TYPO3\CMS\Extbase\Mvc\Exception\UnsupportedRequestTypeException;
-use BeechIt\NewsImporter\Domain\Model\ExtractedItem;
-use BeechIt\NewsImporter\Domain\Model\ImportSource;
+use TYPO3\CMS\Backend\Routing\UriBuilder;
 use TYPO3\CMS\Backend\Template\Components\ButtonBar;
-use TYPO3\CMS\Backend\Utility\BackendUtility;
 use TYPO3\CMS\Backend\View\BackendTemplateView;
+use TYPO3\CMS\Core\Authentication\BackendUserAuthentication;
 use TYPO3\CMS\Core\Imaging\Icon;
 use TYPO3\CMS\Core\Imaging\IconFactory;
+use TYPO3\CMS\Core\Localization\LanguageService;
 use TYPO3\CMS\Core\Messaging\AbstractMessage;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
+use TYPO3\CMS\Extbase\Mvc\Controller\ActionController;
+use TYPO3\CMS\Extbase\Mvc\Exception\StopActionException;
+use TYPO3\CMS\Extbase\Mvc\Exception\UnsupportedRequestTypeException;
 use TYPO3\CMS\Extbase\Mvc\View\ViewInterface;
 use TYPO3\CMS\Extbase\Utility\LocalizationUtility;
 

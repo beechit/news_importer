@@ -7,9 +7,9 @@ namespace BeechIt\NewsImporter\Service;
  * Date: 12-06-2015
  * All code (c) Beech Applications B.V. all rights reserved
  */
-use GeorgRinger\News\Domain\Service\NewsImportService;
 use BeechIt\NewsImporter\Domain\Model\ExtractedItem;
 use BeechIt\NewsImporter\Domain\Model\ImportSource;
+use GeorgRinger\News\Domain\Service\NewsImportService;
 use TYPO3\CMS\Backend\Utility\BackendUtility;
 use TYPO3\CMS\Core\Resource\DuplicationBehavior;
 use TYPO3\CMS\Core\Resource\ResourceFactory;

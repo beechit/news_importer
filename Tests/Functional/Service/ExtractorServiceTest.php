@@ -2,8 +2,8 @@
 
 namespace BeechIt\NewsImporter\Tests\Functional\Service;
 
-use TYPO3\TestingFramework\Core\Functional\FunctionalTestCase;
 use BeechIt\NewsImporter\Service\ExtractorService;
+use TYPO3\TestingFramework\Core\Functional\FunctionalTestCase;
 
 /**
  * Class NewsMapperServiceTest

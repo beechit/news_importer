@@ -7,9 +7,9 @@ namespace BeechIt\NewsImporter\Domain\Model;
  * Date: 13-05-2015 08:34
  * All code (c) Beech Applications B.V. all rights reserved
  */
-use QueryPath\Exception;
 use BeechIt\NewsImporter\Service\ExtractorService;
 use QueryPath\DOMQuery;
+use QueryPath\Exception;
 
 /**
  * Class ExtractedItem
