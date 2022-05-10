@@ -150,7 +150,7 @@ class ImportService implements SingletonInterface
         $folder = null;
         if ($importSource->getImageFolder()) {
             try {
-                $folder = ResourceFactory::getInstance()->getFolderObjectFromCombinedIdentifier(ltrim(
+                $folder = GeneralUtility::makeInstance(ResourceFactory::class)->getFolderObjectFromCombinedIdentifier(ltrim(
                     $importSource->getImageFolder(),
                     'file:'
                 ));

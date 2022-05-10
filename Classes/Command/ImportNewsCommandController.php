@@ -174,7 +174,7 @@ class ImportNewsCommandController extends CommandController
                     $GLOBALS['TYPO3_CONF_VARS']['MAIL']['defaultMailFromName'] ?: null
                 );
             }
-            $message->setBody(
+            $message->text(
                 vsprintf(
                     $this->settings['notification']['body'] ?: 'Imported %1$d items: %2$s',
                     [

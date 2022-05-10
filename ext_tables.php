@@ -34,12 +34,12 @@ call_user_func(
              * Registers a Backend Module
              */
             \TYPO3\CMS\Extbase\Utility\ExtensionUtility::registerModule(
-                'BeechIt.' . $packageKey,
+                'NewsImporter',
                 'web',
                 'newsimporter',
                 '', // Position
                 [
-                    'Admin' => 'index,show,import',
+                    \BeechIt\NewsImporter\Controller\AdminController::class => 'index,show,import',
                 ],
                 [
                     'access' => 'user,group',

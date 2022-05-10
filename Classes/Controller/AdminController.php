@@ -138,7 +138,7 @@ class AdminController extends ActionController
         if (!$input) {
             return '';
         }
-        $translated = LocalizationUtility::translate($input, $this->extensionName, $arguments);
+        $translated = LocalizationUtility::translate($input, $this->request->getControllerExtensionName(), $arguments);
         return $translated ?: '';
     }
 
