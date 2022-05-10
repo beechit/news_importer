@@ -7,6 +7,8 @@ namespace BeechIt\NewsImporter\Controller;
  * Date: 12-06-2015
  * All code (c) Beech Applications B.V. all rights reserved
  */
+use TYPO3\CMS\Backend\Routing\UriBuilder;
+use TYPO3\CMS\Core\Localization\LanguageService;
 use TYPO3\CMS\Extbase\Mvc\Controller\ActionController;
 use BeechIt\NewsImporter\Domain\Repository\ImportSourceRepository;
 use BeechIt\NewsImporter\Service\ExtractorService;
@@ -34,19 +36,16 @@ class AdminController extends ActionController
 
     /**
      * @var ImportSourceRepository
-     * @inject
      */
     protected $importSourceRepository;
 
     /**
      * @var ExtractorService
-     * @inject
      */
     protected $extractorService;
 
     /**
      * @var ImportService
-     * @inject
      */
     protected $importService;
 
@@ -66,6 +65,12 @@ class AdminController extends ActionController
      * The module name of this BE module
      */
     const MODULE_NAME = 'web_NewsImporterNewsimporter';
+    public function __construct(ImportSourceRepository $importSourceRepository, ExtractorService $extractorService, ImportService $importService)
+    {
+        $this->importSourceRepository = $importSourceRepository;
+        $this->extractorService = $extractorService;
+        $this->importService = $importService;
+    }
 
     /**
      * @return bool|string
@@ -209,7 +214,7 @@ class AdminController extends ActionController
                 if (GeneralUtility::getIndpEnv('TYPO3_SSL')) {
                     $this->uriBuilder->setAbsoluteUriScheme('https');
                 }
-                $uri = BackendUtility::getModuleUrl('record_edit', [
+                $uri = GeneralUtility::makeInstance(UriBuilder::class)->buildUriFromRoute('record_edit', [
                     'edit' => [
                         'tx_news_domain_model_news' => [
                             $itemUid => 'edit',
@@ -252,7 +257,7 @@ class AdminController extends ActionController
         );
         $refreshButton = $buttonBar->makeLinkButton()
             ->setHref($refreshLink)
-            ->setTitle($lang->sL('LLL:EXT:lang/Resources/Private/Language/locallang_core.xlf:labels.reload'))
+            ->setTitle($lang->sL('LLL:EXT:core/Resources/Private/Language/locallang_core.xlf:labels.reload'))
             ->setIcon($iconFactory->getIcon('actions-refresh', Icon::SIZE_SMALL));
         $buttonBar->addButton($refreshButton, ButtonBar::BUTTON_POSITION_RIGHT);
 
@@ -266,7 +271,7 @@ class AdminController extends ActionController
     /**
      * Returns an instance of LanguageService
      *
-     * @return \TYPO3\CMS\Lang\LanguageService
+     * @return LanguageService
      */
     protected function getLanguageService()
     {

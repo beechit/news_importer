@@ -38,33 +38,36 @@ class ImportNewsCommandController extends CommandController
 
     /**
      * @var ConfigurationManagerInterface
-     * @inject
      */
     protected $configurationManager;
 
     /**
      * @var PersistenceManager
-     * @inject
      */
     protected $persistenceManager;
 
     /**
      * @var ImportSourceRepository
-     * @inject
      */
     protected $importSourceRepository;
 
     /**
      * @var ExtractorService
-     * @inject
      */
     protected $extractorService;
 
     /**
      * @var ImportService
-     * @inject
      */
     protected $importService;
+    public function __construct(ConfigurationManagerInterface $configurationManager, PersistenceManager $persistenceManager, ImportSourceRepository $importSourceRepository, ExtractorService $extractorService, ImportService $importService)
+    {
+        $this->configurationManager = $configurationManager;
+        $this->persistenceManager = $persistenceManager;
+        $this->importSourceRepository = $importSourceRepository;
+        $this->extractorService = $extractorService;
+        $this->importService = $importService;
+    }
 
     /**
      * Call command

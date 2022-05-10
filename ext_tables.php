@@ -49,5 +49,5 @@ call_user_func(
             );
         }
     },
-    $_EXTKEY
+    'news_importer'
 );

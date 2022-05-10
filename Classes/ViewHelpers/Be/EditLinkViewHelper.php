@@ -2,12 +2,8 @@
 
 namespace BeechIt\NewsImporter\ViewHelpers\Be;
 
-/*
- * This source file is proprietary property of Beech Applications B.V.
- * Date: 11-03-2015 12:07
- * All code (c) Beech Applications B.V. all rights reserved
- */
-use TYPO3\CMS\Fluid\Core\ViewHelper\AbstractViewHelper;
+use TYPO3Fluid\Fluid\Core\ViewHelper\AbstractViewHelper;
+use TYPO3\CMS\Backend\Routing\UriBuilder;
 use TYPO3\CMS\Backend\Utility\BackendUtility;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 
@@ -20,14 +16,14 @@ class EditLinkViewHelper extends AbstractViewHelper
     /**
      * Render the onclick JavaScript for editing given fields of given record
      *
-     * @param string $table
-     * @param int $uid
-     * @param string $command
      * @return string
      */
-    public function render($table, $uid, $command = 'edit')
+    public function render()
     {
-        return BackendUtility::getModuleUrl('record_edit', [
+        $table = $this->arguments['table'];
+        $uid = $this->arguments['uid'];
+        $command = $this->arguments['command'];
+        return GeneralUtility::makeInstance(UriBuilder::class)->buildUriFromRoute('record_edit', [
             'edit' => [
                 $table => [
                     $uid => 'edit',
@@ -35,5 +31,12 @@ class EditLinkViewHelper extends AbstractViewHelper
             ],
             'returnUrl' => GeneralUtility::getIndpEnv('REQUEST_URI'),
         ]);
+    }
+
+    public function initializeArguments(): void
+    {
+        $this->registerArgument('table', 'string', '', true);
+        $this->registerArgument('uid', 'int', '', true);
+        $this->registerArgument('command', 'string', '', false, 'edit');
     }
 }

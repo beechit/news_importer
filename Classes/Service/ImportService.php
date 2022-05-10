@@ -24,9 +24,12 @@ class ImportService implements SingletonInterface
 
     /**
      * @var NewsImportService
-     * @inject
      */
     protected $newsImportService;
+    public function __construct(NewsImportService $newsImportService)
+    {
+        $this->newsImportService = $newsImportService;
+    }
 
     /**
      * Import extracted item
