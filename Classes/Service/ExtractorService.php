@@ -7,6 +7,8 @@ namespace BeechIt\NewsImporter\Service;
  * Date: 12-05-2015 14:15
  * All code (c) Beech Applications B.V. all rights reserved
  */
+use QueryPath\DOMQuery;
+use QueryPath\Exception;
 use BeechIt\NewsImporter\Domain\Model\ExtractedItem;
 use TYPO3\CMS\Core\SingletonInterface;
 use TYPO3\CMS\Core\TypoScript\Parser\TypoScriptParser;
@@ -103,7 +105,7 @@ class ExtractorService implements SingletonInterface
      * @param string $value
      * @return string|array
      */
-    public function extractValue(\QueryPath\DOMQuery $item, array $mapping, $value = '')
+    public function extractValue(DOMQuery $item, array $mapping, $value = '')
     {
         if (empty($mapping['multiple'])) {
             /** @var \QueryPath\DOMQuery $tmp */
@@ -139,7 +141,7 @@ class ExtractorService implements SingletonInterface
      * @param string $value
      * @return string
      */
-    protected function _extractValue(\QueryPath\DOMQuery $item, array $mapping, $value = '')
+    protected function _extractValue(DOMQuery $item, array $mapping, $value = '')
     {
         if ($item) {
             if (!empty($mapping['attr'])) {
@@ -193,7 +195,7 @@ class ExtractorService implements SingletonInterface
     {
         try {
             $domQuery = qp($string);
-        } catch (\QueryPath\Exception $e) {
+        } catch (Exception $e) {
             $domQuery = htmlqp($string);
         }
         return $domQuery;

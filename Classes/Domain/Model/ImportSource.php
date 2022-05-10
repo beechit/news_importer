@@ -26,13 +26,14 @@ namespace BeechIt\NewsImporter\Domain\Model;
  *
  *  This copyright notice MUST APPEAR in all copies of the script!
  ***************************************************************/
+use TYPO3\CMS\Extbase\DomainObject\AbstractEntity;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Extbase\Domain\Model\FileReference;
 
 /**
  * ImportSource
  */
-class ImportSource extends \TYPO3\CMS\Extbase\DomainObject\AbstractEntity
+class ImportSource extends AbstractEntity
 {
 
     /**
@@ -76,7 +77,7 @@ class ImportSource extends \TYPO3\CMS\Extbase\DomainObject\AbstractEntity
     /**
      * default image
      *
-     * @var \TYPO3\CMS\Extbase\Domain\Model\FileReference
+     * @var FileReference
      */
     protected $defaultImage;
 
@@ -215,7 +216,7 @@ class ImportSource extends \TYPO3\CMS\Extbase\DomainObject\AbstractEntity
     /**
      * Get defaultImage
      *
-     * @return \TYPO3\CMS\Extbase\Domain\Model\FileReference
+     * @return FileReference
      */
     public function getDefaultImage()
     {
@@ -225,7 +226,7 @@ class ImportSource extends \TYPO3\CMS\Extbase\DomainObject\AbstractEntity
     /**
      * Set defaultImage
      *
-     * @param \TYPO3\CMS\Extbase\Domain\Model\FileReference $defaultImage
+     * @param FileReference $defaultImage
      */
     public function setDefaultImage(FileReference $defaultImage = null)
     {

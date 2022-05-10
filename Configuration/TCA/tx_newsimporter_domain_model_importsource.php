@@ -9,7 +9,6 @@ return [
         'tstamp' => 'tstamp',
         'crdate' => 'crdate',
         'cruser_id' => 'cruser_id',
-        'dividers2tabs' => true,
 
         'versioningWS' => 2,
         'versioning_followPages' => true,
@@ -27,22 +26,14 @@ return [
         'requestUpdate' => 'disable_auto_import',
 
         'searchFields' => 'title,url,mapping,filter',
-        'iconfile' => \TYPO3\CMS\Core\Utility\ExtensionManagementUtility::extRelPath('news_importer') . 'ext_icon.png',
+        'iconfile' => 'EXT:news_importer/ext_icon.png',
     ],
     'interface' => [
         'showRecordFieldList' => 'sys_language_uid, l10n_parent, l10n_diffsource, hidden, title, url, mapping, last_run, storage_pid, default_image, image_folder, filter, update_interval, disable_auto_import',
     ],
     'types' => [
         '1' => [
-            'showitem' => '
-			title,
-			url,
-			mapping,
-			storage_pid,
-			default_image,
-			image_folder,
-			--palette--;LLL:EXT:news_importer/Resources/Private/Language/locallang_db.xlf:palette.automation;cron,
-			--div--;LLL:EXT:cms/locallang_ttc.xlf:tabs.access,sys_language_uid;;;;1-1-1, l10n_parent, l10n_diffsource, hidden;;1, starttime, endtime',
+            'showitem' => 'title,url,mapping,storage_pid,default_image,image_folder,--palette--;LLL:EXT:news_importer/Resources/Private/Language/locallang_db.xlf:palette.automation;cron,--div--;LLL:EXT:frontend/Resources/Private/Language/locallang_ttc.xlf:tabs.access,sys_language_uid,--palette--;;,l10n_parent,l10n_diffsource,hidden,--palette--;;1,starttime,endtime',
         ],
     ],
     'palettes' => [
@@ -58,6 +49,7 @@ return [
             'label' => 'LLL:EXT:lang/locallang_general.xlf:LGL.language',
             'config' => [
                 'type' => 'select',
+                'renderType' => 'selectSingle',
                 'foreign_table' => 'sys_language',
                 'foreign_table_where' => 'ORDER BY sys_language.title',
                 'items' => [
@@ -72,6 +64,7 @@ return [
             'label' => 'LLL:EXT:lang/locallang_general.xlf:LGL.l18n_parent',
             'config' => [
                 'type' => 'select',
+                'renderType' => 'selectSingle',
                 'items' => [
                     ['', 0],
                 ],
@@ -226,7 +219,7 @@ item {
                 [
                     'maxitems' => 1,
                     'appearance' => [
-                        'createNewRelationLinkTitle' => 'LLL:EXT:cms/locallang_ttc.xlf:images.addFileReference',
+                        'createNewRelationLinkTitle' => 'LLL:EXT:frontend/Resources/Private/Language/locallang_ttc.xlf:images.addFileReference',
                     ],
                     'foreign_types' => [
                         '0' => [
@@ -281,8 +274,8 @@ item {
                     '_PADDING' => 2,
                     'link' => [
                         'type' => 'popup',
-                        'title' => 'LLL:EXT:cms/locallang_ttc.xlf:image_link_formlabel',
-                        'icon' => 'link_popup.gif',
+                        'title' => 'LLL:EXT:frontend/Resources/Private/Language/locallang_ttc.xlf:image_link_formlabel',
+                        'icon' => 'EXT:backend/Resources/Public/Images/FormFieldWizard/wizard_link.gif',
                         'module' => [
                             'name' => 'wizard_element_browser',
                             'urlParameters' => [

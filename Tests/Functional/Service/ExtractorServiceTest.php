@@ -7,12 +7,13 @@ namespace BeechIt\NewsImporter\Tests\Functional\Service;
  * Date: 12-05-2015 14:26
  * All code (c) Beech Applications B.V. all rights reserved
  */
+use TYPO3\CMS\Core\Tests\FunctionalTestCase;
 use BeechIt\NewsImporter\Service\ExtractorService;
 
 /**
  * Class NewsMapperServiceTest
  */
-class ExtractorServiceTest extends \TYPO3\CMS\Core\Tests\FunctionalTestCase
+class ExtractorServiceTest extends FunctionalTestCase
 {
 
     /**

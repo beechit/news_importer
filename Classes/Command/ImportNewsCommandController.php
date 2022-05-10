@@ -7,6 +7,13 @@ namespace BeechIt\NewsImporter\Command;
  * Date: 12-05-2015 15:21
  * All code (c) Beech Applications B.V. all rights reserved
  */
+use TYPO3\CMS\Extbase\Mvc\Controller\CommandController;
+use TYPO3\CMS\Extbase\Persistence\Generic\PersistenceManager;
+use BeechIt\NewsImporter\Domain\Repository\ImportSourceRepository;
+use BeechIt\NewsImporter\Service\ExtractorService;
+use BeechIt\NewsImporter\Service\ImportService;
+use TYPO3\CMS\Extbase\Persistence\Exception\IllegalObjectTypeException;
+use TYPO3\CMS\Extbase\Persistence\Exception\UnknownObjectException;
 use BeechIt\NewsImporter\Domain\Model\ImportSource;
 use TYPO3\CMS\Core\Mail\MailMessage;
 use TYPO3\CMS\Core\Resource\StorageRepository;
@@ -16,7 +23,7 @@ use TYPO3\CMS\Extbase\Configuration\ConfigurationManagerInterface;
 /**
  * Class ImportNewsCommand controller
  */
-class ImportNewsCommandController extends \TYPO3\CMS\Extbase\Mvc\Controller\CommandController
+class ImportNewsCommandController extends CommandController
 {
 
     /**
@@ -30,31 +37,31 @@ class ImportNewsCommandController extends \TYPO3\CMS\Extbase\Mvc\Controller\Comm
     protected $settings;
 
     /**
-     * @var \TYPO3\CMS\Extbase\Configuration\ConfigurationManagerInterface
+     * @var ConfigurationManagerInterface
      * @inject
      */
     protected $configurationManager;
 
     /**
-     * @var \TYPO3\CMS\Extbase\Persistence\Generic\PersistenceManager
+     * @var PersistenceManager
      * @inject
      */
     protected $persistenceManager;
 
     /**
-     * @var \BeechIt\NewsImporter\Domain\Repository\ImportSourceRepository
+     * @var ImportSourceRepository
      * @inject
      */
     protected $importSourceRepository;
 
     /**
-     * @var \BeechIt\NewsImporter\Service\ExtractorService
+     * @var ExtractorService
      * @inject
      */
     protected $extractorService;
 
     /**
-     * @var \BeechIt\NewsImporter\Service\ImportService
+     * @var ImportService
      * @inject
      */
     protected $importService;
@@ -105,8 +112,8 @@ class ImportNewsCommandController extends \TYPO3\CMS\Extbase\Mvc\Controller\Comm
      * Run importer
      *
      * @param int $limit number of sources to check
-     * @throws \TYPO3\CMS\Extbase\Persistence\Exception\IllegalObjectTypeException
-     * @throws \TYPO3\CMS\Extbase\Persistence\Exception\UnknownObjectException
+     * @throws IllegalObjectTypeException
+     * @throws UnknownObjectException
      */
     public function runCommand($limit = 1)
     {

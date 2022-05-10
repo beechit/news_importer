@@ -2,6 +2,8 @@
 
 namespace BeechIt\NewsImporter\Domain\Repository;
 
+use TYPO3\CMS\Extbase\Persistence\Repository;
+use TYPO3\CMS\Extbase\Persistence\QueryResultInterface;
 /***************************************************************
  *
  *  Copyright notice
@@ -26,11 +28,10 @@ namespace BeechIt\NewsImporter\Domain\Repository;
  *
  *  This copyright notice MUST APPEAR in all copies of the script!
  ***************************************************************/
-
 /**
  * The repository for ImportSources
  */
-class ImportSourceRepository extends \TYPO3\CMS\Extbase\Persistence\Repository
+class ImportSourceRepository extends Repository
 {
 
     /**
@@ -48,7 +49,7 @@ class ImportSourceRepository extends \TYPO3\CMS\Extbase\Persistence\Repository
      * Find all sources to import
      *
      * @param int $limit
-     * @return \TYPO3\CMS\Extbase\Persistence\QueryResultInterface
+     * @return QueryResultInterface
      */
     public function findSourcesToImport($limit = 0)
     {

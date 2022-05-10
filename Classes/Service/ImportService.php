@@ -7,6 +7,7 @@ namespace BeechIt\NewsImporter\Service;
  * Date: 12-06-2015
  * All code (c) Beech Applications B.V. all rights reserved
  */
+use GeorgRinger\News\Domain\Service\NewsImportService;
 use BeechIt\NewsImporter\Domain\Model\ExtractedItem;
 use BeechIt\NewsImporter\Domain\Model\ImportSource;
 use TYPO3\CMS\Backend\Utility\BackendUtility;
@@ -22,7 +23,7 @@ class ImportService implements SingletonInterface
 {
 
     /**
-     * @var \GeorgRinger\News\Domain\Service\NewsImportService
+     * @var NewsImportService
      * @inject
      */
     protected $newsImportService;

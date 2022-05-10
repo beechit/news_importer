@@ -7,14 +7,14 @@ namespace BeechIt\NewsImporter\ViewHelpers\Be;
  * Date: 11-03-2015 12:07
  * All code (c) Beech Applications B.V. all rights reserved
  */
-
+use TYPO3\CMS\Fluid\Core\ViewHelper\AbstractViewHelper;
 use TYPO3\CMS\Backend\Utility\BackendUtility;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 
 /**
  * Class EditLinkViewHelper
  */
-class EditLinkViewHelper extends \TYPO3\CMS\Fluid\Core\ViewHelper\AbstractViewHelper
+class EditLinkViewHelper extends AbstractViewHelper
 {
 
     /**

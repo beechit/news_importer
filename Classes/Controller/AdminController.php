@@ -7,6 +7,13 @@ namespace BeechIt\NewsImporter\Controller;
  * Date: 12-06-2015
  * All code (c) Beech Applications B.V. all rights reserved
  */
+use TYPO3\CMS\Extbase\Mvc\Controller\ActionController;
+use BeechIt\NewsImporter\Domain\Repository\ImportSourceRepository;
+use BeechIt\NewsImporter\Service\ExtractorService;
+use BeechIt\NewsImporter\Service\ImportService;
+use TYPO3\CMS\Core\Authentication\BackendUserAuthentication;
+use TYPO3\CMS\Extbase\Mvc\Exception\StopActionException;
+use TYPO3\CMS\Extbase\Mvc\Exception\UnsupportedRequestTypeException;
 use BeechIt\NewsImporter\Domain\Model\ExtractedItem;
 use BeechIt\NewsImporter\Domain\Model\ImportSource;
 use TYPO3\CMS\Backend\Template\Components\ButtonBar;
@@ -22,23 +29,23 @@ use TYPO3\CMS\Extbase\Utility\LocalizationUtility;
 /**
  * Class AdminController
  */
-class AdminController extends \TYPO3\CMS\Extbase\Mvc\Controller\ActionController
+class AdminController extends ActionController
 {
 
     /**
-     * @var \BeechIt\NewsImporter\Domain\Repository\ImportSourceRepository
+     * @var ImportSourceRepository
      * @inject
      */
     protected $importSourceRepository;
 
     /**
-     * @var \BeechIt\NewsImporter\Service\ExtractorService
+     * @var ExtractorService
      * @inject
      */
     protected $extractorService;
 
     /**
-     * @var \BeechIt\NewsImporter\Service\ImportService
+     * @var ImportService
      * @inject
      */
     protected $importService;
@@ -131,7 +138,7 @@ class AdminController extends \TYPO3\CMS\Extbase\Mvc\Controller\ActionController
     }
 
     /**
-     * @return \TYPO3\CMS\Core\Authentication\BackendUserAuthentication
+     * @return BackendUserAuthentication
      */
     protected function getBackendUser()
     {
@@ -184,8 +191,8 @@ class AdminController extends \TYPO3\CMS\Extbase\Mvc\Controller\ActionController
     /**
      * @param ImportSource $importSource
      * @param string $guid
-     * @throws \TYPO3\CMS\Extbase\Mvc\Exception\StopActionException
-     * @throws \TYPO3\CMS\Extbase\Mvc\Exception\UnsupportedRequestTypeException
+     * @throws StopActionException
+     * @throws UnsupportedRequestTypeException
      */
     public function importAction(ImportSource $importSource, $guid)
     {
@@ -199,7 +206,7 @@ class AdminController extends \TYPO3\CMS\Extbase\Mvc\Controller\ActionController
                 $itemUid = $this->importService->alreadyImported($importSource->getPid(), $guid);
 
                 $this->uriBuilder->reset()->setCreateAbsoluteUri(true);
-                if (\TYPO3\CMS\Core\Utility\GeneralUtility::getIndpEnv('TYPO3_SSL')) {
+                if (GeneralUtility::getIndpEnv('TYPO3_SSL')) {
                     $this->uriBuilder->setAbsoluteUriScheme('https');
                 }
                 $uri = BackendUtility::getModuleUrl('record_edit', [
