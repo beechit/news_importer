@@ -2,12 +2,7 @@
 
 namespace BeechIt\NewsImporter\Tests\Functional\Service;
 
-/**
- * This source file is proprietary property of Beech Applications B.V.
- * Date: 12-05-2015 14:26
- * All code (c) Beech Applications B.V. all rights reserved
- */
-use TYPO3\CMS\Core\Tests\FunctionalTestCase;
+use TYPO3\TestingFramework\Core\Functional\FunctionalTestCase;
 use BeechIt\NewsImporter\Service\ExtractorService;
 
 /**

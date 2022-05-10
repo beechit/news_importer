@@ -252,7 +252,7 @@ class AdminController extends ActionController
         );
         $refreshButton = $buttonBar->makeLinkButton()
             ->setHref($refreshLink)
-            ->setTitle($lang->sL('LLL:EXT:lang/locallang_core.xlf:labels.reload'))
+            ->setTitle($lang->sL('LLL:EXT:lang/Resources/Private/Language/locallang_core.xlf:labels.reload'))
             ->setIcon($iconFactory->getIcon('actions-refresh', Icon::SIZE_SMALL));
         $buttonBar->addButton($refreshButton, ButtonBar::BUTTON_POSITION_RIGHT);
 

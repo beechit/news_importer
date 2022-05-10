@@ -7,13 +7,13 @@ namespace BeechIt\NewsImporter\Service;
  * Date: 12-05-2015 14:15
  * All code (c) Beech Applications B.V. all rights reserved
  */
+use TYPO3\CMS\Core\TypoScript\TypoScriptService;
 use QueryPath\DOMQuery;
 use QueryPath\Exception;
 use BeechIt\NewsImporter\Domain\Model\ExtractedItem;
 use TYPO3\CMS\Core\SingletonInterface;
 use TYPO3\CMS\Core\TypoScript\Parser\TypoScriptParser;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
-use TYPO3\CMS\Extbase\Service\TypoScriptService;
 
 /**
  * Class ExtractorService
