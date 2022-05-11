@@ -11,8 +11,3 @@ $pathQueryLib = \TYPO3\CMS\Core\Utility\ExtensionManagementUtility::extPath('new
 if (file_exists($pathQueryLib)) {
     require_once $pathQueryLib;
 }
-
-if (TYPO3_MODE === 'BE') {
-    $GLOBALS['TYPO3_CONF_VARS']['SC_OPTIONS']['extbase']['commandControllers'][]
-        = 'BeechIt\\NewsImporter\\Command\\ImportNewsCommandController';
-}
