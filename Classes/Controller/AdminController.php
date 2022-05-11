@@ -10,6 +10,7 @@ namespace BeechIt\NewsImporter\Controller;
 use BeechIt\NewsImporter\Domain\Model\ExtractedItem;
 use BeechIt\NewsImporter\Domain\Model\ImportSource;
 use BeechIt\NewsImporter\Domain\Repository\ImportSourceRepository;
+use BeechIt\NewsImporter\Exception\NewsItemNotFoundException;
 use BeechIt\NewsImporter\Service\ExtractorService;
 use BeechIt\NewsImporter\Service\ImportService;
 use TYPO3\CMS\Backend\Routing\UriBuilder;
@@ -180,12 +181,17 @@ class AdminController extends ActionController
         $items = [];
         /** @var ExtractedItem $item */
         foreach ($extractedItems as $item) {
+            $newsUid = false;
+            try {
+                $newsUid = $this->importService->getNewsItemUid($importSource->getPid(), $item->getGuid());
+            } catch (NewsItemNotFoundException $e) {
+            }
             $items[] = [
                 'guid' => $item->getGuid(),
                 'title' => $item->extractValue('title'),
                 'link' => $item->extractValue('link'),
                 'datetime' => $item->extractValue('datetime'),
-                'newsUid' => $this->importService->alreadyImported($importSource->getPid(), $item->getGuid()),
+                'newsUid' => $newsUid,
             ];
         }
 
@@ -197,6 +203,7 @@ class AdminController extends ActionController
      * @param string $guid
      * @throws StopActionException
      * @throws UnsupportedRequestTypeException
+     * @throws \BeechIt\NewsImporter\Exception\NewsItemNotFoundException
      */
     public function importAction(ImportSource $importSource, $guid)
     {
@@ -207,8 +214,7 @@ class AdminController extends ActionController
         foreach ($extractedItems as $item) {
             if ($item->getGuid() === $guid) {
                 $this->importService->importItem($importSource, $item);
-                $itemUid = $this->importService->alreadyImported($importSource->getPid(), $guid);
-
+                $itemUid = $this->importService->getNewsItemUid($importSource->getPid(), $guid);
                 $this->uriBuilder->reset()->setCreateAbsoluteUri(true);
                 if (GeneralUtility::getIndpEnv('TYPO3_SSL')) {
                     $this->uriBuilder->setAbsoluteUriScheme('https');
