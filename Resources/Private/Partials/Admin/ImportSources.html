@@ -1,6 +1,6 @@
 <div xmlns="http://www.w3.org/1999/xhtml" lang="en"
 	  xmlns:f="http://typo3.org/ns/fluid/ViewHelpers"
-	  xmlns:ni="http://typo3.org/ns/BeechIt/NewsImporter/ViewHelpers"
+     xmlns:be="http://typo3.org/ns/TYPO3/CMS/Backend/ViewHelpers"
      xmlns:core="http://typo3.org/ns/TYPO3/CMS/Core/ViewHelpers">
 
 <f:section name="ImportSources">
@@ -22,7 +22,7 @@
 					<f:link.action action="show" arguments="{importSource: importSource}">
                         <core:icon identifier="actions-system-list-open"/>
                     </f:link.action>
-                    <a href="{ni:be.editLink(table:'tx_newsimporter_domain_model_importsource', uid:importSource.uid)}" class="btn btn-default btn-sm">
+                    <a href="{be:uri.editRecord(table:'tx_newsimporter_domain_model_importsource', uid:importSource.uid)}" class="btn btn-default btn-sm">
                         <core:icon identifier="actions-document-open"/>
                     </a>
 				</td>
