@@ -7,14 +7,19 @@ namespace BeechIt\NewsImporter\Service;
  * Date: 12-06-2015
  * All code (c) Beech Applications B.V. all rights reserved
  */
+
 use BeechIt\NewsImporter\Domain\Model\ExtractedItem;
 use BeechIt\NewsImporter\Domain\Model\ImportSource;
+use BeechIt\NewsImporter\Exception\NewsItemNotFoundException;
+use GeorgRinger\News\Domain\Service\NewsImportService;
+use TYPO3\CMS\Backend\Utility\BackendUtility;
+use TYPO3\CMS\Core\Database\ConnectionPool;
+use TYPO3\CMS\Core\Database\Query\Restriction\DeletedRestriction;
+use TYPO3\CMS\Core\Html\RteHtmlParser;
 use TYPO3\CMS\Core\Resource\DuplicationBehavior;
+use TYPO3\CMS\Core\Resource\ResourceFactory;
 use TYPO3\CMS\Core\SingletonInterface;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
-use TYPO3\CMS\Backend\Utility\BackendUtility;
-use TYPO3\CMS\Core\Resource\ResourceFactory;
-use TYPO3\CMS\Core\Resource\StorageRepository;
 
 /**
  * Class ImportService
@@ -23,10 +28,14 @@ class ImportService implements SingletonInterface
 {
 
     /**
-     * @var \GeorgRinger\News\Domain\Service\NewsImportService
-     * @inject
+     * @var NewsImportService
      */
-    protected $newsImportService;
+    protected NewsImportService $newsImportService;
+
+    public function __construct(NewsImportService $newsImportService)
+    {
+        $this->newsImportService = $newsImportService;
+    }
 
     /**
      * Import extracted item
@@ -34,7 +43,7 @@ class ImportService implements SingletonInterface
      * @param ImportSource $importSource
      * @param ExtractedItem $item
      */
-    public function importItem(ImportSource $importSource, ExtractedItem $item)
+    public function importItem(ImportSource $importSource, ExtractedItem $item): void
     {
         $data = $item->toArray();
         $data['pid'] = $importSource->getStoragePid();
@@ -59,15 +68,57 @@ class ImportService implements SingletonInterface
      * @param string $guid
      * @return bool
      */
-    public function alreadyImported($pid, $guid)
+    public function alreadyImported(int $pid, string $guid): bool
     {
-        $guid = $this->getDatabaseConnection()->fullQuoteStr($guid, 'tx_news_domain_model_news');
-        $record = $this->getDatabaseConnection()->exec_SELECTgetSingleRow(
-            'uid',
-            'tx_news_domain_model_news',
-            'deleted=0 AND pid=' . (int)$pid . ' AND import_source = \'ext:news_importer\' AND import_id=' . $guid
-        );
-        return $record ? $record['uid'] : false;
+        $newsItemImported = false;
+        try {
+            $this->getNewsItemUid($pid, $guid);
+            $newsItemImported = true;
+        } catch (NewsItemNotFoundException $e) {
+        }
+        return $newsItemImported;
+    }
+
+    /**
+     * @param int $pid
+     * @param string $guid
+     * @return int
+     * @throws NewsItemNotFoundException
+     */
+    public function getNewsItemUid(int $pid, string $guid): int
+    {
+        $queryBuilder = GeneralUtility::makeInstance(ConnectionPool::class)->getQueryBuilderForTable('tx_news_domain_model_news');
+        $queryBuilder
+            ->getRestrictions()
+            ->removeAll()
+            ->add(GeneralUtility::makeInstance(DeletedRestriction::class));
+        $firstRecord = $queryBuilder->select('uid')
+            ->from('tx_news_domain_model_news')
+            ->where(
+                $queryBuilder->expr()->eq(
+                    'pid',
+                    $queryBuilder->createNamedParameter($pid, \PDO::PARAM_INT)
+                )
+            )
+            ->andWhere(
+                $queryBuilder->expr()->eq(
+                    'import_source',
+                    $queryBuilder->createNamedParameter('ext:news_importer', \PDO::PARAM_STR)
+                )
+            )
+            ->andWhere(
+                $queryBuilder->expr()->eq(
+                    'import_id',
+                    $queryBuilder->createNamedParameter($guid, \PDO::PARAM_STR)
+                )
+            )
+            ->execute()
+            ->fetchAssociative();
+
+        if ($firstRecord === false) {
+            throw new NewsItemNotFoundException($guid);
+        }
+        return $firstRecord['uid'];
     }
 
     /**
@@ -80,7 +131,7 @@ class ImportService implements SingletonInterface
      * @param array $searchFields
      * @return bool
      */
-    public function matchFilter(ExtractedItem $item, $filterWords, array $searchFields = ['title', 'bodytext'])
+    public function matchFilter(ExtractedItem $item, $filterWords, array $searchFields = ['title', 'bodytext']): bool
     {
         if (empty($searchFields)) {
             return true;
@@ -102,8 +153,9 @@ class ImportService implements SingletonInterface
      *
      * @param string $text
      * @param int $pid
+     * @return mixed
      */
-    protected function cleanBodyText($text, $pid)
+    protected function cleanBodyText(string $text, int $pid)
     {
         static $rteHtmlParsers;
 
@@ -112,21 +164,21 @@ class ImportService implements SingletonInterface
                 $rteHtmlParsers = [];
             }
             /** @var $htmlParser \TYPO3\CMS\Core\Html\RteHtmlParser */
-            $rteHtmlParsers[$pid] = GeneralUtility::makeInstance('TYPO3\\CMS\\Core\\Html\\RteHtmlParser');
-            $rteHtmlParsers[$pid]->init('tx_news_domain_model_news:bodytext', $pid);
+            $rteHtmlParsers[$pid] = GeneralUtility::makeInstance(RteHtmlParser::class);
         }
 
         // Perform transformation
         $tsConfig = BackendUtility::getPagesTSconfig($pid);
-        return $rteHtmlParsers[$pid]->RTE_transform(trim($text),
-            ['rte_transform' => ['parameters' => ['flag=rte_disabled', 'mode=ts_css']]], 'db',
-            $tsConfig['RTE.']['default.']);
+        return $rteHtmlParsers[$pid]->transformTextForPersistence(
+            trim($text),
+            $tsConfig['RTE.']['default.']['proc.'] ?? []
+        );
     }
 
     /**
      * @param array $data
      * @param ImportSource $importSource
-     * @return NULL|array
+     * @return array|null
      */
     protected function processMedia(array $data, ImportSource $importSource)
     {
@@ -136,16 +188,18 @@ class ImportService implements SingletonInterface
                 [
                     'type' => 0,
                     'image' => $importSource->getDefaultImage()->getOriginalResource()->getCombinedIdentifier(),
-                    'showinpreview' => 1
-                ]
+                    'showinpreview' => 1,
+                ],
             ];
         }
 
         $folder = null;
         if ($importSource->getImageFolder()) {
             try {
-                $folder = ResourceFactory::getInstance()->getFolderObjectFromCombinedIdentifier(ltrim($importSource->getImageFolder(),
-                    'file:'));
+                $folder = GeneralUtility::makeInstance(ResourceFactory::class)->getFolderObjectFromCombinedIdentifier(ltrim(
+                    $importSource->getImageFolder(),
+                    'file:'
+                ));
             } catch (\Exception $e) {
             }
         }
@@ -162,14 +216,16 @@ class ImportService implements SingletonInterface
                     file_put_contents($tempFile, $tmp);
                     list(, , $imageType) = getimagesize($tempFile);
                     try {
-                        $falImage = $folder->addFile($tempFile,
+                        $falImage = $folder->addFile(
+                            $tempFile,
                             ($data['title'] ?: 'news_import') . image_type_to_extension($imageType, true),
-                            DuplicationBehavior::RENAME);
+                            DuplicationBehavior::RENAME
+                        );
                         $media[] =
                             [
                                 'type' => 0,
                                 'image' => $falImage->getCombinedIdentifier(),
-                                'showinpreview' => 1
+                                'showinpreview' => 1,
                             ];
                     } catch (\Exception $e) {
                     }
@@ -177,13 +233,5 @@ class ImportService implements SingletonInterface
             }
         }
         return $media;
-    }
-
-    /**
-     * @return \TYPO3\CMS\Core\Database\DatabaseConnection
-     */
-    protected function getDatabaseConnection()
-    {
-        return $GLOBALS['TYPO3_DB'];
     }
 }

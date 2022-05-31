@@ -1,0 +1,26 @@
+services:
+  _defaults:
+    autowire: true
+    autoconfigure: true
+    public: false
+  BeechIt\NewsImporter\:
+    resource: '../Classes/*'
+    exclude: '../Classes/Domain/Model/*'
+  BeechIt\NewsImporter\Command\OutputNewsImportStatusesCommand:
+    tags:
+      - name: 'console.command'
+        command: 'newsimporter:outputnewsimportstatuses'
+        description: 'Get status of all defined remotes (last run datetime)'
+        schedulable: true
+  BeechIt\NewsImporter\Command\TestImportSourceCommand:
+    tags:
+      - name: 'console.command'
+        command: 'newsimporter:testimportsource'
+        description: 'Test import source by counting found items and displaying data of first item'
+        schedulable: true
+  BeechIt\NewsImporter\Command\ImportNewsCommand:
+    tags:
+      - name: 'console.command'
+        command: 'newsimporter:importnews'
+        description: 'Run importer by given limit, import sources with oldest "run" timestamp will run'
+        schedulable: true

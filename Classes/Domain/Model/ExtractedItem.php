@@ -9,6 +9,7 @@ namespace BeechIt\NewsImporter\Domain\Model;
  */
 use BeechIt\NewsImporter\Service\ExtractorService;
 use QueryPath\DOMQuery;
+use QueryPath\Exception;
 
 /**
  * Class ExtractedItem
@@ -83,7 +84,7 @@ class ExtractedItem
                 $source = $this->extractorService->fetchRawContent($source);
                 try {
                     $item = qp($source);
-                } catch (\QueryPath\Exception $e) {
+                } catch (Exception $e) {
                     $item = htmlqp($source);
                 }
             } else {

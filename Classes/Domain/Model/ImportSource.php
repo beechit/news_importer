@@ -2,7 +2,6 @@
 
 namespace BeechIt\NewsImporter\Domain\Model;
 
-
 /***************************************************************
  *
  *  Copyright notice
@@ -29,11 +28,12 @@ namespace BeechIt\NewsImporter\Domain\Model;
  ***************************************************************/
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Extbase\Domain\Model\FileReference;
+use TYPO3\CMS\Extbase\DomainObject\AbstractEntity;
 
 /**
  * ImportSource
  */
-class ImportSource extends \TYPO3\CMS\Extbase\DomainObject\AbstractEntity
+class ImportSource extends AbstractEntity
 {
 
     /**
@@ -65,21 +65,21 @@ class ImportSource extends \TYPO3\CMS\Extbase\DomainObject\AbstractEntity
      *
      * @var \DateTime
      */
-    protected $lastRun = null;
+    protected $lastRun;
 
     /**
      * storagePid
      *
-     * @var integer
+     * @var int
      */
     protected $storagePid = 0;
 
     /**
      * default image
      *
-     * @var \TYPO3\CMS\Extbase\Domain\Model\FileReference
+     * @var FileReference
      */
-    protected $defaultImage = null;
+    protected $defaultImage;
 
     /**
      * imageFolder
@@ -127,7 +127,6 @@ class ImportSource extends \TYPO3\CMS\Extbase\DomainObject\AbstractEntity
      * Sets the url
      *
      * @param string $url
-     * @return void
      */
     public function setUrl($url)
     {
@@ -148,7 +147,6 @@ class ImportSource extends \TYPO3\CMS\Extbase\DomainObject\AbstractEntity
      * Sets the mapping
      *
      * @param string $mapping
-     * @return void
      */
     public function setMapping($mapping)
     {
@@ -158,7 +156,7 @@ class ImportSource extends \TYPO3\CMS\Extbase\DomainObject\AbstractEntity
     /**
      * Get disableAutoImport
      *
-     * @return boolean
+     * @return bool
      */
     public function getDisableAutoImport()
     {
@@ -168,7 +166,7 @@ class ImportSource extends \TYPO3\CMS\Extbase\DomainObject\AbstractEntity
     /**
      * Set disableAutoImport
      *
-     * @param boolean $disableAutoImport
+     * @param bool $disableAutoImport
      */
     public function setDisableAutoImport($disableAutoImport)
     {
@@ -189,7 +187,6 @@ class ImportSource extends \TYPO3\CMS\Extbase\DomainObject\AbstractEntity
      * Sets the lastRun
      *
      * @param \DateTime $lastRun
-     * @return void
      */
     public function setLastRun(\DateTime $lastRun)
     {
@@ -199,7 +196,7 @@ class ImportSource extends \TYPO3\CMS\Extbase\DomainObject\AbstractEntity
     /**
      * Returns the storagePid
      *
-     * @return integer $storagePid
+     * @return int $storagePid
      */
     public function getStoragePid()
     {
@@ -209,8 +206,7 @@ class ImportSource extends \TYPO3\CMS\Extbase\DomainObject\AbstractEntity
     /**
      * Sets the storagePid
      *
-     * @param integer $storagePid
-     * @return void
+     * @param int $storagePid
      */
     public function setStoragePid($storagePid)
     {
@@ -220,7 +216,7 @@ class ImportSource extends \TYPO3\CMS\Extbase\DomainObject\AbstractEntity
     /**
      * Get defaultImage
      *
-     * @return \TYPO3\CMS\Extbase\Domain\Model\FileReference
+     * @return FileReference
      */
     public function getDefaultImage()
     {
@@ -230,7 +226,7 @@ class ImportSource extends \TYPO3\CMS\Extbase\DomainObject\AbstractEntity
     /**
      * Set defaultImage
      *
-     * @param \TYPO3\CMS\Extbase\Domain\Model\FileReference $defaultImage
+     * @param FileReference $defaultImage
      */
     public function setDefaultImage(FileReference $defaultImage = null)
     {
@@ -251,7 +247,6 @@ class ImportSource extends \TYPO3\CMS\Extbase\DomainObject\AbstractEntity
      * Sets the imageFolder
      *
      * @param string $imageFolder
-     * @return void
      */
     public function setImageFolder($imageFolder)
     {

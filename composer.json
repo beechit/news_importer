@@ -2,14 +2,21 @@
 	"name": "beechit/news-importer",
 	"type": "typo3-cms-extension",
 	"description": "\"News importer\": Import news feeds into your TYPO3 CMS",
-	"license": ["GPL-2.0+"],
+	"license": [
+		"GPL-2.0+"
+	],
 	"require": {
 		"typo3/cms-core": ">= 7.6.0",
-        "querypath/querypath": "^3"
+		"querypath/querypath": "^3"
 	},
-    "autoload": {
-      "psr-4": {
-        "BeechIt\\NewsImporter\\": "Classes"
-      }
-    }
+	"autoload": {
+		"psr-4": {
+			"BeechIt\\NewsImporter\\": "Classes"
+		}
+	},
+	"extra": {
+		"typo3/cms": {
+			"extension-key": "news_importer"
+		}
+	}
 }

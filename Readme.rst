@@ -32,7 +32,7 @@ The extension is still beta but it is used already in multiple live projects
 
 Requirements:
 -------------
-- TYPO3 => 7.6
+- TYPO3 => 10.4
 
 Getting started
 ---------------
@@ -148,3 +148,18 @@ Todo:
 -----
 
 Improve debug/test options for rss/html parsing/fetching
+
+
+Upgrade to TYPO3 v10
+--------------------
+
+Migrating the Extbase command controllers to symfony commands:
+
+importnews:status => newsimporter:outputnewsimportstatuses
+importnews:testSource => newsimporter:testimportsource
+importnews:run => newsimporter:importnews
+
+!!! Removal of `be.editLink` Viewhelper, migrating to the core `be:uri.editRecord` Viewhelper
+
+!!! Changing method ImportService->alreadyImported to always return true/false as the method name and codeblock suggests. An different
+method ImportService->getNewsItemUid($pid,$guid) is created to get the newsItemUid of throws exception when no item is found.

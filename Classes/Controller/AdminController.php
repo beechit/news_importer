@@ -9,38 +9,43 @@ namespace BeechIt\NewsImporter\Controller;
  */
 use BeechIt\NewsImporter\Domain\Model\ExtractedItem;
 use BeechIt\NewsImporter\Domain\Model\ImportSource;
+use BeechIt\NewsImporter\Domain\Repository\ImportSourceRepository;
+use BeechIt\NewsImporter\Exception\NewsItemNotFoundException;
+use BeechIt\NewsImporter\Service\ExtractorService;
+use BeechIt\NewsImporter\Service\ImportService;
+use TYPO3\CMS\Backend\Routing\UriBuilder;
 use TYPO3\CMS\Backend\Template\Components\ButtonBar;
 use TYPO3\CMS\Backend\View\BackendTemplateView;
+use TYPO3\CMS\Core\Authentication\BackendUserAuthentication;
 use TYPO3\CMS\Core\Imaging\Icon;
 use TYPO3\CMS\Core\Imaging\IconFactory;
-use TYPO3\CMS\Core\Utility\GeneralUtility;
-use TYPO3\CMS\Extbase\Mvc\View\ViewInterface;
-use TYPO3\CMS\Backend\Utility\BackendUtility;
+use TYPO3\CMS\Core\Localization\LanguageService;
 use TYPO3\CMS\Core\Messaging\AbstractMessage;
+use TYPO3\CMS\Core\Utility\GeneralUtility;
+use TYPO3\CMS\Extbase\Mvc\Controller\ActionController;
+use TYPO3\CMS\Extbase\Mvc\Exception\StopActionException;
+use TYPO3\CMS\Extbase\Mvc\Exception\UnsupportedRequestTypeException;
+use TYPO3\CMS\Extbase\Mvc\View\ViewInterface;
 use TYPO3\CMS\Extbase\Utility\LocalizationUtility;
-
 
 /**
  * Class AdminController
  */
-class AdminController extends \TYPO3\CMS\Extbase\Mvc\Controller\ActionController
+class AdminController extends ActionController
 {
 
     /**
-     * @var \BeechIt\NewsImporter\Domain\Repository\ImportSourceRepository
-     * @inject
+     * @var ImportSourceRepository
      */
     protected $importSourceRepository;
 
     /**
-     * @var \BeechIt\NewsImporter\Service\ExtractorService
-     * @inject
+     * @var ExtractorService
      */
     protected $extractorService;
 
     /**
-     * @var \BeechIt\NewsImporter\Service\ImportService
-     * @inject
+     * @var ImportService
      */
     protected $importService;
 
@@ -56,11 +61,16 @@ class AdminController extends \TYPO3\CMS\Extbase\Mvc\Controller\ActionController
      */
     protected $defaultViewObjectName = BackendTemplateView::class;
 
-
     /**
      * The module name of this BE module
      */
     const MODULE_NAME = 'web_NewsImporterNewsimporter';
+    public function __construct(ImportSourceRepository $importSourceRepository, ExtractorService $extractorService, ImportService $importService)
+    {
+        $this->importSourceRepository = $importSourceRepository;
+        $this->extractorService = $extractorService;
+        $this->importService = $importService;
+    }
 
     /**
      * @return bool|string
@@ -80,8 +90,14 @@ class AdminController extends \TYPO3\CMS\Extbase\Mvc\Controller\ActionController
         if ($this->getBackendUser()) {
             $lang = $this->getBackendUser()->uc['lang'] ?: 'en';
             $locale = $lang . '_' . strtoupper($lang);
-            setlocale(LC_ALL, $lang, $locale, $locale . '.utf8', $this->getBackendUser()->uc['lang'],
-                $GLOBALS['TYPO3_CONF_VARS']['SYS']['systemLocale']);
+            setlocale(
+                LC_ALL,
+                $lang,
+                $locale,
+                $locale . '.utf8',
+                $this->getBackendUser()->uc['lang'],
+                $GLOBALS['TYPO3_CONF_VARS']['SYS']['systemLocale']
+            );
             $view->assign('locale', $locale);
         }
     }
@@ -102,7 +118,8 @@ class AdminController extends \TYPO3\CMS\Extbase\Mvc\Controller\ActionController
         array $arguments = null,
         $storeInSession = true
     ) {
-        $this->addFlashMessage($this->getTranslatedString($messageBody, $arguments),
+        $this->addFlashMessage(
+            $this->getTranslatedString($messageBody, $arguments),
             $this->getTranslatedString($messageTitle, $arguments),
             $severity,
             $storeInSession
@@ -121,12 +138,12 @@ class AdminController extends \TYPO3\CMS\Extbase\Mvc\Controller\ActionController
         if (!$input) {
             return '';
         }
-        $translated = LocalizationUtility::translate($input, $this->extensionName, $arguments);
+        $translated = LocalizationUtility::translate($input, $this->request->getControllerExtensionName(), $arguments);
         return $translated ?: '';
     }
 
     /**
-     * @return \TYPO3\CMS\Core\Authentication\BackendUserAuthentication
+     * @return BackendUserAuthentication
      */
     protected function getBackendUser()
     {
@@ -164,12 +181,17 @@ class AdminController extends \TYPO3\CMS\Extbase\Mvc\Controller\ActionController
         $items = [];
         /** @var ExtractedItem $item */
         foreach ($extractedItems as $item) {
+            $newsUid = false;
+            try {
+                $newsUid = $this->importService->getNewsItemUid($importSource->getPid(), $item->getGuid());
+            } catch (NewsItemNotFoundException $e) {
+            }
             $items[] = [
                 'guid' => $item->getGuid(),
                 'title' => $item->extractValue('title'),
                 'link' => $item->extractValue('link'),
                 'datetime' => $item->extractValue('datetime'),
-                'newsUid' => $this->importService->alreadyImported($importSource->getPid(), $item->getGuid())
+                'newsUid' => $newsUid,
             ];
         }
 
@@ -179,8 +201,9 @@ class AdminController extends \TYPO3\CMS\Extbase\Mvc\Controller\ActionController
     /**
      * @param ImportSource $importSource
      * @param string $guid
-     * @throws \TYPO3\CMS\Extbase\Mvc\Exception\StopActionException
-     * @throws \TYPO3\CMS\Extbase\Mvc\Exception\UnsupportedRequestTypeException
+     * @throws StopActionException
+     * @throws UnsupportedRequestTypeException
+     * @throws \BeechIt\NewsImporter\Exception\NewsItemNotFoundException
      */
     public function importAction(ImportSource $importSource, $guid)
     {
@@ -191,20 +214,22 @@ class AdminController extends \TYPO3\CMS\Extbase\Mvc\Controller\ActionController
         foreach ($extractedItems as $item) {
             if ($item->getGuid() === $guid) {
                 $this->importService->importItem($importSource, $item);
-                $itemUid = $this->importService->alreadyImported($importSource->getPid(), $guid);
-
+                $itemUid = $this->importService->getNewsItemUid($importSource->getPid(), $guid);
                 $this->uriBuilder->reset()->setCreateAbsoluteUri(true);
-                if (\TYPO3\CMS\Core\Utility\GeneralUtility::getIndpEnv('TYPO3_SSL')) {
+                if (GeneralUtility::getIndpEnv('TYPO3_SSL')) {
                     $this->uriBuilder->setAbsoluteUriScheme('https');
                 }
-                $uri = BackendUtility::getModuleUrl('record_edit', [
+                $uri = GeneralUtility::makeInstance(UriBuilder::class)->buildUriFromRoute('record_edit', [
                     'edit' => [
                         'tx_news_domain_model_news' => [
-                            $itemUid => 'edit'
-                        ]
+                            $itemUid => 'edit',
+                        ],
                     ],
-                    'returnUrl' => $this->uriBuilder->uriFor('show', ['importSource' => $importSource],
-                        $this->request->getControllerName())
+                    'returnUrl' => $this->uriBuilder->uriFor(
+                        'show',
+                        ['importSource' => $importSource],
+                        $this->request->getControllerName()
+                    ),
                 ]);
                 $this->redirectToUri($uri);
             }
@@ -213,7 +238,6 @@ class AdminController extends \TYPO3\CMS\Extbase\Mvc\Controller\ActionController
         $this->addTranslatedFlashMessage('requested-item-not-found', '', AbstractMessage::ERROR);
         $this->redirect('show', null, null, ['importSource' => $importSource]);
     }
-
 
     /**
      * Create the panel of buttons for submitting the form or otherwise perform operations.
@@ -238,7 +262,7 @@ class AdminController extends \TYPO3\CMS\Extbase\Mvc\Controller\ActionController
         );
         $refreshButton = $buttonBar->makeLinkButton()
             ->setHref($refreshLink)
-            ->setTitle($lang->sL('LLL:EXT:lang/locallang_core.xlf:labels.reload'))
+            ->setTitle($lang->sL('LLL:EXT:core/Resources/Private/Language/locallang_core.xlf:labels.reload'))
             ->setIcon($iconFactory->getIcon('actions-refresh', Icon::SIZE_SMALL));
         $buttonBar->addButton($refreshButton, ButtonBar::BUTTON_POSITION_RIGHT);
 
@@ -252,7 +276,7 @@ class AdminController extends \TYPO3\CMS\Extbase\Mvc\Controller\ActionController
     /**
      * Returns an instance of LanguageService
      *
-     * @return \TYPO3\CMS\Lang\LanguageService
+     * @return LanguageService
      */
     protected function getLanguageService()
     {
