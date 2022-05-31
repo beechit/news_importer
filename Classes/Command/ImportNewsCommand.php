@@ -22,6 +22,7 @@ class ImportNewsCommand extends Command
     protected const OPTION_NAME_LIMIT = 'limit';
     protected const OPTION_NAME_LIMIT_SHORTCUT = 'l';
     protected const OPTION_LIMIT_DEFAULT = 1;
+
     /**
      * @var array
      */
@@ -51,6 +52,10 @@ class ImportNewsCommand extends Command
      * @var ImportService
      */
     protected ImportService $importService;
+
+    /**
+     * @var SymfonyStyle
+     */
     protected SymfonyStyle $io;
 
     public function __construct(
@@ -76,7 +81,6 @@ class ImportNewsCommand extends Command
 
     /**
      * @param StorageRepository $storageRepository
-     * @return void
      */
     protected function setEvaluatePermissionsOnFalse(StorageRepository $storageRepository): void
     {
@@ -111,7 +115,7 @@ class ImportNewsCommand extends Command
         $this->io->title($this->getDescription());
         $limit = $input->getOption(self::OPTION_NAME_LIMIT);
         if (!is_numeric($limit)) {
-            $this->io->warning('Please provide an number for the limit:' . $limit);
+            $this->io->warning('Please provide a number for the limit:' . $limit);
             return Command::INVALID;
         }
 
@@ -133,10 +137,10 @@ class ImportNewsCommand extends Command
                 if ($this->importService->alreadyImported($importSource->getStoragePid(), $item->getGuid())) {
                     $this->io->writeln('Already imported: ' . $item->getGuid());
                 } elseif ($importSource->getFilterWords() && !$this->importService->matchFilter(
-                        $item,
-                        $importSource->getFilterWords(),
-                        $searchFields
-                    )) {
+                    $item,
+                    $importSource->getFilterWords(),
+                    $searchFields
+                )) {
                     $this->io->writeln('Skipped: ' . $item->getGuid() . '; Filter mismatch');
                 } else {
                     $this->importService->importItem($importSource, $item);
