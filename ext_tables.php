@@ -1,6 +1,6 @@
 <?php
 
-if (!defined('TYPO3_MODE')) {
+if (!defined('TYPO3')) {
     die('Access denied.');
 }
 
@@ -10,11 +10,6 @@ call_user_func(
             $packageKey,
             'Configuration/TypoScript',
             'News importer'
-        );
-
-        \TYPO3\CMS\Core\Utility\ExtensionManagementUtility::addLLrefForTCAdescr(
-            'tx_newsimporter_domain_model_importsource',
-            'EXT:news_importer/Resources/Private/Language/locallang_csh_tx_newsimporter_domain_model_importsource.xlf'
         );
 
         // Register icons
@@ -27,27 +22,6 @@ call_user_func(
             \TYPO3\CMS\Core\Imaging\IconProvider\BitmapIconProvider::class,
             ['source' => 'EXT:' . $packageKey . '/ext_icon.png']
         );
-
-        if (TYPO3_MODE === 'BE') {
-
-            /**
-             * Registers a Backend Module
-             */
-            \TYPO3\CMS\Extbase\Utility\ExtensionUtility::registerModule(
-                'NewsImporter',
-                'web',
-                'newsimporter',
-                '', // Position
-                [
-                    \BeechIt\NewsImporter\Controller\AdminController::class => 'index,show,import',
-                ],
-                [
-                    'access' => 'user,group',
-                    'icon' => 'EXT:' . $packageKey . '/ext_icon.png',
-                    'labels' => 'LLL:EXT:' . $packageKey . '/Resources/Private/Language/locallang_be_module.xlf',
-                ]
-            );
-        }
     },
     'news_importer'
 );

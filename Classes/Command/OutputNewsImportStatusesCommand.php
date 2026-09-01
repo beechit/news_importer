@@ -22,16 +22,18 @@ class OutputNewsImportStatusesCommand extends Command
      * @var array
      */
     protected array $settings = [];
+    protected $configurationManager;
 
     public function __construct(
         ImportSourceRepository $importSourceRepository,
         ConfigurationManager $configurationManager
     ) {
         $this->importSourceRepository = $importSourceRepository;
-        $this->settings = $configurationManager->getConfiguration(
-            ConfigurationManagerInterface::CONFIGURATION_TYPE_SETTINGS,
-            'newsImporter'
-        );
+        $this->configurationManager = $configurationManager;
+//         $this->settings = $configurationManager->getConfiguration(
+//             ConfigurationManagerInterface::CONFIGURATION_TYPE_SETTINGS,
+//             'newsImporter'
+//         );
         parent::__construct();
     }
 
@@ -48,8 +50,12 @@ class OutputNewsImportStatusesCommand extends Command
      * @param OutputInterface $output
      * @return int error code
      */
-    protected function execute(InputInterface $input, OutputInterface $output)
+    protected function execute(InputInterface $input, OutputInterface $output): int
     {
+        $this->settings = $this->configurationManager->getConfiguration(
+            \TYPO3\CMS\Extbase\Configuration\ConfigurationManagerInterface::CONFIGURATION_TYPE_SETTINGS,
+            'newsImporter'
+        );
         $this->io = new SymfonyStyle($input, $output);
         $this->io->title($this->getDescription());
         $remotes = $this->importSourceRepository->findAll();

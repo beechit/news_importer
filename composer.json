@@ -6,7 +6,7 @@
 		"GPL-2.0+"
 	],
 	"require": {
-		"typo3/cms-core": ">= 7.6.0",
+		"typo3/cms-core": "^11.5 || ^12.4 || ^13.4",
 		"querypath/querypath": "^3"
 	},
 	"autoload": {

@@ -97,22 +97,18 @@ class ImportService implements SingletonInterface
             ->where(
                 $queryBuilder->expr()->eq(
                     'pid',
-                    $queryBuilder->createNamedParameter($pid, \PDO::PARAM_INT)
+                    $queryBuilder->createNamedParameter($pid, \TYPO3\CMS\Core\Database\Connection::PARAM_INT)
                 )
             )
             ->andWhere(
                 $queryBuilder->expr()->eq(
                     'import_source',
-                    $queryBuilder->createNamedParameter('ext:news_importer', \PDO::PARAM_STR)
+                    $queryBuilder->createNamedParameter('ext:news_importer', \TYPO3\CMS\Core\Database\Connection::PARAM_STR)
                 )
-            )
-            ->andWhere(
-                $queryBuilder->expr()->eq(
-                    'import_id',
-                    $queryBuilder->createNamedParameter($guid, \PDO::PARAM_STR)
-                )
-            )
-            ->execute()
+            )->andWhere($queryBuilder->expr()->eq(
+            'import_id',
+            $queryBuilder->createNamedParameter($guid, \TYPO3\CMS\Core\Database\Connection::PARAM_STR)
+        ))->executeQuery()
             ->fetchAssociative();
 
         if ($firstRecord === false) {

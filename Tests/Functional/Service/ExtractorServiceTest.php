@@ -18,7 +18,7 @@ class ExtractorServiceTest extends FunctionalTestCase
 
     protected $testExtensionsToLoad = ['typo3conf/ext/news_importer'];
 
-    public function setUp()
+    public function setUp(): void
     {
         parent::setUp();
         $this->extractorService = new ExtractorService();

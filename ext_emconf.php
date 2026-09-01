@@ -10,7 +10,6 @@ $EM_CONF[$_EXTKEY] = [
     'category' => 'plugin',
     'version' => '2.0.0',
     'state' => 'alpha',
-    'clearCacheOnLoad' => true,
     'author' => 'Frans Saris',
     'author_email' => 't3ext@beech.it',
     'author_company' => 'Beech.it',
