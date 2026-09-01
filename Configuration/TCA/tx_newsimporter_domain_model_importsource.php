@@ -9,7 +9,6 @@ return [
         'tstamp' => 'tstamp',
         'crdate' => 'crdate',
 
-
         'languageField' => 'sys_language_uid',
         'transOrigPointerField' => 'l10n_parent',
         'transOrigDiffSourceField' => 'l10n_diffsource',

@@ -34,7 +34,6 @@ use TYPO3\CMS\Extbase\Persistence\Repository;
  */
 class ImportSourceRepository extends Repository
 {
-
     /**
      * Disable respect storage
      */

@@ -26,7 +26,6 @@ use TYPO3\CMS\Core\Utility\GeneralUtility;
  */
 class ImportService implements SingletonInterface
 {
-
     /**
      * @var NewsImportService
      */
@@ -106,9 +105,9 @@ class ImportService implements SingletonInterface
                     $queryBuilder->createNamedParameter('ext:news_importer', \TYPO3\CMS\Core\Database\Connection::PARAM_STR)
                 )
             )->andWhere($queryBuilder->expr()->eq(
-            'import_id',
-            $queryBuilder->createNamedParameter($guid, \TYPO3\CMS\Core\Database\Connection::PARAM_STR)
-        ))->executeQuery()
+                'import_id',
+                $queryBuilder->createNamedParameter($guid, \TYPO3\CMS\Core\Database\Connection::PARAM_STR)
+            ))->executeQuery()
             ->fetchAssociative();
 
         if ($firstRecord === false) {
@@ -210,15 +209,15 @@ class ImportService implements SingletonInterface
                 if ($tmp) {
                     $tempFile = GeneralUtility::tempnam('news_importer');
                     file_put_contents($tempFile, $tmp);
-                    list(, , $imageType) = getimagesize($tempFile);
+                    [, , $imageType] = getimagesize($tempFile);
                     try {
                         $falImage = $folder->addFile(
                             $tempFile,
                             ($data['title'] ?: 'news_import') . image_type_to_extension($imageType, true),
                             DuplicationBehavior::RENAME
                         );
-                        $media[] =
-                            [
+                        $media[]
+                            = [
                                 'type' => 0,
                                 'image' => $falImage->getCombinedIdentifier(),
                                 'showinpreview' => 1,

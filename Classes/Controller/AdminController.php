@@ -15,17 +15,13 @@ use BeechIt\NewsImporter\Service\ExtractorService;
 use BeechIt\NewsImporter\Service\ImportService;
 use TYPO3\CMS\Backend\Routing\UriBuilder;
 use TYPO3\CMS\Backend\Template\Components\ButtonBar;
-use TYPO3\CMS\Backend\View\BackendTemplateView;
 use TYPO3\CMS\Core\Authentication\BackendUserAuthentication;
-use TYPO3\CMS\Core\Imaging\Icon;
 use TYPO3\CMS\Core\Imaging\IconFactory;
 use TYPO3\CMS\Core\Localization\LanguageService;
-use TYPO3\CMS\Core\Messaging\AbstractMessage;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Extbase\Mvc\Controller\ActionController;
 use TYPO3\CMS\Extbase\Mvc\Exception\StopActionException;
 use TYPO3\CMS\Extbase\Mvc\Exception\UnsupportedRequestTypeException;
-use TYPO3\CMS\Extbase\Mvc\View\ViewInterface;
 use TYPO3\CMS\Extbase\Utility\LocalizationUtility;
 
 /**
@@ -33,6 +29,10 @@ use TYPO3\CMS\Extbase\Utility\LocalizationUtility;
  */
 class AdminController extends ActionController
 {
+    /**
+     * The module name of this BE module
+     */
+    public const MODULE_NAME = 'web_NewsImporterNewsimporter';
 
     /**
      * @var ImportSourceRepository
@@ -48,11 +48,6 @@ class AdminController extends ActionController
      * @var ImportService
      */
     protected $importService;
-
-    /**
-     * The module name of this BE module
-     */
-    const MODULE_NAME = 'web_NewsImporterNewsimporter';
     public function __construct(ImportSourceRepository $importSourceRepository, ExtractorService $extractorService, ImportService $importService, private readonly \TYPO3\CMS\Backend\Template\ModuleTemplateFactory $moduleTemplateFactory, private readonly \TYPO3\CMS\Core\Imaging\IconFactory $iconFactory)
     {
         $this->importSourceRepository = $importSourceRepository;
@@ -102,7 +97,7 @@ class AdminController extends ActionController
         $messageBody,
         $messageTitle = '',
         $severity = \TYPO3\CMS\Core\Type\ContextualFeedbackSeverity::OK,
-        array $arguments = null,
+        ?array $arguments = null,
         $storeInSession = true
     ) {
         $this->addFlashMessage(

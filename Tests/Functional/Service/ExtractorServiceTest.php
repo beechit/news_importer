@@ -10,7 +10,6 @@ use TYPO3\TestingFramework\Core\Functional\FunctionalTestCase;
  */
 class ExtractorServiceTest extends FunctionalTestCase
 {
-
     /**
      * @var ExtractorService
      */

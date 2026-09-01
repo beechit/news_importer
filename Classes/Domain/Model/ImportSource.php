@@ -35,7 +35,6 @@ use TYPO3\CMS\Extbase\DomainObject\AbstractEntity;
  */
 class ImportSource extends AbstractEntity
 {
-
     /**
      * @var string
      */
@@ -228,7 +227,7 @@ class ImportSource extends AbstractEntity
      *
      * @param FileReference $defaultImage
      */
-    public function setDefaultImage(FileReference $defaultImage = null)
+    public function setDefaultImage(?FileReference $defaultImage = null)
     {
         $this->defaultImage = $defaultImage;
     }

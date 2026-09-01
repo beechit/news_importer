@@ -16,7 +16,6 @@ use QueryPath\Exception;
  */
 class ExtractedItem
 {
-
     /**
      * @var \QueryPath\DOMQuery
      */

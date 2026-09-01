@@ -30,10 +30,10 @@ class OutputNewsImportStatusesCommand extends Command
     ) {
         $this->importSourceRepository = $importSourceRepository;
         $this->configurationManager = $configurationManager;
-//         $this->settings = $configurationManager->getConfiguration(
-//             ConfigurationManagerInterface::CONFIGURATION_TYPE_SETTINGS,
-//             'newsImporter'
-//         );
+        //         $this->settings = $configurationManager->getConfiguration(
+        //             ConfigurationManagerInterface::CONFIGURATION_TYPE_SETTINGS,
+        //             'newsImporter'
+        //         );
         parent::__construct();
     }
 

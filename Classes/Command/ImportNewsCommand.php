@@ -72,10 +72,10 @@ class ImportNewsCommand extends Command
         $this->importSourceRepository = $importSourceRepository;
         $this->extractorService = $extractorService;
         $this->importService = $importService;
-//         $this->settings = $this->configurationManager->getConfiguration(
-//             ConfigurationManagerInterface::CONFIGURATION_TYPE_SETTINGS,
-//             'newsImporter'
-//         );
+        //         $this->settings = $this->configurationManager->getConfiguration(
+        //             ConfigurationManagerInterface::CONFIGURATION_TYPE_SETTINGS,
+        //             'newsImporter'
+        //         );
         $this->setEvaluatePermissionsOnFalse($storageRepository);
     }
 
