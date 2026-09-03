@@ -1,9 +1,5 @@
 <?php
 
-/***************************************************************
- * Extension Manager/Repository config file for ext: "news_importer"
- ***************************************************************/
-
 $EM_CONF[$_EXTKEY] = [
     'title' => 'News importer',
     'description' => 'Import RSS/Atom feeds or externals HTML as ext:news records',
@@ -15,7 +11,7 @@ $EM_CONF[$_EXTKEY] = [
     'author_company' => 'Beech.it',
     'constraints' => [
         'depends' => [
-            'typo3' => '10.4.0-10.99.99',
+            'typo3' => '11.5.0-13.4.99',
             'news' => '*',
         ],
         'conflicts' => [],
