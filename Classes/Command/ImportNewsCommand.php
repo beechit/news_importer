@@ -72,10 +72,6 @@ class ImportNewsCommand extends Command
         $this->importSourceRepository = $importSourceRepository;
         $this->extractorService = $extractorService;
         $this->importService = $importService;
-        $this->settings = $this->configurationManager->getConfiguration(
-            ConfigurationManagerInterface::CONFIGURATION_TYPE_SETTINGS,
-            'newsImporter'
-        );
         $this->setEvaluatePermissionsOnFalse($storageRepository);
     }
 
@@ -109,8 +105,12 @@ class ImportNewsCommand extends Command
      * @param OutputInterface $output
      * @return int error code
      */
-    protected function execute(InputInterface $input, OutputInterface $output)
+    protected function execute(InputInterface $input, OutputInterface $output): int
     {
+        $this->settings = $this->configurationManager->getConfiguration(
+            \TYPO3\CMS\Extbase\Configuration\ConfigurationManagerInterface::CONFIGURATION_TYPE_SETTINGS,
+            'newsImporter'
+        );
         $this->io = new SymfonyStyle($input, $output);
         $this->io->title($this->getDescription());
         $limit = $input->getOption(self::OPTION_NAME_LIMIT);

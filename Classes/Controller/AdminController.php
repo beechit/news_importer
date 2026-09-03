@@ -15,17 +15,13 @@ use BeechIt\NewsImporter\Service\ExtractorService;
 use BeechIt\NewsImporter\Service\ImportService;
 use TYPO3\CMS\Backend\Routing\UriBuilder;
 use TYPO3\CMS\Backend\Template\Components\ButtonBar;
-use TYPO3\CMS\Backend\View\BackendTemplateView;
 use TYPO3\CMS\Core\Authentication\BackendUserAuthentication;
-use TYPO3\CMS\Core\Imaging\Icon;
 use TYPO3\CMS\Core\Imaging\IconFactory;
 use TYPO3\CMS\Core\Localization\LanguageService;
-use TYPO3\CMS\Core\Messaging\AbstractMessage;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Extbase\Mvc\Controller\ActionController;
 use TYPO3\CMS\Extbase\Mvc\Exception\StopActionException;
 use TYPO3\CMS\Extbase\Mvc\Exception\UnsupportedRequestTypeException;
-use TYPO3\CMS\Extbase\Mvc\View\ViewInterface;
 use TYPO3\CMS\Extbase\Utility\LocalizationUtility;
 
 /**
@@ -33,6 +29,10 @@ use TYPO3\CMS\Extbase\Utility\LocalizationUtility;
  */
 class AdminController extends ActionController
 {
+    /**
+     * The module name of this BE module
+     */
+    public const MODULE_NAME = 'web_NewsImporterNewsimporter';
 
     /**
      * @var ImportSourceRepository
@@ -48,24 +48,7 @@ class AdminController extends ActionController
      * @var ImportService
      */
     protected $importService;
-
-    /**
-     * @var BackendTemplateView
-     */
-    protected $view;
-
-    /**
-     * BackendTemplateView Container
-     *
-     * @var BackendTemplateView
-     */
-    protected $defaultViewObjectName = BackendTemplateView::class;
-
-    /**
-     * The module name of this BE module
-     */
-    const MODULE_NAME = 'web_NewsImporterNewsimporter';
-    public function __construct(ImportSourceRepository $importSourceRepository, ExtractorService $extractorService, ImportService $importService)
+    public function __construct(ImportSourceRepository $importSourceRepository, ExtractorService $extractorService, ImportService $importService, private readonly \TYPO3\CMS\Backend\Template\ModuleTemplateFactory $moduleTemplateFactory, private readonly \TYPO3\CMS\Core\Imaging\IconFactory $iconFactory)
     {
         $this->importSourceRepository = $importSourceRepository;
         $this->extractorService = $extractorService;
@@ -75,18 +58,17 @@ class AdminController extends ActionController
     /**
      * @return bool|string
      */
-    protected function getErrorFlashMessage()
+    protected function getErrorFlashMessage(): string|bool
     {
         return false;
     }
 
     /**
      * initialize view
+     * @param \TYPO3Fluid\Fluid\View\ViewInterface $view
      */
-    public function initializeView(ViewInterface $view)
+    public function initializeView($view)
     {
-        /** @var BackendTemplateView $view */
-        parent::initializeView($view);
         if ($this->getBackendUser()) {
             $lang = $this->getBackendUser()->uc['lang'] ?: 'en';
             $locale = $lang . '_' . strtoupper($lang);
@@ -114,8 +96,8 @@ class AdminController extends ActionController
     public function addTranslatedFlashMessage(
         $messageBody,
         $messageTitle = '',
-        $severity = AbstractMessage::OK,
-        array $arguments = null,
+        $severity = \TYPO3\CMS\Core\Type\ContextualFeedbackSeverity::OK,
+        ?array $arguments = null,
         $storeInSession = true
     ) {
         $this->addFlashMessage(
@@ -155,12 +137,12 @@ class AdminController extends ActionController
      */
     public function indexAction()
     {
-        $importSources = $this->importSourceRepository->findByPid((int)$_GET['id']);
+        $importSources = $this->importSourceRepository->findBy(['pid' => (int)$_GET['id']]);
         if ($importSources->count() === 0) {
-            $this->addTranslatedFlashMessage('select-page-with-importsources', '', AbstractMessage::WARNING);
+            $this->addTranslatedFlashMessage('select-page-with-importsources', '', \TYPO3\CMS\Core\Type\ContextualFeedbackSeverity::WARNING);
         }
         if ($importSources->count() === 1) {
-            $this->redirect('show', null, null, ['importSource' => $importSources->getFirst()]);
+            return $this->redirect('show', null, null, ['importSource' => $importSources->getFirst()]);
         }
         $this->view->assign('importSources', $importSources);
     }
@@ -168,8 +150,9 @@ class AdminController extends ActionController
     /**
      * @param ImportSource $importSource
      */
-    public function showAction(ImportSource $importSource)
+    public function showAction(ImportSource $importSource): \Psr\Http\Message\ResponseInterface
     {
+        $moduleTemplate = $this->moduleTemplateFactory->create($this->request);
         $this->registerButtons();
 
         $this->view->assign('importSource', $importSource);
@@ -196,6 +179,8 @@ class AdminController extends ActionController
         }
 
         $this->view->assign('items', $items);
+        $moduleTemplate->setContent($this->view->render());
+        return $this->htmlResponse($moduleTemplate->renderContent());
     }
 
     /**
@@ -231,12 +216,12 @@ class AdminController extends ActionController
                         $this->request->getControllerName()
                     ),
                 ]);
-                $this->redirectToUri($uri);
+                return $this->redirectToUri($uri);
             }
         }
 
-        $this->addTranslatedFlashMessage('requested-item-not-found', '', AbstractMessage::ERROR);
-        $this->redirect('show', null, null, ['importSource' => $importSource]);
+        $this->addTranslatedFlashMessage('requested-item-not-found', '', \TYPO3\CMS\Core\Type\ContextualFeedbackSeverity::ERROR);
+        return $this->redirect('show', null, null, ['importSource' => $importSource]);
     }
 
     /**
@@ -246,11 +231,12 @@ class AdminController extends ActionController
      */
     protected function registerButtons()
     {
+        $moduleTemplate = $this->moduleTemplateFactory->create($this->request);
         /** @var ButtonBar $buttonBar */
-        $buttonBar = $this->view->getModuleTemplate()->getDocHeaderComponent()->getButtonBar();
+        $buttonBar = $moduleTemplate->getDocHeaderComponent()->getButtonBar();
 
         /** @var IconFactory $iconFactory */
-        $iconFactory = $this->view->getModuleTemplate()->getIconFactory();
+        $iconFactory = $this->iconFactory;
 
         $lang = $this->getLanguageService();
 
@@ -263,7 +249,7 @@ class AdminController extends ActionController
         $refreshButton = $buttonBar->makeLinkButton()
             ->setHref($refreshLink)
             ->setTitle($lang->sL('LLL:EXT:core/Resources/Private/Language/locallang_core.xlf:labels.reload'))
-            ->setIcon($iconFactory->getIcon('actions-refresh', Icon::SIZE_SMALL));
+            ->setIcon($iconFactory->getIcon('actions-refresh', \TYPO3\CMS\Core\Imaging\IconSize::SMALL));
         $buttonBar->addButton($refreshButton, ButtonBar::BUTTON_POSITION_RIGHT);
 
         // Shortcut
