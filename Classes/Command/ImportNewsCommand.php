@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace BeechIt\NewsImporter\Command;
 
 use BeechIt\NewsImporter\Domain\Model\ImportSource;
@@ -24,38 +26,20 @@ class ImportNewsCommand extends Command
     protected const OPTION_LIMIT_DEFAULT = 1;
 
     /**
-     * @var array
+     * @var array<string, mixed>
      */
-    protected $settings;
+    protected array $settings = [];
 
-    /**
-     * @var ConfigurationManagerInterface
-     */
     protected ConfigurationManagerInterface $configurationManager;
 
-    /**
-     * @var PersistenceManager
-     */
     protected PersistenceManager $persistenceManager;
 
-    /**
-     * @var ImportSourceRepository
-     */
     protected ImportSourceRepository $importSourceRepository;
 
-    /**
-     * @var ExtractorService
-     */
     protected ExtractorService $extractorService;
 
-    /**
-     * @var ImportService
-     */
     protected ImportService $importService;
 
-    /**
-     * @var SymfonyStyle
-     */
     protected SymfonyStyle $io;
 
     public function __construct(
@@ -75,9 +59,6 @@ class ImportNewsCommand extends Command
         $this->setEvaluatePermissionsOnFalse($storageRepository);
     }
 
-    /**
-     * @param StorageRepository $storageRepository
-     */
     protected function setEvaluatePermissionsOnFalse(StorageRepository $storageRepository): void
     {
         foreach ($storageRepository->findAll() as $storage) {
@@ -100,22 +81,17 @@ class ImportNewsCommand extends Command
         );
     }
 
-    /**
-     * @param InputInterface $input
-     * @param OutputInterface $output
-     * @return int error code
-     */
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $this->settings = $this->configurationManager->getConfiguration(
-            \TYPO3\CMS\Extbase\Configuration\ConfigurationManagerInterface::CONFIGURATION_TYPE_SETTINGS,
+            ConfigurationManagerInterface::CONFIGURATION_TYPE_SETTINGS,
             'newsImporter'
         );
         $this->io = new SymfonyStyle($input, $output);
         $this->io->title($this->getDescription());
         $limit = $input->getOption(self::OPTION_NAME_LIMIT);
         if (!is_numeric($limit)) {
-            $this->io->warning('Please provide a number for the limit:' . $limit);
+            $this->io->warning('Please provide a number for the limit:' . (string)$limit);
             return Command::INVALID;
         }
 
@@ -145,7 +121,7 @@ class ImportNewsCommand extends Command
                 } else {
                     $this->importService->importItem($importSource, $item);
                     $this->io->writeln('Imported: ' . $item->getGuid());
-                    $importReport[] = $item->extractValue('title') . '; ' . $item->getGuid();
+                    $importReport[] = (string)$item->extractValue('title') . '; ' . $item->getGuid();
                 }
             }
             $this->io->progressFinish();
@@ -162,19 +138,19 @@ class ImportNewsCommand extends Command
     }
 
     /**
-     * @return string[]
+     * @return list<string>
      */
     protected function getSearchFields(): array
     {
         $searchFields = ['title', 'bodytext'];
         if (isset($this->settings['filter']['searchFields']) && is_array($this->settings['filter']['searchFields'])) {
-            $searchFields = $this->settings['filter']['searchFields'];
+            $searchFields = array_values(array_map('strval', $this->settings['filter']['searchFields']));
         }
         return $searchFields;
     }
 
     /**
-     * @param array $importReport
+     * @param list<string> $importReport
      */
     protected function sendImportReport(array $importReport): void
     {
@@ -184,19 +160,20 @@ class ImportNewsCommand extends Command
         if (empty($this->settings['notification']['recipients'])) {
             return;
         }
-        /** @var MailMessage $message */
         $message = GeneralUtility::makeInstance(MailMessage::class);
         $message->setTo($this->settings['notification']['recipients'])
-            ->setSubject($this->settings['notification']['subject'] ?: 'New items imported');
-        if ($GLOBALS['TYPO3_CONF_VARS']['MAIL']['defaultMailFromAddress']) {
+            ->setSubject((string)($this->settings['notification']['subject'] ?? '') ?: 'New items imported');
+        if (!empty($GLOBALS['TYPO3_CONF_VARS']['MAIL']['defaultMailFromAddress'])) {
             $message->setFrom(
-                $GLOBALS['TYPO3_CONF_VARS']['MAIL']['defaultMailFromAddress'],
-                $GLOBALS['TYPO3_CONF_VARS']['MAIL']['defaultMailFromName'] ?: null
+                (string)$GLOBALS['TYPO3_CONF_VARS']['MAIL']['defaultMailFromAddress'],
+                !empty($GLOBALS['TYPO3_CONF_VARS']['MAIL']['defaultMailFromName'])
+                    ? (string)$GLOBALS['TYPO3_CONF_VARS']['MAIL']['defaultMailFromName']
+                    : null
             );
         }
         $message->text(
             vsprintf(
-                $this->settings['notification']['body'] ?: 'Imported %1$d items: %2$s',
+                (string)($this->settings['notification']['body'] ?? '') ?: 'Imported %1$d items: %2$s',
                 [
                     count($importReport),
                     PHP_EOL . PHP_EOL . implode(PHP_EOL, $importReport),

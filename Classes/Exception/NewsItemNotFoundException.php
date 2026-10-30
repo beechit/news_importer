@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 /*
  * This source file is proprietary of Beech Applications bv.
  * Created by: Ruud Silvrants
@@ -10,13 +12,13 @@
 namespace BeechIt\NewsImporter\Exception;
 
 /**
- * Class AccountAdminNotFoundException
+ * Class NewsItemNotFoundException
  */
 class NewsItemNotFoundException extends \Exception
 {
     public const MESSAGE = 'NewsItem not found by guid: %s';
 
-    public function __construct(string $guid, $code = 0, ?\Throwable $previous = null)
+    public function __construct(string $guid, int $code = 0, ?\Throwable $previous = null)
     {
         $message = sprintf(self::MESSAGE, $guid);
         parent::__construct($message, $code, $previous);

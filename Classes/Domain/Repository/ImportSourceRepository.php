@@ -1,7 +1,14 @@
 <?php
 
+declare(strict_types=1);
+
 namespace BeechIt\NewsImporter\Domain\Repository;
 
+use BeechIt\NewsImporter\Domain\Model\ImportSource;
+use TYPO3\CMS\Core\Context\Context;
+use TYPO3\CMS\Core\Utility\GeneralUtility;
+use TYPO3\CMS\Extbase\Persistence\Generic\Query;
+use TYPO3\CMS\Extbase\Persistence\Generic\Typo3QuerySettings;
 use TYPO3\CMS\Extbase\Persistence\QueryResultInterface;
 use TYPO3\CMS\Extbase\Persistence\Repository;
 
@@ -29,17 +36,20 @@ use TYPO3\CMS\Extbase\Persistence\Repository;
  *
  *  This copyright notice MUST APPEAR in all copies of the script!
  ***************************************************************/
+
 /**
  * The repository for ImportSources
+ *
+ * @extends Repository<ImportSource>
  */
 class ImportSourceRepository extends Repository
 {
     /**
      * Disable respect storage
      */
-    public function initializeObject()
+    public function initializeObject(): void
     {
-        $querySettings = \TYPO3\CMS\Core\Utility\GeneralUtility::makeInstance(\TYPO3\CMS\Extbase\Persistence\Generic\Typo3QuerySettings::class);
+        $querySettings = GeneralUtility::makeInstance(Typo3QuerySettings::class);
         $querySettings->setRespectStoragePage(false);
         $this->setDefaultQuerySettings($querySettings);
     }
@@ -47,22 +57,23 @@ class ImportSourceRepository extends Repository
     /**
      * Find all sources to import
      *
-     * @param int $limit
-     * @return QueryResultInterface
+     * @return QueryResultInterface<int, ImportSource>
      */
-    public function findSourcesToImport($limit = 0)
+    public function findSourcesToImport(int $limit = 0): QueryResultInterface
     {
+        /** @var Query<ImportSource> $query */
         $query = $this->createQuery();
+        $currentTime = (int)GeneralUtility::makeInstance(Context::class)->getPropertyFromAspect('date', 'timestamp', $_SERVER['REQUEST_TIME'] ?? time());
 
         $rawQuery = 'SELECT * FROM tx_newsimporter_domain_model_importsource WHERE';
         $rawQuery .= ' hidden = 0 AND deleted = 0 AND disable_auto_import = 0';
-        $rawQuery .= ' AND last_run < (' . $_SERVER['REQUEST_TIME'] . '- update_interval)';
-        $rawQuery .= ' AND (starttime = 0 OR starttime <= ' . $_SERVER['REQUEST_TIME'] . ')';
-        $rawQuery .= ' AND (endtime = 0 OR endtime > ' . $_SERVER['REQUEST_TIME'] . ')';
+        $rawQuery .= ' AND last_run < (' . $currentTime . ' - update_interval)';
+        $rawQuery .= ' AND (starttime = 0 OR starttime <= ' . $currentTime . ')';
+        $rawQuery .= ' AND (endtime = 0 OR endtime > ' . $currentTime . ')';
         $rawQuery .= ' ORDER BY last_run ASC';
 
-        if ($limit) {
-            $rawQuery .= ' LIMIT ' . (int)$limit;
+        if ($limit > 0) {
+            $rawQuery .= ' LIMIT ' . $limit;
         }
 
         $query->statement($rawQuery);

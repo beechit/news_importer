@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace BeechIt\NewsImporter\Domain\Model;
 
 /**
@@ -9,37 +11,28 @@ namespace BeechIt\NewsImporter\Domain\Model;
  */
 use BeechIt\NewsImporter\Service\ExtractorService;
 use QueryPath\DOMQuery;
-use QueryPath\Exception;
 
 /**
  * Class ExtractedItem
  */
 class ExtractedItem
 {
-    /**
-     * @var \QueryPath\DOMQuery
-     */
-    protected $item;
+    protected DOMQuery $item;
 
     /**
-     * @var array
+     * @var array<string, mixed>
      */
-    protected $itemMapping;
+    protected array $itemMapping;
+
+    protected ExtractorService $extractorService;
 
     /**
-     * @var ExtractorService
+     * @var array<string, mixed>
      */
-    protected $extractorService;
+    protected array $extractedValues = [];
 
     /**
-     * @var array
-     */
-    protected $extractedValues = [];
-
-    /**
-     * @param DOMQuery $item
-     * @param array $itemMapping
-     * @param ExtractorService $extractorService
+     * @param array<string, mixed> $itemMapping
      */
     public function __construct(DOMQuery $item, array $itemMapping, ExtractorService $extractorService)
     {
@@ -51,23 +44,19 @@ class ExtractedItem
     /**
      * Extract all fields/values
      */
-    protected function extractAll()
+    protected function extractAll(): void
     {
         foreach ($this->itemMapping as $name => $mapping) {
-            $this->extractValue($name);
+            $this->extractValue((string)$name);
         }
     }
 
-    /**
-     * @param string $name
-     * @return string
-     */
-    public function extractValue($name)
+    public function extractValue(string $name): mixed
     {
         if (isset($this->extractedValues[$name])) {
             return $this->extractedValues[$name];
         }
-        $mapping = isset($this->itemMapping[$name]) ? $this->itemMapping[$name] : $name;
+        $mapping = $this->itemMapping[$name] ?? $name;
         if (is_string($mapping)) {
             $mapping = ['selector' => $mapping];
         }
@@ -79,13 +68,9 @@ class ExtractedItem
 
         if (!empty($mapping['selector'])) {
             if (!empty($mapping['source'])) {
-                $source = $this->extractorService->extractValue($this->item, $mapping['source']);
+                $source = (string)$this->extractorService->extractValue($this->item, $mapping['source']);
                 $source = $this->extractorService->fetchRawContent($source);
-                try {
-                    $item = qp($source);
-                } catch (Exception $e) {
-                    $item = htmlqp($source);
-                }
+                $item = $this->extractorService->stringToDOMQuery($source);
             } else {
                 $item = $this->item;
             }
@@ -99,14 +84,12 @@ class ExtractedItem
 
     /**
      * Get guid
-     *
-     * @return string
      */
-    public function getGuid()
+    public function getGuid(): string
     {
-        $guid = $this->extractValue('guid');
+        $guid = (string)$this->extractValue('guid');
         if (empty($guid)) {
-            $guid = $this->extractValue('link');
+            $guid = (string)$this->extractValue('link');
         }
         // `import_id` db field is varchar(100)
         if (strlen($guid) > 90) {
@@ -116,9 +99,9 @@ class ExtractedItem
     }
 
     /**
-     * @return array
+     * @return array<string, mixed>
      */
-    public function toArray()
+    public function toArray(): array
     {
         $this->extractAll();
         return $this->extractedValues;

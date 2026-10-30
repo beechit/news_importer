@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace BeechIt\NewsImporter\Command;
 
 use BeechIt\NewsImporter\Domain\Model\ImportSource;
@@ -8,25 +10,24 @@ use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
-use TYPO3\CMS\Extbase\Configuration\ConfigurationManager;
 use TYPO3\CMS\Extbase\Configuration\ConfigurationManagerInterface;
 
 class OutputNewsImportStatusesCommand extends Command
 {
-    /**
-     * @var ImportSourceRepository
-     */
     protected ImportSourceRepository $importSourceRepository;
 
     /**
-     * @var array
+     * @var array<string, mixed>
      */
     protected array $settings = [];
-    protected $configurationManager;
+
+    protected ConfigurationManagerInterface $configurationManager;
+
+    protected SymfonyStyle $io;
 
     public function __construct(
         ImportSourceRepository $importSourceRepository,
-        ConfigurationManager $configurationManager
+        ConfigurationManagerInterface $configurationManager
     ) {
         $this->importSourceRepository = $importSourceRepository;
         $this->configurationManager = $configurationManager;
@@ -36,20 +37,15 @@ class OutputNewsImportStatusesCommand extends Command
     /**
      * Configure the command by defining the name, options and arguments
      */
-    protected function configure()
+    protected function configure(): void
     {
         $this->setHelp($this->getDescription());
     }
 
-    /**
-     * @param InputInterface $input
-     * @param OutputInterface $output
-     * @return int error code
-     */
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $this->settings = $this->configurationManager->getConfiguration(
-            \TYPO3\CMS\Extbase\Configuration\ConfigurationManagerInterface::CONFIGURATION_TYPE_SETTINGS,
+            ConfigurationManagerInterface::CONFIGURATION_TYPE_SETTINGS,
             'newsImporter'
         );
         $this->io = new SymfonyStyle($input, $output);
@@ -61,7 +57,7 @@ class OutputNewsImportStatusesCommand extends Command
             $lastRun = '';
             if ($remote->getDisableAutoImport()) {
                 $lastRun = ' - auto import is disabled!';
-            } elseif ($remote->getLastRun()) {
+            } elseif ($remote->getLastRun() !== null) {
                 $lastRun = ' - last run: ' . $remote->getLastRun()->format('Y-m-d H:i:s');
             }
             $remoteMessages[] = '[' . $remote->getUid() . '] ' . $remote->getUrl() . $lastRun;
@@ -73,7 +69,7 @@ class OutputNewsImportStatusesCommand extends Command
             $this->io->warning('No remotes found!');
         }
 
-        $this->io->info('settings: ' . ($this->settings ? print_r($this->settings, 1) : 'NO TYPOSCRIPT SETTINGS'));
+        $this->io->info('settings: ' . ($this->settings ? print_r($this->settings, true) : 'NO TYPOSCRIPT SETTINGS'));
         return Command::SUCCESS;
     }
 }
