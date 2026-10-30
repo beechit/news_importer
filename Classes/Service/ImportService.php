@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace BeechIt\NewsImporter\Service;
 
 /*
@@ -13,6 +15,7 @@ use BeechIt\NewsImporter\Domain\Model\ImportSource;
 use BeechIt\NewsImporter\Exception\NewsItemNotFoundException;
 use GeorgRinger\News\Domain\Service\NewsImportService;
 use TYPO3\CMS\Backend\Utility\BackendUtility;
+use TYPO3\CMS\Core\Database\Connection;
 use TYPO3\CMS\Core\Database\ConnectionPool;
 use TYPO3\CMS\Core\Database\Query\Restriction\DeletedRestriction;
 use TYPO3\CMS\Core\Html\RteHtmlParser;
@@ -26,21 +29,24 @@ use TYPO3\CMS\Core\Utility\GeneralUtility;
  */
 class ImportService implements SingletonInterface
 {
-    /**
-     * @var NewsImportService
-     */
     protected NewsImportService $newsImportService;
 
-    public function __construct(NewsImportService $newsImportService)
-    {
+    protected ConnectionPool $connectionPool;
+
+    protected ResourceFactory $resourceFactory;
+
+    public function __construct(
+        NewsImportService $newsImportService,
+        ?ConnectionPool $connectionPool = null,
+        ?ResourceFactory $resourceFactory = null
+    ) {
         $this->newsImportService = $newsImportService;
+        $this->connectionPool = $connectionPool ?? GeneralUtility::makeInstance(ConnectionPool::class);
+        $this->resourceFactory = $resourceFactory ?? GeneralUtility::makeInstance(ResourceFactory::class);
     }
 
     /**
      * Import extracted item
-     *
-     * @param ImportSource $importSource
-     * @param ExtractedItem $item
      */
     public function importItem(ImportSource $importSource, ExtractedItem $item): void
     {
@@ -51,7 +57,7 @@ class ImportService implements SingletonInterface
 
         // clean body text
         if (!empty($data['bodytext'])) {
-            $data['bodytext'] = $this->cleanBodyText($data['bodytext'], $data['pid']);
+            $data['bodytext'] = $this->cleanBodyText((string)$data['bodytext'], $data['pid']);
         }
 
         // parse media
@@ -62,10 +68,6 @@ class ImportService implements SingletonInterface
 
     /**
      * Check if news item already exists
-     *
-     * @param int $pid
-     * @param string $guid
-     * @return bool
      */
     public function alreadyImported(int $pid, string $guid): bool
     {
@@ -79,14 +81,11 @@ class ImportService implements SingletonInterface
     }
 
     /**
-     * @param int $pid
-     * @param string $guid
-     * @return int
      * @throws NewsItemNotFoundException
      */
     public function getNewsItemUid(int $pid, string $guid): int
     {
-        $queryBuilder = GeneralUtility::makeInstance(ConnectionPool::class)->getQueryBuilderForTable('tx_news_domain_model_news');
+        $queryBuilder = $this->connectionPool->getQueryBuilderForTable('tx_news_domain_model_news');
         $queryBuilder
             ->getRestrictions()
             ->removeAll()
@@ -96,37 +95,35 @@ class ImportService implements SingletonInterface
             ->where(
                 $queryBuilder->expr()->eq(
                     'pid',
-                    $queryBuilder->createNamedParameter($pid, \TYPO3\CMS\Core\Database\Connection::PARAM_INT)
+                    $queryBuilder->createNamedParameter($pid, Connection::PARAM_INT)
                 )
             )
             ->andWhere(
                 $queryBuilder->expr()->eq(
                     'import_source',
-                    $queryBuilder->createNamedParameter('ext:news_importer', \TYPO3\CMS\Core\Database\Connection::PARAM_STR)
+                    $queryBuilder->createNamedParameter('ext:news_importer', Connection::PARAM_STR)
                 )
             )->andWhere($queryBuilder->expr()->eq(
                 'import_id',
-                $queryBuilder->createNamedParameter($guid, \TYPO3\CMS\Core\Database\Connection::PARAM_STR)
+                $queryBuilder->createNamedParameter($guid, Connection::PARAM_STR)
             ))->executeQuery()
             ->fetchAssociative();
 
         if ($firstRecord === false) {
             throw new NewsItemNotFoundException($guid);
         }
-        return $firstRecord['uid'];
+        return (int)$firstRecord['uid'];
     }
 
     /**
      * Check if item matches filter
      *
-     * No $searchFields than item is aromatically excepted
+     * No $searchFields than item is automatically accepted
      *
-     * @param ExtractedItem $item
-     * @param array $filterWords
-     * @param array $searchFields
-     * @return bool
+     * @param list<string> $filterWords
+     * @param list<string> $searchFields
      */
-    public function matchFilter(ExtractedItem $item, $filterWords, array $searchFields = ['title', 'bodytext']): bool
+    public function matchFilter(ExtractedItem $item, array $filterWords, array $searchFields = ['title', 'bodytext']): bool
     {
         if (empty($searchFields)) {
             return true;
@@ -135,7 +132,7 @@ class ImportService implements SingletonInterface
         $data = $item->toArray();
         foreach ($searchFields as $fieldName) {
             foreach ($filterWords as $filter) {
-                if (stripos($data[$fieldName], $filter) !== false) {
+                if (stripos((string)($data[$fieldName] ?? ''), $filter) !== false) {
                     return true;
                 }
             }
@@ -145,20 +142,13 @@ class ImportService implements SingletonInterface
 
     /**
      * Clean body text by RTE settings
-     *
-     * @param string $text
-     * @param int $pid
-     * @return mixed
      */
-    protected function cleanBodyText(string $text, int $pid)
+    protected function cleanBodyText(string $text, int $pid): string
     {
-        static $rteHtmlParsers;
+        /** @var array<int, RteHtmlParser> $rteHtmlParsers */
+        static $rteHtmlParsers = [];
 
         if (!isset($rteHtmlParsers[$pid])) {
-            if (!is_array($rteHtmlParsers)) {
-                $rteHtmlParsers = [];
-            }
-            /** @var $htmlParser \TYPO3\CMS\Core\Html\RteHtmlParser */
             $rteHtmlParsers[$pid] = GeneralUtility::makeInstance(RteHtmlParser::class);
         }
 
@@ -171,27 +161,27 @@ class ImportService implements SingletonInterface
     }
 
     /**
-     * @param array $data
-     * @param ImportSource $importSource
-     * @return array|null
+     * @param array<string, mixed> $data
+     * @return list<array<string, int|string>>|null
      */
-    protected function processMedia(array $data, ImportSource $importSource)
+    protected function processMedia(array $data, ImportSource $importSource): ?array
     {
         $media = null;
-        if (empty($data['image']) && $importSource->getDefaultImage()) {
+        $defaultImage = $importSource->getDefaultImage();
+        if (empty($data['image']) && $defaultImage !== null) {
             return [
                 [
                     'type' => 0,
-                    'image' => $importSource->getDefaultImage()->getOriginalResource()->getCombinedIdentifier(),
+                    'image' => $defaultImage->getOriginalResource()->getCombinedIdentifier(),
                     'showinpreview' => 1,
                 ],
             ];
         }
 
         $folder = null;
-        if ($importSource->getImageFolder()) {
+        if ($importSource->getImageFolder() !== '') {
             try {
-                $folder = GeneralUtility::makeInstance(ResourceFactory::class)->getFolderObjectFromCombinedIdentifier(ltrim(
+                $folder = $this->resourceFactory->getFolderObjectFromCombinedIdentifier(ltrim(
                     $importSource->getImageFolder(),
                     'file:'
                 ));
@@ -199,29 +189,29 @@ class ImportService implements SingletonInterface
             }
         }
 
-        if ($folder && !empty($data['image'])) {
+        if ($folder !== null && !empty($data['image'])) {
             $media = [];
             if (!is_array($data['image'])) {
                 $data['image'] = [$data['image']];
             }
             foreach ($data['image'] as $image) {
-                $tmp = GeneralUtility::getUrl($image);
+                $tmp = GeneralUtility::getUrl((string)$image);
                 if ($tmp) {
                     $tempFile = GeneralUtility::tempnam('news_importer');
                     file_put_contents($tempFile, $tmp);
-                    [, , $imageType] = getimagesize($tempFile);
+                    $imageInfo = @getimagesize($tempFile);
+                    $imageType = $imageInfo !== false ? (int)$imageInfo[2] : IMAGETYPE_JPEG;
                     try {
                         $falImage = $folder->addFile(
                             $tempFile,
-                            ($data['title'] ?: 'news_import') . image_type_to_extension($imageType, true),
+                            ((string)($data['title'] ?? '') ?: 'news_import') . image_type_to_extension($imageType, true),
                             DuplicationBehavior::RENAME
                         );
-                        $media[]
-                            = [
-                                'type' => 0,
-                                'image' => $falImage->getCombinedIdentifier(),
-                                'showinpreview' => 1,
-                            ];
+                        $media[] = [
+                            'type' => 0,
+                            'image' => $falImage->getCombinedIdentifier(),
+                            'showinpreview' => 1,
+                        ];
                     } catch (\Exception $e) {
                     }
                 }

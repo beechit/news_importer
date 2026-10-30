@@ -1,8 +1,8 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en"
-      xmlns:f="http://typo3.org/ns/fluid/ViewHelpers"
-      xmlns:f="http://typo3.org/ns/fluid/ViewHelpers"
+      xmlns:f="http://typo3.org/ns/TYPO3/CMS/Fluid/ViewHelpers"
       xmlns:be="http://typo3.org/ns/TYPO3/CMS/Backend/ViewHelpers"
-      xmlns:core="http://typo3.org/ns/TYPO3/CMS/Core/ViewHelpers">
+      xmlns:core="http://typo3.org/ns/TYPO3/CMS/Core/ViewHelpers"
+      data-namespace-typo3-fluid="true">
 
 <f:layout name="Backend"/>
 
@@ -24,7 +24,7 @@
             <td></td>
         </tr>
 
-        <f:for each="{items}" as="item">
+        <f:for each="{items}" as="item" iteration="iteration">
             <tr class=" {f:if(condition:iteration.isFirst,then:'firstcol')}{f:if(condition:iteration.isLast,then:' lastcol')}">
             <td class="col-title">{item.title}</td>
             <td>{item.datetime -> f:format.date(format:'{f:translate(key:\'item.datetime.format\')}')}</td>
@@ -58,3 +58,4 @@
 
 
 </f:section>
+</html>

@@ -1,7 +1,8 @@
-<div xmlns="http://www.w3.org/1999/xhtml" lang="en"
-	  xmlns:f="http://typo3.org/ns/fluid/ViewHelpers"
-     xmlns:be="http://typo3.org/ns/TYPO3/CMS/Backend/ViewHelpers"
-     xmlns:core="http://typo3.org/ns/TYPO3/CMS/Core/ViewHelpers">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en"
+      xmlns:f="http://typo3.org/ns/TYPO3/CMS/Fluid/ViewHelpers"
+      xmlns:be="http://typo3.org/ns/TYPO3/CMS/Backend/ViewHelpers"
+      xmlns:core="http://typo3.org/ns/TYPO3/CMS/Core/ViewHelpers"
+      data-namespace-typo3-fluid="true">
 
 <f:section name="ImportSources">
 
@@ -13,13 +14,13 @@
 			<td></td>
 		</tr>
 
-		<f:for each="{importSources}" as="importSource">
-			<tr class="<f:cycle values="{0: 'db_list_normal', 1: 'db_list_alt'}" as="cycle">{cycle}</f:cycle> {f:if(condition:iteration.isFirst,then:' firstcol')}{f:if(condition:iteration.isLast,then:' lastcol')}">
+		<f:for each="{importSources}" as="importSource" iteration="iteration">
+			<tr class="{f:if(condition: iteration.isOdd, then: 'db_list_normal', else: 'db_list_alt')}{f:if(condition:iteration.isFirst,then:' firstcol')}{f:if(condition:iteration.isLast,then:' lastcol')}">
 				<td class="col-title">{importSource.title}</td>
 				<td>{importSource.lastRun -> f:format.date()}</td>
 				<td>{importSource.storagePid}</td>
 				<td>
-					<f:link.action action="show" arguments="{importSource: importSource}">
+					<f:link.action action="show" arguments="{importSource: importSource}" class="btn btn-default btn-sm">
                         <core:icon identifier="actions-system-list-open"/>
                     </f:link.action>
                     <a href="{be:uri.editRecord(table:'tx_newsimporter_domain_model_importsource', uid:importSource.uid)}" class="btn btn-default btn-sm">
@@ -32,4 +33,4 @@
 	</table>
 </f:section>
 
-</div>
+</html>

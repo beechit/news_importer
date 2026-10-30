@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace BeechIt\NewsImporter\Command;
 
 use BeechIt\NewsImporter\Domain\Model\ImportSource;
@@ -15,20 +17,12 @@ class TestImportSourceCommand extends Command
 {
     protected const ARGUMENT_IMPORT_SOURCE = 'importSource';
 
-    /**
-     * @var ExtractorService
-     */
     protected ExtractorService $extractorService;
 
-    /**
-     * @var ImportSourceRepository
-     */
     protected ImportSourceRepository $importSourceRepository;
 
-    /**
-     * @param ExtractorService $extractorService
-     * @param ImportSourceRepository $importSourceRepository
-     */
+    protected SymfonyStyle $io;
+
     public function __construct(
         ExtractorService $extractorService,
         ImportSourceRepository $importSourceRepository
@@ -51,11 +45,6 @@ class TestImportSourceCommand extends Command
         );
     }
 
-    /**
-     * @param InputInterface $input
-     * @param OutputInterface $output
-     * @return int error code
-     */
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $this->io = new SymfonyStyle($input, $output);
@@ -67,7 +56,7 @@ class TestImportSourceCommand extends Command
         }
         $importSource = $this->importSourceRepository->findByUid((int)$importSourceUid);
         if (!$importSource instanceof ImportSource) {
-            $this->io->warning('No importSource found for given uid:' . $importSourceUid);
+            $this->io->warning('No importSource found for given uid:' . (string)$importSourceUid);
             return Command::FAILURE;
         }
 
@@ -78,10 +67,10 @@ class TestImportSourceCommand extends Command
 
         $this->io->info('Found ' . count($items) . ' items');
 
-        if (count($items)) {
+        if (count($items) > 0) {
             $messages = [];
             $messages[] = 'GUID: ' . $items[0]->getGuid();
-            $messages[] = ' '; //empty line
+            $messages[] = ' '; // empty line
             $messages[] = print_r($items[0]->toArray(), true);
             $this->io->info($messages);
         }

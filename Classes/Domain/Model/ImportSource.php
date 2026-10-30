@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace BeechIt\NewsImporter\Domain\Model;
 
 /***************************************************************
@@ -26,6 +28,7 @@ namespace BeechIt\NewsImporter\Domain\Model;
  *
  *  This copyright notice MUST APPEAR in all copies of the script!
  ***************************************************************/
+
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Extbase\Domain\Model\FileReference;
 use TYPO3\CMS\Extbase\DomainObject\AbstractEntity;
@@ -35,249 +38,120 @@ use TYPO3\CMS\Extbase\DomainObject\AbstractEntity;
  */
 class ImportSource extends AbstractEntity
 {
-    /**
-     * @var string
-     */
-    protected $title = '';
+    protected string $title = '';
 
-    /**
-     * url
-     *
-     * @var string
-     */
-    protected $url = '';
+    protected string $url = '';
 
-    /**
-     * mapping
-     *
-     * @var string
-     */
-    protected $mapping = '';
+    protected string $mapping = '';
 
-    /**
-     * @var bool
-     */
-    protected $disableAutoImport = false;
+    protected bool $disableAutoImport = false;
 
-    /**
-     * lastRun
-     *
-     * @var \DateTime
-     */
-    protected $lastRun;
+    protected ?\DateTime $lastRun = null;
 
-    /**
-     * storagePid
-     *
-     * @var int
-     */
-    protected $storagePid = 0;
+    protected int $storagePid = 0;
 
-    /**
-     * default image
-     *
-     * @var FileReference
-     */
-    protected $defaultImage;
+    protected ?FileReference $defaultImage = null;
 
-    /**
-     * imageFolder
-     *
-     * @var string
-     */
-    protected $imageFolder = '';
+    protected string $imageFolder = '';
 
-    /**
-     * @var string
-     */
-    protected $filter;
+    protected ?string $filter = '';
 
-    /**
-     * Get title
-     *
-     * @return string
-     */
-    public function getTitle()
+    public function getTitle(): string
     {
         return $this->title;
     }
 
-    /**
-     * Set title
-     *
-     * @param string $title
-     */
-    public function setTitle($title)
+    public function setTitle(string $title): void
     {
         $this->title = $title;
     }
 
-    /**
-     * Returns the url
-     *
-     * @return string $url
-     */
-    public function getUrl()
+    public function getUrl(): string
     {
         return $this->url;
     }
 
-    /**
-     * Sets the url
-     *
-     * @param string $url
-     */
-    public function setUrl($url)
+    public function setUrl(string $url): void
     {
         $this->url = $url;
     }
 
-    /**
-     * Returns the mapping
-     *
-     * @return string $mapping
-     */
-    public function getMapping()
+    public function getMapping(): string
     {
         return $this->mapping;
     }
 
-    /**
-     * Sets the mapping
-     *
-     * @param string $mapping
-     */
-    public function setMapping($mapping)
+    public function setMapping(string $mapping): void
     {
         $this->mapping = $mapping;
     }
 
-    /**
-     * Get disableAutoImport
-     *
-     * @return bool
-     */
-    public function getDisableAutoImport()
+    public function getDisableAutoImport(): bool
     {
         return $this->disableAutoImport;
     }
 
-    /**
-     * Set disableAutoImport
-     *
-     * @param bool $disableAutoImport
-     */
-    public function setDisableAutoImport($disableAutoImport)
+    public function setDisableAutoImport(bool $disableAutoImport): void
     {
         $this->disableAutoImport = $disableAutoImport;
     }
 
-    /**
-     * Returns the lastRun
-     *
-     * @return \DateTime $lastRun
-     */
-    public function getLastRun()
+    public function getLastRun(): ?\DateTime
     {
         return $this->lastRun;
     }
 
-    /**
-     * Sets the lastRun
-     *
-     * @param \DateTime $lastRun
-     */
-    public function setLastRun(\DateTime $lastRun)
+    public function setLastRun(?\DateTime $lastRun): void
     {
         $this->lastRun = $lastRun;
     }
 
-    /**
-     * Returns the storagePid
-     *
-     * @return int $storagePid
-     */
-    public function getStoragePid()
+    public function getStoragePid(): int
     {
         return $this->storagePid;
     }
 
-    /**
-     * Sets the storagePid
-     *
-     * @param int $storagePid
-     */
-    public function setStoragePid($storagePid)
+    public function setStoragePid(int $storagePid): void
     {
         $this->storagePid = $storagePid;
     }
 
-    /**
-     * Get defaultImage
-     *
-     * @return FileReference
-     */
-    public function getDefaultImage()
+    public function getDefaultImage(): ?FileReference
     {
         return $this->defaultImage;
     }
 
-    /**
-     * Set defaultImage
-     *
-     * @param FileReference $defaultImage
-     */
-    public function setDefaultImage(?FileReference $defaultImage = null)
+    public function setDefaultImage(?FileReference $defaultImage = null): void
     {
         $this->defaultImage = $defaultImage;
     }
 
-    /**
-     * Returns the imageFolder
-     *
-     * @return string $imageFolder
-     */
-    public function getImageFolder()
+    public function getImageFolder(): string
     {
         return $this->imageFolder;
     }
 
-    /**
-     * Sets the imageFolder
-     *
-     * @param string $imageFolder
-     */
-    public function setImageFolder($imageFolder)
+    public function setImageFolder(string $imageFolder): void
     {
         $this->imageFolder = $imageFolder;
     }
 
-    /**
-     * Get filter
-     *
-     * @return string
-     */
-    public function getFilter()
+    public function getFilter(): string
     {
-        return $this->filter;
+        return (string)$this->filter;
+    }
+
+    public function setFilter(?string $filter): void
+    {
+        $this->filter = (string)$filter;
     }
 
     /**
-     * Set filter
+     * Get filter words as an array
      *
-     * @param string $filter
+     * @return list<string>
      */
-    public function setFilter($filter)
-    {
-        $this->filter = $filter;
-    }
-
-    /**
-     * Get filter words as a array
-     *
-     * @return array
-     */
-    public function getFilterWords()
+    public function getFilterWords(): array
     {
         return $this->filter ? GeneralUtility::trimExplode(',', $this->filter, true) : [];
     }

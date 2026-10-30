@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace BeechIt\NewsImporter\Service;
 
 /*
@@ -10,9 +12,11 @@ namespace BeechIt\NewsImporter\Service;
 use BeechIt\NewsImporter\Domain\Model\ExtractedItem;
 use QueryPath\DOMQuery;
 use QueryPath\Exception;
+use TYPO3\CMS\Core\EventDispatcher\NoopEventDispatcher;
 use TYPO3\CMS\Core\SingletonInterface;
-use TYPO3\CMS\Core\TypoScript\Parser\TypoScriptParser;
+use TYPO3\CMS\Core\TypoScript\AST\AstBuilder;
 use TYPO3\CMS\Core\TypoScript\TypoScriptService;
+use TYPO3\CMS\Core\TypoScript\TypoScriptStringFactory;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 
 /**
@@ -21,21 +25,19 @@ use TYPO3\CMS\Core\Utility\GeneralUtility;
 class ExtractorService implements SingletonInterface
 {
     /**
-     * @var array
+     * @var ExtractedItem[]|null
      */
-    protected $items;
+    protected ?array $items = null;
 
     /**
      * Remote url
-     *
-     * @var string
      */
-    protected $source = '';
+    protected string $source = '';
 
     /**
-     * @var array
+     * @var array<string, mixed>
      */
-    protected $itemMapping = [
+    protected array $itemMapping = [
         'items' => 'item',
         'item' => [
             'title' => 'title',
@@ -43,17 +45,12 @@ class ExtractorService implements SingletonInterface
         ],
     ];
 
-    /**
-     * @var string
-     */
-    protected $rawContent;
+    protected ?string $rawContent = null;
 
     /**
      * Set source
-     *
-     * @param string $source
      */
-    public function setSource($source)
+    public function setSource(string $source): void
     {
         $this->source = $source;
         // reset rawContent && items
@@ -61,10 +58,7 @@ class ExtractorService implements SingletonInterface
         $this->items = null;
     }
 
-    /**
-     * @return string
-     */
-    public function getRawContent()
+    public function getRawContent(): ?string
     {
         return $this->rawContent;
     }
@@ -72,15 +66,11 @@ class ExtractorService implements SingletonInterface
     /**
      * Fetch URL content
      * Wrapper function so we can mock this for testing
-     *
-     * @param string $source
-     * @param string $postVars
-     * @return string
      */
-    public function fetchRawContent($source, $postVars = null)
+    public function fetchRawContent(string $source, ?string $postVars = null): string
     {
         if (is_file($source)) {
-            return file_get_contents($source);
+            return (string)file_get_contents($source);
         }
         if ($postVars !== null) {
             $options = [
@@ -91,37 +81,35 @@ class ExtractorService implements SingletonInterface
                 ],
             ];
             $context = stream_context_create($options);
-            return file_get_contents($source, false, $context);
+            return (string)file_get_contents($source, false, $context);
         }
-        return GeneralUtility::getUrl($source);
+        return (string)GeneralUtility::getUrl($source);
     }
 
     /**
      * Extract value
      *
-     * @param \QueryPath\DOMQuery $item
-     * @param array $mapping
-     * @param string $value
-     * @return string|array
+     * @param array<string, mixed> $mapping
+     * @return string|array<int|string, mixed>
      */
-    public function extractValue(DOMQuery $item, array $mapping, $value = '')
+    public function extractValue(DOMQuery $item, array $mapping, string $value = ''): string|array
     {
         if (empty($mapping['multiple'])) {
-            /** @var \QueryPath\DOMQuery $tmp */
+            /** @var DOMQuery $tmp */
             $tmp = $item->find($mapping['selector'])->first();
             $return = $this->_extractValue($tmp, $mapping, $value);
         } elseif (is_array($mapping['multiple'])) {
             $return = [];
             foreach ($item->find($mapping['selector']) as $tmp) {
-                $value = [];
+                $rowValue = [];
                 foreach ($mapping['multiple'] as $key => $subMapping) {
-                    $value[$key] = $this->_extractValue(
+                    $rowValue[$key] = $this->_extractValue(
                         $tmp,
                         is_string($subMapping) ? ['attr' => $subMapping] : $subMapping,
                         is_string($subMapping) ? $subMapping : ''
                     );
                 }
-                $return[] = $value;
+                $return[] = $rowValue;
             }
         } else {
             $return = [];
@@ -135,31 +123,26 @@ class ExtractorService implements SingletonInterface
     /**
      * Extract a single value
      *
-     * @param \QueryPath\DOMQuery $item
-     * @param array $mapping
-     * @param string $value
-     * @return string
+     * @param array<string, mixed> $mapping
      */
-    protected function _extractValue(DOMQuery $item, array $mapping, $value = '')
+    protected function _extractValue(DOMQuery $item, array $mapping, string $value = ''): string
     {
-        if ($item) {
-            if (!empty($mapping['attr'])) {
-                $value = $item->attr($mapping['attr']);
-            } elseif (!empty($mapping['innerHTML'])) {
-                $value = $item->innerHTML();
-            } else {
-                $value = $item->text();
-            }
+        if (!empty($mapping['attr'])) {
+            $value = (string)$item->attr($mapping['attr']);
+        } elseif (!empty($mapping['innerHTML'])) {
+            $value = (string)$item->innerHTML();
+        } else {
+            $value = (string)$item->text();
         }
-        $value = mb_convert_encoding($value, 'UTF-8', 'auto');
-        if (!empty($mapping['preg']) && preg_match($mapping['preg'], $value, $matches)) {
-            $value = isset($matches[1]) ? $matches[1] : $matches[0];
+        $value = (string)mb_convert_encoding($value, 'UTF-8', 'auto');
+        if (!empty($mapping['preg']) && preg_match((string)$mapping['preg'], $value, $matches)) {
+            $value = $matches[1] ?? $matches[0];
         }
         if (!empty($mapping['wrap'])) {
-            $value = str_replace('|', $value, $mapping['wrap']);
+            $value = str_replace('|', $value, (string)$mapping['wrap']);
         }
         if (!empty($mapping['strtotime'])) {
-            $value = strtotime($value);
+            $value = (string)strtotime($value);
         }
         if (!isset($mapping['trim']) || !empty($mapping['trim'])) {
             $value = trim($value);
@@ -170,29 +153,32 @@ class ExtractorService implements SingletonInterface
     /**
      * Parse config
      *
-     * @param string|array $itemMapping
-     * @return array
+     * @param string|array<string, mixed> $itemMapping
+     * @return array<string, mixed>
      */
-    protected function parseItemMapping($itemMapping)
+    protected function parseItemMapping(string|array $itemMapping): array
     {
         if (is_string($itemMapping)) {
-            /** @var TypoScriptParser $parser */
-            $parser = GeneralUtility::makeInstance(TypoScriptParser::class);
-            $parser->parse($itemMapping);
-            /** @var $typoScriptService TypoScriptService */
+            $typoScriptStringFactory = GeneralUtility::makeInstance(TypoScriptStringFactory::class);
+            $rootNode = $typoScriptStringFactory->parseFromString(
+                $itemMapping,
+                GeneralUtility::makeInstance(AstBuilder::class, new NoopEventDispatcher())
+            );
             $typoScriptService = GeneralUtility::makeInstance(TypoScriptService::class);
-            $itemMapping = $typoScriptService->convertTypoScriptArrayToPlainArray($parser->setup);
+            $itemMapping = $typoScriptService->convertTypoScriptArrayToPlainArray($rootNode->toArray());
         }
         return $itemMapping;
     }
 
-    /**
-     * @param string $string
-     * @return \QueryPath\DOMQuery
-     */
-    public function stringToDOMQuery($string)
+    public function stringToDOMQuery(string $string): DOMQuery
     {
         try {
+            if (strtolower(substr($string, 0, 5)) === '<?xml') {
+                $document = new \DOMDocument('1.0');
+                if (@$document->loadXML(\QueryPath\Entities::replaceAllEntities($string), 0)) {
+                    return qp($document);
+                }
+            }
             $domQuery = qp($string);
         } catch (Exception $e) {
             $domQuery = htmlqp($string);
@@ -203,9 +189,9 @@ class ExtractorService implements SingletonInterface
     /**
      * Set mapping configuration
      *
-     * @param string|array $itemMapping
+     * @param string|array<string, mixed> $itemMapping
      */
-    public function setMapping($itemMapping)
+    public function setMapping(string|array $itemMapping): void
     {
         $this->itemMapping = $this->parseItemMapping($itemMapping);
     }
@@ -213,7 +199,7 @@ class ExtractorService implements SingletonInterface
     /**
      * Extract items
      */
-    protected function extractItems()
+    protected function extractItems(): void
     {
         $this->items = [];
         $itemsSelector = !empty($this->itemMapping['items']) ? $this->itemMapping['items'] : 'item';
@@ -221,26 +207,31 @@ class ExtractorService implements SingletonInterface
         if ($this->rawContent === null) {
             $this->rawContent = $this->fetchRawContent(
                 $this->source,
-                !empty($this->itemMapping['_POST']) ? $this->itemMapping['_POST'] : null
+                !empty($this->itemMapping['_POST']) ? (string)$this->itemMapping['_POST'] : null
             );
         }
 
         $domQuery = $this->stringToDOMQuery($this->rawContent);
         if (is_array($itemsSelector)) {
             if (!empty($itemsSelector['source'])) {
-                $source = $this->extractValue($domQuery, $itemsSelector['source']);
+                $source = (string)$this->extractValue($domQuery, $itemsSelector['source']);
                 $source = $this->fetchRawContent(
                     $source,
-                    !empty($itemsSelector['source']['_POST']) ? $itemsSelector['source']['_POST'] : null
+                    !empty($itemsSelector['source']['_POST']) ? (string)$itemsSelector['source']['_POST'] : null
                 );
                 $domQuery = $this->stringToDOMQuery($source);
             }
-            $itemsSelector = !empty($itemsSelector['selector']) ? $itemsSelector['selector'] : 'item';
+            $itemsSelector = !empty($itemsSelector['selector']) ? (string)$itemsSelector['selector'] : 'item';
         }
 
-        /** @var \QueryPath\DOMQuery $item */
-        foreach ($domQuery->find($itemsSelector) as $item) {
-            $this->items[] = new ExtractedItem(clone $item, $this->itemMapping['item'], $this);
+        foreach ($domQuery->find((string)$itemsSelector) as $item) {
+            if ($item instanceof DOMQuery) {
+                $this->items[] = new ExtractedItem(
+                    clone $item,
+                    is_array($this->itemMapping['item'] ?? null) ? $this->itemMapping['item'] : [],
+                    $this
+                );
+            }
         }
     }
 
@@ -249,11 +240,11 @@ class ExtractorService implements SingletonInterface
      *
      * @return ExtractedItem[]
      */
-    public function getItems()
+    public function getItems(): array
     {
         if ($this->items === null) {
             $this->extractItems();
         }
-        return $this->items;
+        return $this->items ?? [];
     }
 }

@@ -1,6 +1,21 @@
-<f:be.container
-        includeCssFiles="{0:'{f:uri.resource(path:\'Css/backend.css\')}'}"
+<html
+    xmlns:f="http://typo3.org/ns/TYPO3/CMS/Fluid/ViewHelpers"
+    xmlns:core="http://typo3.org/ns/TYPO3/CMS/Core/ViewHelpers"
+    data-namespace-typo3-fluid="true"
 >
-    <f:flashMessages/>
-    <f:render section="main"/>
-</f:be.container>
+<f:be.pageRenderer includeCssFiles="{0: 'EXT:news_importer/Resources/Public/Css/backend.css'}" />
+<div class="module {moduleClass}" data-module-id="{moduleId}" data-module-name="{moduleName}">
+    <f:if condition="{docHeader.enabled}">
+        <f:render partial="DocHeader" arguments="{docHeader:docHeader}" />
+    </f:if>
+    <div class="module-body t3js-module-body">
+        <f:if condition="{uiBlock}">
+            <div id="t3js-ui-block" class="ui-block">
+                <core:icon identifier="spinner-circle" size="large" />
+            </div>
+        </f:if>
+        <f:flashMessages queueIdentifier="{flashMessageQueueIdentifier}" />
+        <f:render section="main" arguments="{_all}" optional="true" />
+    </div>
+</div>
+</html>

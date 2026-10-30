@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace BeechIt\NewsImporter\Controller;
 
 /*
@@ -7,21 +9,22 @@ namespace BeechIt\NewsImporter\Controller;
  * Date: 12-06-2015
  * All code (c) Beech Applications B.V. all rights reserved
  */
-use BeechIt\NewsImporter\Domain\Model\ExtractedItem;
 use BeechIt\NewsImporter\Domain\Model\ImportSource;
 use BeechIt\NewsImporter\Domain\Repository\ImportSourceRepository;
 use BeechIt\NewsImporter\Exception\NewsItemNotFoundException;
 use BeechIt\NewsImporter\Service\ExtractorService;
 use BeechIt\NewsImporter\Service\ImportService;
-use TYPO3\CMS\Backend\Routing\UriBuilder;
+use Psr\Http\Message\ResponseInterface;
+use TYPO3\CMS\Backend\Routing\UriBuilder as BackendUriBuilder;
 use TYPO3\CMS\Backend\Template\Components\ButtonBar;
+use TYPO3\CMS\Backend\Template\ModuleTemplate;
+use TYPO3\CMS\Backend\Template\ModuleTemplateFactory;
 use TYPO3\CMS\Core\Authentication\BackendUserAuthentication;
 use TYPO3\CMS\Core\Imaging\IconFactory;
+use TYPO3\CMS\Core\Imaging\IconSize;
 use TYPO3\CMS\Core\Localization\LanguageService;
-use TYPO3\CMS\Core\Utility\GeneralUtility;
+use TYPO3\CMS\Core\Type\ContextualFeedbackSeverity;
 use TYPO3\CMS\Extbase\Mvc\Controller\ActionController;
-use TYPO3\CMS\Extbase\Mvc\Exception\StopActionException;
-use TYPO3\CMS\Extbase\Mvc\Exception\UnsupportedRequestTypeException;
 use TYPO3\CMS\Extbase\Utility\LocalizationUtility;
 
 /**
@@ -34,72 +37,70 @@ class AdminController extends ActionController
      */
     public const MODULE_NAME = 'web_NewsImporterNewsimporter';
 
-    /**
-     * @var ImportSourceRepository
-     */
-    protected $importSourceRepository;
+    protected ImportSourceRepository $importSourceRepository;
 
-    /**
-     * @var ExtractorService
-     */
-    protected $extractorService;
+    protected ExtractorService $extractorService;
 
-    /**
-     * @var ImportService
-     */
-    protected $importService;
-    public function __construct(ImportSourceRepository $importSourceRepository, ExtractorService $extractorService, ImportService $importService, private readonly \TYPO3\CMS\Backend\Template\ModuleTemplateFactory $moduleTemplateFactory, private readonly \TYPO3\CMS\Core\Imaging\IconFactory $iconFactory)
-    {
+    protected ImportService $importService;
+
+    public function __construct(
+        ImportSourceRepository $importSourceRepository,
+        ExtractorService $extractorService,
+        ImportService $importService,
+        private readonly ModuleTemplateFactory $moduleTemplateFactory,
+        private readonly IconFactory $iconFactory,
+        private readonly BackendUriBuilder $backendUriBuilder
+    ) {
         $this->importSourceRepository = $importSourceRepository;
         $this->extractorService = $extractorService;
         $this->importService = $importService;
     }
 
-    /**
-     * @return bool|string
-     */
     protected function getErrorFlashMessage(): string|bool
     {
         return false;
     }
 
-    /**
-     * initialize view
-     * @param \TYPO3Fluid\Fluid\View\ViewInterface $view
-     */
-    public function initializeView($view)
+    protected function initializeLocale(ModuleTemplate $moduleTemplate): void
     {
-        if ($this->getBackendUser()) {
-            $lang = $this->getBackendUser()->uc['lang'] ?: 'en';
+        $backendUser = $this->getBackendUser();
+        if ($backendUser !== null) {
+            $userLang = (string)($backendUser->uc['lang'] ?? '');
+            $lang = $userLang !== '' ? $userLang : 'en';
             $locale = $lang . '_' . strtoupper($lang);
             setlocale(
                 LC_ALL,
                 $lang,
                 $locale,
                 $locale . '.utf8',
-                $this->getBackendUser()->uc['lang'],
-                $GLOBALS['TYPO3_CONF_VARS']['SYS']['systemLocale']
+                $userLang,
+                (string)($GLOBALS['TYPO3_CONF_VARS']['SYS']['systemLocale'] ?? '')
             );
-            $view->assign('locale', $locale);
+            $moduleTemplate->assign('locale', $locale);
         }
+    }
+
+    protected function initializeModuleTemplate(): ModuleTemplate
+    {
+        $moduleTemplate = $this->moduleTemplateFactory->create($this->request);
+        $moduleTemplate->setFlashMessageQueue($this->getFlashMessageQueue());
+        $this->initializeLocale($moduleTemplate);
+        $this->registerButtons($moduleTemplate);
+        return $moduleTemplate;
     }
 
     /**
      * Add flash message (with auto translation handling title and body)
      *
-     * @param $messageBody
-     * @param string $messageTitle
-     * @param int $severity
-     * @param array|null $arguments
-     * @param bool $storeInSession
+     * @param array<int|string, mixed>|null $arguments
      */
     public function addTranslatedFlashMessage(
-        $messageBody,
-        $messageTitle = '',
-        $severity = \TYPO3\CMS\Core\Type\ContextualFeedbackSeverity::OK,
+        string $messageBody,
+        string $messageTitle = '',
+        ContextualFeedbackSeverity $severity = ContextualFeedbackSeverity::OK,
         ?array $arguments = null,
-        $storeInSession = true
-    ) {
+        bool $storeInSession = true
+    ): void {
         $this->addFlashMessage(
             $this->getTranslatedString($messageBody, $arguments),
             $this->getTranslatedString($messageTitle, $arguments),
@@ -111,62 +112,57 @@ class AdminController extends ActionController
     /**
      * Translate input string with additional arguments
      *
-     * @param $input
-     * @param $arguments
-     * @return string
+     * @param array<int|string, mixed>|null $arguments
      */
-    public function getTranslatedString($input, $arguments): string
+    public function getTranslatedString(string $input, ?array $arguments = null): string
     {
-        if (!$input) {
+        if ($input === '') {
             return '';
         }
         $translated = LocalizationUtility::translate($input, $this->request->getControllerExtensionName(), $arguments);
         return $translated ?: '';
     }
 
-    /**
-     * @return BackendUserAuthentication
-     */
-    protected function getBackendUser()
+    protected function getBackendUser(): ?BackendUserAuthentication
     {
-        return $GLOBALS['BE_USER'];
+        return $GLOBALS['BE_USER'] ?? null;
     }
 
     /**
      * Index action
      */
-    public function indexAction()
+    public function indexAction(): ResponseInterface
     {
-        $importSources = $this->importSourceRepository->findBy(['pid' => (int)$_GET['id']]);
+        $parsedBody = $this->request->getParsedBody();
+        $pageId = (int)($this->request->getQueryParams()['id'] ?? (is_array($parsedBody) ? ($parsedBody['id'] ?? 0) : 0));
+        $importSources = $this->importSourceRepository->findBy(['pid' => $pageId]);
         if ($importSources->count() === 0) {
-            $this->addTranslatedFlashMessage('select-page-with-importsources', '', \TYPO3\CMS\Core\Type\ContextualFeedbackSeverity::WARNING);
+            $this->addTranslatedFlashMessage('select-page-with-importsources', '', ContextualFeedbackSeverity::WARNING);
         }
         if ($importSources->count() === 1) {
             return $this->redirect('show', null, null, ['importSource' => $importSources->getFirst()]);
         }
-        $this->view->assign('importSources', $importSources);
+        $moduleTemplate = $this->initializeModuleTemplate();
+        $moduleTemplate->assign('importSources', $importSources);
+        return $moduleTemplate->renderResponse('Admin/Index');
     }
 
-    /**
-     * @param ImportSource $importSource
-     */
-    public function showAction(ImportSource $importSource): \Psr\Http\Message\ResponseInterface
+    public function showAction(ImportSource $importSource): ResponseInterface
     {
-        $moduleTemplate = $this->moduleTemplateFactory->create($this->request);
-        $this->registerButtons();
+        $moduleTemplate = $this->initializeModuleTemplate();
 
-        $this->view->assign('importSource', $importSource);
+        $moduleTemplate->assign('importSource', $importSource);
 
         $this->extractorService->setSource($importSource->getUrl());
         $this->extractorService->setMapping($importSource->getMapping());
         $extractedItems = $this->extractorService->getItems();
 
+        $storagePid = $importSource->getStoragePid() ?: (int)$importSource->getPid();
         $items = [];
-        /** @var ExtractedItem $item */
         foreach ($extractedItems as $item) {
             $newsUid = false;
             try {
-                $newsUid = $this->importService->getNewsItemUid($importSource->getPid(), $item->getGuid());
+                $newsUid = $this->importService->getNewsItemUid($storagePid, $item->getGuid());
             } catch (NewsItemNotFoundException $e) {
             }
             $items[] = [
@@ -178,33 +174,29 @@ class AdminController extends ActionController
             ];
         }
 
-        $this->view->assign('items', $items);
-        $moduleTemplate->setContent($this->view->render());
-        return $this->htmlResponse($moduleTemplate->renderContent());
+        $moduleTemplate->assign('items', $items);
+        return $moduleTemplate->renderResponse('Admin/Show');
     }
 
     /**
-     * @param ImportSource $importSource
-     * @param string $guid
-     * @throws StopActionException
-     * @throws UnsupportedRequestTypeException
-     * @throws \BeechIt\NewsImporter\Exception\NewsItemNotFoundException
+     * @throws NewsItemNotFoundException
      */
-    public function importAction(ImportSource $importSource, $guid)
+    public function importAction(ImportSource $importSource, string $guid = ''): ResponseInterface
     {
         $this->extractorService->setSource($importSource->getUrl());
         $this->extractorService->setMapping($importSource->getMapping());
         $extractedItems = $this->extractorService->getItems();
 
+        $storagePid = $importSource->getStoragePid() ?: (int)$importSource->getPid();
         foreach ($extractedItems as $item) {
             if ($item->getGuid() === $guid) {
                 $this->importService->importItem($importSource, $item);
-                $itemUid = $this->importService->getNewsItemUid($importSource->getPid(), $guid);
+                $itemUid = $this->importService->getNewsItemUid($storagePid, $guid);
                 $this->uriBuilder->reset()->setCreateAbsoluteUri(true);
-                if (GeneralUtility::getIndpEnv('TYPO3_SSL')) {
+                if ($this->request->getAttribute('normalizedParams')?->isHttps()) {
                     $this->uriBuilder->setAbsoluteUriScheme('https');
                 }
-                $uri = GeneralUtility::makeInstance(UriBuilder::class)->buildUriFromRoute('record_edit', [
+                $uri = $this->backendUriBuilder->buildUriFromRoute('record_edit', [
                     'edit' => [
                         'tx_news_domain_model_news' => [
                             $itemUid => 'edit',
@@ -216,55 +208,51 @@ class AdminController extends ActionController
                         $this->request->getControllerName()
                     ),
                 ]);
-                return $this->redirectToUri($uri);
+                return $this->redirectToUri((string)$uri);
             }
         }
 
-        $this->addTranslatedFlashMessage('requested-item-not-found', '', \TYPO3\CMS\Core\Type\ContextualFeedbackSeverity::ERROR);
+        $this->addTranslatedFlashMessage('requested-item-not-found', '', ContextualFeedbackSeverity::ERROR);
         return $this->redirect('show', null, null, ['importSource' => $importSource]);
     }
 
     /**
      * Create the panel of buttons for submitting the form or otherwise perform operations.
-     *
-     * @return array All available buttons as an assoc. array
      */
-    protected function registerButtons()
+    protected function registerButtons(?ModuleTemplate $moduleTemplate = null): void
     {
-        $moduleTemplate = $this->moduleTemplateFactory->create($this->request);
-        /** @var ButtonBar $buttonBar */
+        $moduleTemplate ??= $this->moduleTemplateFactory->create($this->request);
         $buttonBar = $moduleTemplate->getDocHeaderComponent()->getButtonBar();
-
-        /** @var IconFactory $iconFactory */
-        $iconFactory = $this->iconFactory;
 
         $lang = $this->getLanguageService();
 
         // Refresh page
-        $refreshLink = GeneralUtility::linkThisScript(
-            [
-                'target' => rawurlencode('#'),
-            ]
-        );
-        $refreshButton = $buttonBar->makeLinkButton()
-            ->setHref($refreshLink)
-            ->setTitle($lang->sL('LLL:EXT:core/Resources/Private/Language/locallang_core.xlf:labels.reload'))
-            ->setIcon($iconFactory->getIcon('actions-refresh', \TYPO3\CMS\Core\Imaging\IconSize::SMALL));
-        $buttonBar->addButton($refreshButton, ButtonBar::BUTTON_POSITION_RIGHT);
+        $refreshLink = $this->request->getAttribute('normalizedParams')?->getRequestUri() ?? '';
+        if ($refreshLink !== '') {
+            $refreshButton = $buttonBar->makeLinkButton()
+                ->setHref($refreshLink)
+                ->setTitle($lang->sL('LLL:EXT:core/Resources/Private/Language/locallang_core.xlf:labels.reload'))
+                ->setIcon($this->iconFactory->getIcon('actions-refresh', IconSize::SMALL));
+            $buttonBar->addButton($refreshButton, ButtonBar::BUTTON_POSITION_RIGHT);
+        }
 
         // Shortcut
-        if ($this->getBackendUser()->mayMakeShortcut()) {
-            $shortCutButton = $buttonBar->makeShortcutButton()->setModuleName(self::MODULE_NAME);
+        $backendUser = $this->getBackendUser();
+        if ($backendUser !== null && $backendUser->mayMakeShortcut()) {
+            $shortCutButton = $buttonBar->makeShortcutButton()
+                ->setRouteIdentifier(self::MODULE_NAME)
+                ->setDisplayName($lang->sL('LLL:EXT:news_importer/Resources/Private/Language/locallang_be_module.xlf:mlang_tabs_tab') ?: 'News importer')
+                ->setArguments([
+                    'id' => (int)($this->request->getQueryParams()['id'] ?? 0),
+                ]);
             $buttonBar->addButton($shortCutButton, ButtonBar::BUTTON_POSITION_RIGHT);
         }
     }
 
     /**
      * Returns an instance of LanguageService
-     *
-     * @return LanguageService
      */
-    protected function getLanguageService()
+    protected function getLanguageService(): LanguageService
     {
         return $GLOBALS['LANG'];
     }

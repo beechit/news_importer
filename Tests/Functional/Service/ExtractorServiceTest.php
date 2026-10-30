@@ -1,21 +1,21 @@
 <?php
 
+declare(strict_types=1);
+
 namespace BeechIt\NewsImporter\Tests\Functional\Service;
 
 use BeechIt\NewsImporter\Service\ExtractorService;
+use PHPUnit\Framework\Attributes\Test;
 use TYPO3\TestingFramework\Core\Functional\FunctionalTestCase;
 
 /**
- * Class NewsMapperServiceTest
+ * Class ExtractorServiceTest
  */
 class ExtractorServiceTest extends FunctionalTestCase
 {
-    /**
-     * @var ExtractorService
-     */
-    protected $extractorService;
+    protected ExtractorService $extractorService;
 
-    protected $testExtensionsToLoad = ['typo3conf/ext/news_importer'];
+    protected array $testExtensionsToLoad = ['typo3conf/ext/news_importer'];
 
     public function setUp(): void
     {
@@ -23,10 +23,8 @@ class ExtractorServiceTest extends FunctionalTestCase
         $this->extractorService = new ExtractorService();
     }
 
-    /**
-     * @test
-     */
-    public function basicRssFeedImportTest()
+    #[Test]
+    public function basicRssFeedImportTest(): void
     {
         $this->extractorService->setSource(__DIR__ . '/../Fixtures/RemoteData/rss.xml');
         $this->extractorService->setMapping([
@@ -53,10 +51,8 @@ class ExtractorServiceTest extends FunctionalTestCase
         self::assertEquals(1431452309, $items[0]->extractValue('pubDate'));
     }
 
-    /**
-     * @test
-     */
-    public function rssFeedWithCustomNamespaceImportTest()
+    #[Test]
+    public function rssFeedWithCustomNamespaceImportTest(): void
     {
         $this->extractorService->setSource(__DIR__ . '/../Fixtures/RemoteData/rss2.xml');
         $this->extractorService->setMapping([
@@ -88,10 +84,8 @@ class ExtractorServiceTest extends FunctionalTestCase
         );
     }
 
-    /**
-     * @test
-     */
-    public function xmlImportWithMultipleValuesTest()
+    #[Test]
+    public function xmlImportWithMultipleValuesTest(): void
     {
         $this->extractorService->setSource(__DIR__ . '/../Fixtures/RemoteData/custom.xml');
         $this->extractorService->setMapping([
@@ -130,6 +124,7 @@ class ExtractorServiceTest extends FunctionalTestCase
         self::assertEquals(1431452309, $items[0]->extractValue('datetime'));
 
         $images = $items[0]->extractValue('image');
+        self::assertIsArray($images);
         self::assertCount(2, $images);
         self::assertEquals(
             'http://media.nu.nl/m/m1oxhrpa8daz_sqr256.jpg/middelburg-verwijdert-verkeerd-geparkeerde-fietsen-station-.jpg',
@@ -137,6 +132,7 @@ class ExtractorServiceTest extends FunctionalTestCase
         );
 
         $relatedLinks = $items[0]->extractValue('related_links');
+        self::assertIsArray($relatedLinks);
         self::assertCount(2, $relatedLinks);
         self::assertEquals(
             'http://www.nu.nl/walcheren/4048130/middelburg-verwijdert-verkeerd-geparkeerde-fietsen-station-.html',

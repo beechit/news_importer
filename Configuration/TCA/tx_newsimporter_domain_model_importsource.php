@@ -1,5 +1,9 @@
 <?php
 
+declare(strict_types=1);
+
+use TYPO3\CMS\Core\Resource\FileType;
+
 return [
     'ctrl' => [
         'title' => 'LLL:EXT:news_importer/Resources/Private/Language/locallang_db.xlf:tx_newsimporter_domain_model_importsource',
@@ -20,11 +24,17 @@ return [
         ],
 
         'searchFields' => 'title,url,mapping,filter',
-        'iconfile' => 'EXT:news_importer/ext_icon.png',
+        'iconfile' => 'EXT:news_importer/Resources/Public/Icons/Extension.png',
+        'typeicon_classes' => [
+            'default' => 'apps-pagetree-folder-contains-imports',
+        ],
+        'security' => [
+            'ignorePageTypeRestriction' => true,
+        ],
     ],
     'types' => [
         '1' => [
-            'showitem' => 'title,url,mapping,storage_pid,default_image,image_folder,--palette--;LLL:EXT:news_importer/Resources/Private/Language/locallang_db.xlf:palette.automation;cron,--div--;LLL:EXT:frontend/Resources/Private/Language/locallang_ttc.xlf:tabs.access,sys_language_uid,--palette--,l10n_parent,l10n_diffsource,hidden,--palette--;;1,starttime,endtime',
+            'showitem' => 'title,url,mapping,storage_pid,default_image,image_folder,--palette--;LLL:EXT:news_importer/Resources/Private/Language/locallang_db.xlf:palette.automation;cron,--div--;LLL:EXT:core/Resources/Private/Language/Form/locallang_tabs.xlf:access,sys_language_uid,l10n_parent,l10n_diffsource,hidden,starttime,endtime',
         ],
     ],
     'palettes' => [
@@ -34,11 +44,12 @@ return [
         ],
     ],
     'columns' => [
-
         'sys_language_uid' => [
-            'exclude' => 1,
+            'exclude' => true,
             'label' => 'LLL:EXT:core/Resources/Private/Language/locallang_general.xlf:LGL.language',
-            'config' => ['type' => 'language'],
+            'config' => [
+                'type' => 'language',
+            ],
         ],
         'l10n_parent' => [
             'displayCond' => 'FIELD:sys_language_uid:>:0',
@@ -50,71 +61,61 @@ return [
                     ['label' => '', 'value' => 0],
                 ],
                 'foreign_table' => 'tx_newsimporter_domain_model_importsource',
-                'foreign_table_where' => 'AND tx_newsimporter_domain_model_importsource.pid=###CURRENT_PID### AND tx_newsimporter_domain_model_importsource.sys_language_uid IN (-1,0)',
+                'foreign_table_where' => 'AND {#tx_newsimporter_domain_model_importsource}.{#pid}=###CURRENT_PID### AND {#tx_newsimporter_domain_model_importsource}.{#sys_language_uid} IN (-1,0)',
+                'default' => 0,
             ],
         ],
         'l10n_diffsource' => [
             'config' => [
                 'type' => 'passthrough',
+                'default' => '',
             ],
         ],
-
-        't3ver_label' => [
-            'label' => 'LLL:EXT:core/Resources/Private/Language/locallang_general.xlf:LGL.versionLabel',
-            'config' => [
-                'type' => 'input',
-                'size' => 30,
-                'max' => 255,
-            ],
-        ],
-
         'hidden' => [
-            'exclude' => 1,
+            'exclude' => true,
             'label' => 'LLL:EXT:core/Resources/Private/Language/locallang_general.xlf:LGL.hidden',
             'config' => [
                 'type' => 'check',
+                'renderType' => 'checkboxToggle',
+                'default' => 0,
             ],
         ],
         'starttime' => [
-            'exclude' => 1,
+            'exclude' => true,
             'label' => 'LLL:EXT:core/Resources/Private/Language/locallang_general.xlf:LGL.starttime',
             'config' => [
                 'type' => 'datetime',
-                'size' => 13,
-                'checkbox' => 0,
                 'default' => 0,
-                'range' => [
-                    'lower' => mktime(0, 0, 0, date('m'), date('d'), date('Y')),
+                'behaviour' => [
+                    'allowLanguageSynchronization' => true,
                 ],
-                ['behaviour' => ['allowLanguageSynchronization' => true]],
             ],
         ],
         'endtime' => [
-            'exclude' => 1,
+            'exclude' => true,
             'label' => 'LLL:EXT:core/Resources/Private/Language/locallang_general.xlf:LGL.endtime',
             'config' => [
                 'type' => 'datetime',
-                'size' => 13,
-                'checkbox' => 0,
                 'default' => 0,
                 'range' => [
-                    'lower' => mktime(0, 0, 0, date('m'), date('d'), date('Y')),
+                    'upper' => mktime(0, 0, 0, 1, 1, 2038),
                 ],
-                ['behaviour' => ['allowLanguageSynchronization' => true]],
+                'behaviour' => [
+                    'allowLanguageSynchronization' => true,
+                ],
             ],
         ],
-
         'title' => [
-            'exclude' => 0,
+            'exclude' => false,
             'label' => 'LLL:EXT:news_importer/Resources/Private/Language/locallang_db.xlf:tx_newsimporter_domain_model_importsource.title',
             'config' => [
                 'type' => 'input',
-                'size' => '30',
+                'size' => 30,
                 'eval' => 'trim',
             ],
         ],
         'url' => [
-            'exclude' => 1,
+            'exclude' => true,
             'label' => 'LLL:EXT:news_importer/Resources/Private/Language/locallang_db.xlf:tx_newsimporter_domain_model_importsource.url',
             'config' => [
                 'type' => 'input',
@@ -123,7 +124,7 @@ return [
             ],
         ],
         'mapping' => [
-            'exclude' => 1,
+            'exclude' => true,
             'label' => 'LLL:EXT:news_importer/Resources/Private/Language/locallang_db.xlf:tx_newsimporter_domain_model_importsource.mapping',
             'config' => [
                 'type' => 'text',
@@ -153,25 +154,27 @@ item {
             ],
         ],
         'disable_auto_import' => [
-            'exclude' => 1,
+            'exclude' => true,
             'label' => 'LLL:EXT:news_importer/Resources/Private/Language/locallang_db.xlf:tx_newsimporter_domain_model_importsource.disable_auto_import',
+            'onChange' => 'reload',
             'config' => [
                 'type' => 'check',
+                'renderType' => 'checkboxToggle',
+                'default' => 0,
             ],
-            'onChange' => 'reload',
         ],
         'last_run' => [
-            'exclude' => 1,
+            'exclude' => true,
             'displayCond' => 'FIELD:disable_auto_import:REQ:false',
             'label' => 'LLL:EXT:news_importer/Resources/Private/Language/locallang_db.xlf:tx_newsimporter_domain_model_importsource.last_run',
             'config' => [
                 'type' => 'datetime',
-                'size' => 10,
-                'readOnly' => 1,
+                'readOnly' => true,
+                'default' => 0,
             ],
         ],
         'storage_pid' => [
-            'exclude' => 1,
+            'exclude' => true,
             'label' => 'LLL:EXT:news_importer/Resources/Private/Language/locallang_db.xlf:tx_newsimporter_domain_model_importsource.storage_pid',
             'config' => [
                 'type' => 'group',
@@ -179,87 +182,84 @@ item {
                 'size' => 1,
                 'maxitems' => 1,
                 'minitems' => 0,
+                'default' => 0,
             ],
         ],
         'default_image' => [
-            'exclude' => 1,
+            'exclude' => true,
             'label' => 'LLL:EXT:news_importer/Resources/Private/Language/locallang_db.xlf:tx_newsimporter_domain_model_importsource.default_image',
             'config' => [
-                // TODO: Important! Verify that the fieldname value in foreign table either matches the column name
-                // or is set properly in the following TCA, see https://docs.typo3.org/permalink/t3tca:confval-inline-foreign-match-fields
                 'type' => 'file',
-                'allowed' => $GLOBALS['TYPO3_CONF_VARS']['GFX']['imagefile_ext'],
+                'allowed' => 'common-image-types',
                 'maxitems' => 1,
                 'appearance' => [
                     'createNewRelationLinkTitle' => 'LLL:EXT:frontend/Resources/Private/Language/locallang_ttc.xlf:images.addFileReference',
                 ],
-                // foreing_match is needed for FE upload purposes
-                'foreign_match_fields' => [
-                    'fieldname' => 'default_image',
-                    'tablenames' => 'tx_newsimporter_domain_model_importsource',
+                'overrideChildTca' => [
+                    'types' => [
+                        '0' => [
+                            'showitem' => '
+                                --palette--;;imageoverlayPalette,
+                                --palette--;;filePalette',
+                        ],
+                        FileType::TEXT->value => [
+                            'showitem' => '
+                                --palette--;;imageoverlayPalette,
+                                --palette--;;filePalette',
+                        ],
+                        FileType::IMAGE->value => [
+                            'showitem' => '
+                                --palette--;;imageoverlayPalette,
+                                --palette--;;filePalette',
+                        ],
+                        FileType::AUDIO->value => [
+                            'showitem' => '
+                                --palette--;;imageoverlayPalette,
+                                --palette--;;filePalette',
+                        ],
+                        FileType::VIDEO->value => [
+                            'showitem' => '
+                                --palette--;;imageoverlayPalette,
+                                --palette--;;filePalette',
+                        ],
+                        FileType::APPLICATION->value => [
+                            'showitem' => '
+                                --palette--;;imageoverlayPalette,
+                                --palette--;;filePalette',
+                        ],
+                    ],
                 ],
-                'overrideChildTca' => ['types' => [
-                    '0' => [
-                        'showitem' => '
-							--palette--;LLL:EXT:core/Resources/Private/Language/locallang_tca.xlf:sys_file_reference.imageoverlayPalette;imageoverlayPalette,
-							--palette--;;filePalette',
-                    ],
-                    \TYPO3\CMS\Core\Resource\FileType::TEXT->value => [
-                        'showitem' => '
-							--palette--;LLL:EXT:core/Resources/Private/Language/locallang_tca.xlf:sys_file_reference.imageoverlayPalette;imageoverlayPalette,
-							--palette--;;filePalette',
-                    ],
-                    \TYPO3\CMS\Core\Resource\FileType::IMAGE->value => [
-                        'showitem' => '
-							--palette--;LLL:EXT:core/Resources/Private/Language/locallang_tca.xlf:sys_file_reference.imageoverlayPalette;imageoverlayPalette,
-							--palette--;;filePalette',
-                    ],
-                    \TYPO3\CMS\Core\Resource\FileType::AUDIO->value => [
-                        'showitem' => '
-							--palette--;LLL:EXT:core/Resources/Private/Language/locallang_tca.xlf:sys_file_reference.imageoverlayPalette;imageoverlayPalette,
-							--palette--;;filePalette',
-                    ],
-                    \TYPO3\CMS\Core\Resource\FileType::VIDEO->value => [
-                        'showitem' => '
-							--palette--;LLL:EXT:core/Resources/Private/Language/locallang_tca.xlf:sys_file_reference.imageoverlayPalette;imageoverlayPalette,
-							--palette--;;filePalette',
-                    ],
-                    \TYPO3\CMS\Core\Resource\FileType::APPLICATION->value => [
-                        'showitem' => '
-							--palette--;LLL:EXT:core/Resources/Private/Language/locallang_tca.xlf:sys_file_reference.imageoverlayPalette;imageoverlayPalette,
-							--palette--;;filePalette',
-                    ],
-                ]],
             ],
         ],
         'image_folder' => [
-            'exclude' => 1,
+            'exclude' => true,
             'label' => 'LLL:EXT:news_importer/Resources/Private/Language/locallang_db.xlf:tx_newsimporter_domain_model_importsource.image_folder',
             'config' => [
                 'type' => 'link',
                 'size' => 30,
                 'allowedTypes' => ['folder', 'record', 'telephone'],
-                'appearance' => ['browserTitle' => 'LLL:EXT:frontend/Resources/Private/Language/locallang_ttc.xlf:image_link_formlabel', 'allowedOptions' => ['rel']],
+                'appearance' => [
+                    'browserTitle' => 'LLL:EXT:frontend/Resources/Private/Language/locallang_ttc.xlf:image_link_formlabel',
+                    'allowedOptions' => ['rel'],
+                ],
             ],
         ],
         'filter' => [
-            'exclude' => 1,
+            'exclude' => true,
             'displayCond' => 'FIELD:disable_auto_import:REQ:false',
             'label' => 'LLL:EXT:news_importer/Resources/Private/Language/locallang_db.xlf:tx_newsimporter_domain_model_importsource.filter',
             'config' => [
                 'type' => 'input',
-                'size' => '50',
+                'size' => 50,
                 'eval' => 'trim',
             ],
         ],
-
         'update_interval' => [
-            'exclude' => 1,
+            'exclude' => true,
             'displayCond' => 'FIELD:disable_auto_import:REQ:false',
             'label' => 'LLL:EXT:news_importer/Resources/Private/Language/locallang_db.xlf:tx_newsimporter_domain_model_importsource.update_interval',
             'config' => [
                 'type' => 'datetime',
-                'size' => 4,
                 'default' => 7200,
                 'format' => 'timesec',
             ],
